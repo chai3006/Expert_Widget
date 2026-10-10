@@ -56,11 +56,16 @@ export class KeywordMatcher {
   }
 }
 
-/** True if any of the phrases occurs anywhere in the text (folded, substring match). */
+/**
+ * True if any phrase occurs in the text. Phrases of 4+ characters match anywhere (so "Azubi" also
+ * catches "AZUBISPOT"); shorter ones such as "Abi" must stand alone as a word.
+ */
 export function containsAny(text: string, phrases: readonly string[]): boolean {
   const folded = foldText(text);
   return phrases.some((p) => {
     const f = foldText(p.trim());
-    return f.length > 0 && folded.includes(f);
+    if (f.length === 0) return false;
+    if (f.length >= 4) return folded.includes(f);
+    return new RegExp(`(?<![\\p{L}\\p{N}])${escapeRegExp(f)}(?![\\p{L}\\p{N}])`, 'u').test(folded);
   });
 }

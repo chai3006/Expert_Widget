@@ -6,7 +6,7 @@
 //   is used to pad.
 // - Hiring signals: general items (domain `all`) fill any slots still free.
 // - Funded startups: general items are shown only when no item matches the mix.
-// - Career fairs: domain-matched and general fairs are shown, soonest event first.
+// - Career fairs: domain-matched and general fairs, taken from each source in turn, soonest first.
 // - Without a profile (no CV yet), the newest items are shown regardless of domain.
 
 import type { DomainId, DomainWeight, ItemDomain, NewsTag } from '../../shared/types.js';
@@ -18,6 +18,8 @@ export interface Selectable {
   date: number;
   /** Career fairs: yyyy-mm-dd or null. */
   eventDate: string | null;
+  /** Used to share fair slots fairly between sources. */
+  sourceId?: string;
 }
 
 type Group = 'hiring' | 'funded' | 'fair';
@@ -94,10 +96,28 @@ export function selectForProfile<T extends Selectable>(items: readonly T[], weig
   let funded = pickProportional(groups.funded, weights, maxPerGroup);
   if (funded.length === 0) funded = general(groups.funded).slice(0, maxPerGroup);
 
-  const fairs = groups.fair
-    .filter((i) => i.domain === 'all' || inMix.has(i.domain))
-    .sort(soonestFirst)
-    .slice(0, maxPerGroup);
+  const fairs = pickFairs(groups.fair.filter((i) => i.domain === 'all' || inMix.has(i.domain)), maxPerGroup);
 
   return [...hiring, ...funded, ...fairs];
+}
+
+/**
+ * Takes fairs from each source in turn (each source soonest first), so a large general listing
+ * cannot crowd out a small engineering-specific one, then orders the result by date.
+ */
+function pickFairs<T extends Selectable>(fairs: T[], max: number): T[] {
+  const bySource = new Map<string, T[]>();
+  for (const f of [...fairs].sort(soonestFirst)) {
+    const key = f.sourceId ?? '';
+    bySource.set(key, [...(bySource.get(key) ?? []), f]);
+  }
+  const queues = [...bySource.values()];
+  const picked: T[] = [];
+  while (picked.length < max && queues.some((q) => q.length > 0)) {
+    for (const q of queues) {
+      const next = q.shift();
+      if (next && picked.length < max) picked.push(next);
+    }
+  }
+  return picked.sort(soonestFirst);
 }

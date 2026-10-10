@@ -112,6 +112,12 @@ describe('keyword classification', () => {
     expect(classifier.classify(item({ topic: 'career_fair', headline: 'Karrieretag Hamburg' }))?.tag).toBe('career_fair');
     expect(classifier.classify(item({ topic: 'career_fair', headline: 'AZUBISPOT Regensburg' }))).toBeNull();
     expect(classifier.classify(item({ topic: 'career_fair', headline: 'A-Zu-Bi! Neuburg' }))).toBeNull();
+    expect(classifier.classify(item({ topic: 'career_fair', headline: 'ABI Zukunft Würzburg' }))).toBeNull();
+    expect(classifier.classify(item({ topic: 'career_fair', headline: 'Fabian Karrieretag' }))?.tag).toBe('career_fair');
+  });
+
+  it('matches automotive employers by name', () => {
+    expect(classifier.classify(item({ headline: 'Audi: Stellenabbau durch Schlechtwetterklausel?' }))?.domain).toBe('automotive-emobility');
   });
 });
 
@@ -169,6 +175,14 @@ describe('domain-weight distribution', () => {
       10,
     );
     expect(picked.map((p) => p.eventDate)).toEqual(['2026-10-20', '2026-11-02', null]);
+  });
+
+  it('shares fair slots between sources so a long listing cannot crowd out a short one', () => {
+    const big = Array.from({ length: 8 }, (_, i) => ({ ...sel('career_fair', 'all', `2026-10-1${i}`), sourceId: 'messen' }));
+    const vdi = { ...sel('career_fair', 'all', '2026-10-28'), sourceId: 'vdi' };
+    const picked = selectForProfile([...big, vdi], weights, 4);
+    expect(picked).toHaveLength(4);
+    expect(picked.at(-1)).toBe(vdi);
   });
 
   it('without a profile shows the newest items of every domain', () => {

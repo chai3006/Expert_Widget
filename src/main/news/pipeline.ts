@@ -45,7 +45,7 @@ export function buildNewsCards(input: NewsBuildInput): NewsCard[] {
         domain = source.domains.find((d) => mixDomains.has(d)) ?? source.domains[0];
       }
       if (isExpired(item, c.tag, now, config.newsMaxAgeDays)) continue;
-      candidates.push({ item, url: item.url, headline: item.headline, tag: c.tag, domain, date: effectiveDate(item), eventDate: item.eventDate });
+      candidates.push({ item, url: item.url, headline: item.headline, tag: c.tag, domain, date: effectiveDate(item), eventDate: item.eventDate, sourceId: item.sourceId });
     }
   }
 

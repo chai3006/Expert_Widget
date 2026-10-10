@@ -85,7 +85,10 @@
         "autonomous driving", "autonomes Fahren", "Infotainment", "Karosserie", "Fahrwerk", "chassis",
         "ISO 26262", "ASPICE", "Automotive SPICE", "Steuergerät", "ECU", "CAN-Bus", "CAN bus", "CAN FD",
         "FlexRay", "Ladeinfrastruktur", "charging infrastructure", "Wallbox", "Traktionsbatterie",
-        "traction battery", "Elektromotor", "e-motor", "Autoindustrie", "Autobauer", "Zulieferer", "carmaker"
+        "traction battery", "Elektromotor", "e-motor", "Autoindustrie", "Autobauer", "Zulieferer", "carmaker",
+        "Volkswagen", "VW", "Audi", "Porsche", "BMW", "Mercedes-Benz", "Mercedes", "PowerCo", "Bosch",
+        "Continental", "ZF Friedrichshafen", "Schaeffler", "Mahle", "Webasto", "Dräxlmaier", "Brose", "Kostal",
+        "Forvia", "HELLA", "IAV", "FEV", "EDAG", "Bertrandt", "Tesla"
       ],
       "semiconductors": [
         "Halbleiter", "semiconductor", "Chipdesign", "chip design", "IC design", "ASIC", "VLSI", "Wafer",
@@ -186,6 +189,9 @@
         "Venture-Capital", "Kapitalspritze", "Investment", "Investoren"
       ]
     },
-    "fairExclude": ["Azubi", "A-Zu-Bi", "Ausbildungsmesse", "Ausbildung", "Schüler", "Jugend", "Lehrstelle", "Studienwahl"]
+    "fairExclude": [
+      "Azubi", "A-Zu-Bi", "Ausbildungsmesse", "Ausbildung", "Schüler", "Schule", "Jugend", "Lehrstelle",
+      "Studienwahl", "Berufsorientierung", "Abi", "Abitur", "Einstieg Abi"
+    ]
   }
 }

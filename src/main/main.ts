@@ -309,6 +309,9 @@ function pruneSeen(): void {
   if (Object.keys(kept).length !== Object.keys(seen).length) stores.interactions.update((s) => ({ ...s, seen: kept }));
 }
 
+// Development aid: run against a throw-away state folder (ignored in the installed app).
+if (!app.isPackaged && process.env.EXPERT_WIDGET_USER_DATA) app.setPath('userData', process.env.EXPERT_WIDGET_USER_DATA);
+
 if (!app.requestSingleInstanceLock()) {
   app.quit();
 } else {
