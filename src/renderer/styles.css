@@ -657,13 +657,17 @@ a {
 
 .filters {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 6px;
 }
 
+/* All four filter chips share one line. */
 .filter {
+  flex: 1 1 auto;
+  min-width: 0;
   min-height: var(--target);
-  padding: 0 14px;
+  padding: 0 10px;
+  white-space: nowrap;
   border: 1px solid var(--border);
   border-radius: 999px;
   background: var(--chip-bg);

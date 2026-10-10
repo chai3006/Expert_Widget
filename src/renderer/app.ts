@@ -411,9 +411,9 @@ function renderChip(c: CompanyChip): HTMLElement {
 
 const FILTERS: Array<{ id: NewsFilter; label: string }> = [
   { id: 'all', label: 'All' },
-  { id: 'hiring', label: 'Hiring signal' },
-  { id: 'funded_startup', label: 'Funded startup' },
-  { id: 'career_fair', label: 'Career fair' },
+  { id: 'hiring', label: 'Hiring' },
+  { id: 'funded_startup', label: 'Startups' },
+  { id: 'career_fair', label: 'Fairs' },
 ];
 
 function renderNews(v: ViewModel): HTMLElement {
