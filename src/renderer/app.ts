@@ -11,6 +11,7 @@ import {
   type ExpertApi,
   type NewsCard,
   type NewsFilter,
+  type ProviderHealthView,
   type Theme,
   type ViewModel,
 } from '../shared/types.js';
@@ -27,6 +28,10 @@ const root = document.getElementById('app') as HTMLElement;
 let view: ViewModel | null = null;
 let filter: NewsFilter = readStored('newsFilter', ['all', 'hiring', 'funded_startup', 'career_fair'], 'all');
 const collapsed = new Set<string>();
+let healthOpen = false;
+/** The card just removed with thumbs down, while its Undo bar is showing. */
+let undo: { id: string; timer: number } | null = null;
+const UNDO_MS = 8000;
 
 // ---- Small DOM helpers ---------------------------------------------------------------------
 
@@ -52,15 +57,17 @@ const ICONS = {
   refresh: 'M20 11a8 8 0 1 0-2.3 5.6M20 4v7h-7',
   sun: 'M12 4V2M12 22v-2M4 12H2M22 12h-2M5.6 5.6 4.2 4.2M19.8 19.8l-1.4-1.4M5.6 18.4l-1.4 1.4M19.8 4.2l-1.4 1.4M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z',
   moon: 'M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z',
-  close: 'M6 6l12 12M18 6 6 18',
+  minus: 'M5 12h14',
   chevron: 'M6 9l6 6 6-6',
+  thumbUp: 'M7 10v11H3V10h4zm0 0 4-8a3 3 0 0 1 3 3v4h5.2a2 2 0 0 1 2 2.4l-1.5 7.6a2 2 0 0 1-2 1.6H7',
+  thumbDown: 'M17 14V3h4v11h-4zm0 0-4 8a3 3 0 0 1-3-3v-4H4.8a2 2 0 0 1-2-2.4l1.5-7.6a2 2 0 0 1 2-1.6H17',
 };
 
 function icon(name: keyof typeof ICONS): SVGSVGElement {
   const ns = 'http://www.w3.org/2000/svg';
   const svg = document.createElementNS(ns, 'svg');
   svg.setAttribute('viewBox', '0 0 24 24');
-  svg.setAttribute('class', 'icon');
+  svg.setAttribute('class', `icon icon-${name}`);
   svg.setAttribute('aria-hidden', 'true');
   svg.setAttribute('fill', 'none');
   svg.setAttribute('stroke', 'currentColor');
@@ -95,17 +102,83 @@ function store(key: string, value: string): void {
 function render(): void {
   if (!view) return;
   document.documentElement.dataset.theme = view.theme;
+  document.documentElement.dataset.mode = view.mode;
 
   // Keep scroll position and keyboard focus across re-renders.
   const oldScroll = root.querySelector('.scroll')?.scrollTop ?? 0;
   const focusKey = (document.activeElement as HTMLElement | null)?.dataset?.focusKey;
 
-  root.replaceChildren(renderHeader(view), renderBody(view));
+  if (view.mode === 'collapsed') {
+    root.replaceChildren(renderButton(view));
+  } else {
+    root.replaceChildren(renderHeader(view), renderBody(view), renderUndoBar());
+  }
 
   const scroll = root.querySelector('.scroll');
   if (scroll) scroll.scrollTop = oldScroll;
   if (focusKey) root.querySelector<HTMLElement>(`[data-focus-key="${CSS.escape(focusKey)}"]`)?.focus();
 }
+
+// ---- Collapsed: the floating button ----------------------------------------------------------
+
+function renderButton(v: ViewModel): HTMLElement {
+  const count = v.unseenCount;
+  const label = `Expert Widget, ${count === 0 ? 'no new items' : `${count} new ${count === 1 ? 'item' : 'items'}`}. Double-click or press Enter to open.`;
+  const button = h(
+    'button',
+    { class: 'fab', type: 'button', 'aria-label': label, title: label, 'data-focus-key': 'fab' },
+    h('span', { class: 'fab-letter', 'aria-hidden': 'true' }, 'E'),
+    count > 0 ? h('span', { class: 'badge', 'aria-hidden': 'true' }, count > 99 ? '99+' : String(count)) : null,
+  );
+  attachDrag(button);
+  button.addEventListener('dblclick', expand);
+  button.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      expand();
+    }
+  });
+  return h('div', { class: 'fab-wrap' }, button);
+}
+
+/**
+ * Manual dragging: the main process moves the window while the pointer is held down. Not
+ * -webkit-app-region: drag, because that swallows double-clicks on Windows.
+ */
+function attachDrag(button: HTMLElement): void {
+  let pressed: { x: number; y: number; moving: boolean } | null = null;
+  button.addEventListener('pointerdown', (e) => {
+    if (e.button !== 0) return;
+    pressed = { x: e.screenX, y: e.screenY, moving: false };
+    button.setPointerCapture(e.pointerId);
+  });
+  button.addEventListener('pointermove', (e) => {
+    if (!pressed) return;
+    if (!pressed.moving) {
+      // A few pixels of slack so a double-click with a shaky hand does not start a drag.
+      if (Math.abs(e.screenX - pressed.x) + Math.abs(e.screenY - pressed.y) < 4) return;
+      pressed.moving = true;
+      button.classList.add('dragging');
+      api.dragStart();
+    }
+    api.dragMove();
+  });
+  const end = (e: PointerEvent) => {
+    if (!pressed) return;
+    if (pressed.moving) api.dragEnd();
+    pressed = null;
+    button.classList.remove('dragging');
+    if (button.hasPointerCapture(e.pointerId)) button.releasePointerCapture(e.pointerId);
+  };
+  button.addEventListener('pointerup', end);
+  button.addEventListener('pointercancel', end);
+}
+
+function expand(): void {
+  void api.setMode('expanded');
+}
+
+// ---- Expanded: the panel ---------------------------------------------------------------------
 
 function renderHeader(v: ViewModel): HTMLElement {
   const nextTheme: Theme = v.theme === 'day' ? 'dark' : 'day';
@@ -147,8 +220,15 @@ function renderHeader(v: ViewModel): HTMLElement {
     ),
     h(
       'button',
-      { class: 'icon-button', type: 'button', 'aria-label': 'Hide to tray', title: 'Hide to tray', onclick: () => void api.hideWindow() },
-      icon('close'),
+      {
+        class: 'icon-button',
+        type: 'button',
+        'data-focus-key': 'collapse',
+        'aria-label': 'Collapse to the button',
+        title: 'Collapse',
+        onclick: () => void api.setMode('collapsed'),
+      },
+      icon('minus'),
     ),
   );
 }
@@ -323,6 +403,7 @@ function renderNews(v: ViewModel): HTMLElement {
         ),
       ),
     ),
+    renderSourceHealth(v),
   );
 
   const cards = v.news.filter((n) => tagMatchesFilter(n.tag, filter));
@@ -334,6 +415,75 @@ function renderNews(v: ViewModel): HTMLElement {
   return section;
 }
 
+const STATUS_LABELS: Record<ProviderHealthView['status'], string> = {
+  ok: 'working',
+  empty: 'working, no items this time',
+  failed: 'failed',
+  unchecked: 'not checked yet',
+};
+
+function renderSourceHealth(v: ViewModel): HTMLElement {
+  const { working, total, providers } = v.sourceHealth;
+  const attention = providers.some((p) => p.needsAttention);
+  const failing = providers.some((p) => p.status === 'failed');
+  const summary = total === 0 ? 'Sources: not checked yet' : `Sources: ${working} of ${total} working`;
+  const listId = 'source-health-list';
+  const box = h(
+    'div',
+    { class: `health${attention ? ' attention' : failing ? ' failing' : ''}` },
+    h(
+      'button',
+      {
+        class: 'health-toggle',
+        type: 'button',
+        'aria-expanded': healthOpen ? 'true' : 'false',
+        'aria-controls': listId,
+        'data-focus-key': 'health',
+        onclick: () => {
+          healthOpen = !healthOpen;
+          render();
+        },
+      },
+      icon('chevron'),
+      h('span', {}, summary),
+      attention ? h('span', { class: 'attention-label' }, 'needs attention') : null,
+    ),
+  );
+  if (healthOpen) {
+    box.append(
+      h(
+        'ul',
+        { class: 'health-list', id: listId },
+        ...providers.map((p) =>
+          h(
+            'li',
+            { class: `health-item status-${p.status}` },
+            h(
+              'div',
+              { class: 'health-row' },
+              h('span', { class: 'health-name' }, p.name),
+              h('span', { class: 'health-status' }, p.needsAttention ? 'needs attention' : STATUS_LABELS[p.status]),
+            ),
+            h(
+              'p',
+              { class: 'health-detail' },
+              [
+                `Layer ${p.layer}`,
+                p.checkedAt ? `checked ${lastUpdatedLabel(p.checkedAt, Date.now())}` : null,
+                p.status === 'ok' ? `${p.itemCount} ${p.itemCount === 1 ? 'item' : 'items'}` : null,
+                p.status === 'failed' && p.detail ? p.detail : null,
+              ]
+                .filter(Boolean)
+                .join(' · '),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+  return box;
+}
+
 function renderNewsCard(n: NewsCard): HTMLElement {
   const seen = n.seenAt !== null;
   const open = (e: Event) => {
@@ -343,24 +493,81 @@ function renderNewsCard(n: NewsCard): HTMLElement {
   };
   const isFair = n.tag === 'career_fair';
   return h(
-    'a',
-    {
-      class: `news-card tag-${n.tag}${seen ? ' seen' : ''}`,
-      href: n.url,
-      'data-focus-key': `news:${n.id}`,
-      onclick: open,
-      onauxclick: (e: Event) => {
-        if ((e as MouseEvent).button === 1) open(e);
+    'article',
+    { class: `news-card tag-${n.tag}${seen ? ' seen' : ''}${n.useful ? ' useful' : ''}` },
+    h(
+      'a',
+      {
+        class: 'news-link',
+        href: n.url,
+        'data-focus-key': `news:${n.id}`,
+        onclick: open,
+        onauxclick: (e: Event) => {
+          if ((e as MouseEvent).button === 1) open(e);
+        },
       },
-    },
-    h('div', { class: 'band' }, h('span', {}, TAG_LABELS[n.tag]), h('span', { class: 'state' }, seen ? 'Seen' : 'New')),
+      h('div', { class: 'band' }, h('span', {}, TAG_LABELS[n.tag]), h('span', { class: 'state' }, seen ? 'Seen' : 'New')),
+      h(
+        'div',
+        { class: 'news-body' },
+        h('h3', { class: 'headline' }, n.headline),
+        isFair ? h('p', { class: 'event-date' }, eventDateLabel(n.eventDate, n.eventEndDate)) : null,
+        n.summary ? h('p', { class: 'summary' }, n.summary) : null,
+        h('div', { class: 'news-footer' }, h('span', {}, `${n.sourceName} · ${n.domainLabel}`), isFair ? null : h('span', {}, shortDateLabel(n.date, Date.now()))),
+      ),
+    ),
     h(
       'div',
-      { class: 'news-body' },
-      h('h3', { class: 'headline' }, n.headline),
-      isFair ? h('p', { class: 'event-date' }, eventDateLabel(n.eventDate, n.eventEndDate)) : null,
-      n.summary ? h('p', { class: 'summary' }, n.summary) : null,
-      h('div', { class: 'news-footer' }, h('span', {}, `${n.sourceName} · ${n.domainLabel}`), isFair ? null : h('span', {}, shortDateLabel(n.date, Date.now()))),
+      { class: 'news-actions' },
+      h(
+        'button',
+        {
+          class: 'feedback-button',
+          type: 'button',
+          'aria-pressed': n.useful ? 'true' : 'false',
+          'aria-label': n.useful ? `Useful (kept in your feed): ${n.headline}. Press to undo.` : `Mark as useful and keep: ${n.headline}`,
+          title: n.useful ? 'Useful, kept in your feed (press to undo)' : 'Useful: keep this in my feed',
+          'data-focus-key': `useful:${n.id}`,
+          onclick: () => toggleUseful(n.id),
+        },
+        icon('thumbUp'),
+      ),
+      h(
+        'button',
+        {
+          class: 'feedback-button',
+          type: 'button',
+          'aria-label': `Not useful, remove from your feed: ${n.headline}`,
+          title: 'Not useful: remove from my feed',
+          'data-focus-key': `remove:${n.id}`,
+          onclick: () => removeNews(n.id),
+        },
+        icon('thumbDown'),
+      ),
+    ),
+  );
+}
+
+function renderUndoBar(): HTMLElement | string {
+  if (!undo) return '';
+  const id = undo.id;
+  return h(
+    'div',
+    { class: 'undo-bar', role: 'status' },
+    h('span', {}, 'Removed from your feed'),
+    h('span', { 'aria-hidden': 'true' }, '·'),
+    h(
+      'button',
+      {
+        class: 'undo-button',
+        type: 'button',
+        'data-focus-key': 'undo',
+        onclick: () => {
+          clearUndo();
+          void api.undoRemove(id).then(setView);
+        },
+      },
+      'Undo',
     ),
   );
 }
@@ -393,9 +600,39 @@ function markVisited(key: string): void {
 function markSeen(id: string): void {
   if (!view) return;
   const now = Date.now();
-  view = { ...view, news: orderNews(view.news.map((n) => (n.id === id && n.seenAt === null ? { ...n, seenAt: now } : n))) };
+  const news = orderNews(view.news.map((n) => (n.id === id && n.seenAt === null ? { ...n, seenAt: now } : n)));
+  view = { ...view, news, unseenCount: news.filter((n) => n.seenAt === null).length };
   render();
   void api.markSeen(id);
+}
+
+function removeNews(id: string): void {
+  if (!view) return;
+  // Keep keyboard focus in the list: move it to the next card's link (or the filters).
+  const index = view.news.findIndex((n) => n.id === id);
+  const news = view.news.filter((n) => n.id !== id);
+  const next = news[Math.min(index, news.length - 1)];
+  view = { ...view, news, unseenCount: news.filter((n) => n.seenAt === null).length };
+  clearUndo();
+  undo = { id, timer: window.setTimeout(() => {
+    undo = null;
+    render();
+  }, UNDO_MS) };
+  render();
+  root.querySelector<HTMLElement>(next ? `[data-focus-key="${CSS.escape(`news:${next.id}`)}"]` : '[data-focus-key="undo"]')?.focus();
+  void api.removeNews(id);
+}
+
+function clearUndo(): void {
+  if (undo) window.clearTimeout(undo.timer);
+  undo = null;
+}
+
+function toggleUseful(id: string): void {
+  if (!view) return;
+  view = { ...view, news: view.news.map((n) => (n.id === id ? { ...n, useful: !n.useful } : n)) };
+  render();
+  void api.toggleUseful(id).then(setView);
 }
 
 function setView(next: ViewModel): void {

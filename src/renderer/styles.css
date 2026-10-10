@@ -54,6 +54,13 @@
   --error-bg: #f7e1dd;
   --error-text: #8a2a1f;
 
+  --badge-bg: #8a2a1f;
+  --badge-text: #ffffff;
+  --toast-bg: #17222b;
+  --toast-text: #ffffff;
+  --toast-action: #a9e3dc;
+  --fab-shadow: 0 2px 6px rgba(23, 34, 43, 0.35);
+
   --radius: 16px;
   --radius-small: 10px;
   --font-ui: 'Manrope', 'Segoe UI', system-ui, sans-serif;
@@ -101,6 +108,13 @@
   --error-bg: #4a2420;
   --error-text: #f5c6be;
 
+  --badge-bg: #f5c6be;
+  --badge-text: #12181d;
+  --toast-bg: #e8ecef;
+  --toast-text: #12181d;
+  --toast-action: #0f5c5c;
+  --fab-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+
   color-scheme: dark;
 }
 
@@ -114,8 +128,9 @@ body {
   height: 100%;
 }
 
+/* The window itself is transparent: only the panel (or the round button) is painted. */
 body {
-  background: var(--page);
+  background: transparent;
   color: var(--text);
   font-family: var(--font-ui);
   font-size: 14px;
@@ -128,6 +143,63 @@ body {
   display: flex;
   flex-direction: column;
   height: 100vh;
+}
+
+:root[data-mode='expanded'] .app {
+  background: var(--page);
+  border-left: 1px solid var(--border);
+}
+
+/* ---- Collapsed: the floating button ------------------------------------------------------ */
+
+.fab-wrap {
+  width: 100vw;
+  height: 100vh;
+  display: grid;
+  place-items: center;
+}
+
+.fab {
+  position: relative;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: 2px solid var(--accent-fill-border);
+  background: var(--accent-fill);
+  color: var(--on-accent);
+  box-shadow: var(--fab-shadow);
+  cursor: grab;
+  padding: 0;
+  touch-action: none;
+  user-select: none;
+}
+
+.fab.dragging {
+  cursor: grabbing;
+}
+
+.fab-letter {
+  font-family: var(--font-title);
+  font-weight: 500;
+  font-size: 30px;
+  line-height: 1;
+}
+
+.badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--badge-bg);
+  color: var(--badge-text);
+  font-family: var(--font-ui);
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 22px;
+  text-align: center;
 }
 
 button,
@@ -174,13 +246,8 @@ a {
   padding: 8px 8px 8px 16px;
   background: var(--page);
   border-bottom: 1px solid var(--border);
-  -webkit-app-region: drag;
   user-select: none;
   flex-shrink: 0;
-}
-
-.header button {
-  -webkit-app-region: no-drag;
 }
 
 .brand {
@@ -543,6 +610,7 @@ a {
 }
 
 .news-card {
+  position: relative;
   display: block;
   background: var(--card);
   border: 1px solid var(--border);
@@ -553,6 +621,53 @@ a {
 
 .news-card:hover {
   border-color: var(--accent);
+}
+
+.news-link {
+  display: block;
+  text-decoration: none;
+}
+
+.news-link:focus-visible {
+  outline-offset: -3px;
+  border-radius: var(--radius);
+}
+
+/* Thumbs up / down sit in the bottom-right corner, next to the footer line. */
+.news-actions {
+  position: absolute;
+  right: 6px;
+  bottom: 4px;
+  display: flex;
+  gap: 2px;
+}
+
+.feedback-button {
+  width: var(--target);
+  height: var(--target);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.feedback-button:hover {
+  background: var(--hover);
+  color: var(--text);
+}
+
+.feedback-button[aria-pressed='true'] {
+  background: var(--accent-fill);
+  border-color: var(--accent-fill-border);
+  color: var(--on-accent);
+}
+
+.feedback-button[aria-pressed='true'] path {
+  fill: currentColor;
 }
 
 .band {
@@ -610,10 +725,129 @@ a {
 
 .news-footer {
   display: flex;
+  align-items: center;
   justify-content: space-between;
   gap: 8px;
+  min-height: 36px;
+  padding-right: 92px;
   color: var(--muted);
   font-size: 12px;
+}
+
+/* ---- Source health ---------------------------------------------------------------------- */
+
+.health {
+  font-size: 13px;
+}
+
+.health-toggle {
+  width: 100%;
+  min-height: var(--target);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 4px;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  text-align: left;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.health-toggle:hover {
+  color: var(--text);
+}
+
+.health-toggle .icon {
+  width: 16px;
+  height: 16px;
+  transition: transform 0.15s ease;
+}
+
+.health-toggle[aria-expanded='false'] .icon {
+  transform: rotate(-90deg);
+}
+
+.health.failing .health-toggle,
+.health.attention .health-toggle {
+  color: var(--warn-text);
+}
+
+.attention-label {
+  margin-left: auto;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--warn-bg);
+  color: var(--warn-text);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.health-list {
+  list-style: none;
+  margin: 0 0 4px;
+  padding: 8px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-small);
+}
+
+.health-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-weight: 600;
+}
+
+.health-status {
+  flex-shrink: 0;
+  font-size: 12px;
+}
+
+.health-item.status-failed .health-status {
+  color: var(--error-text);
+}
+
+.health-detail {
+  margin: 2px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+/* ---- Undo bar after thumbs down --------------------------------------------------------- */
+
+.undo-bar {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 12px 12px;
+  padding: 0 8px 0 16px;
+  border-radius: var(--radius-small);
+  background: var(--toast-bg);
+  color: var(--toast-text);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.undo-button {
+  min-height: var(--target);
+  padding: 0 10px;
+  border: 0;
+  background: transparent;
+  color: var(--toast-action);
+  font-weight: 800;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.undo-bar :focus-visible {
+  outline-color: var(--toast-action);
 }
 
 /* ---- Empty and error states ------------------------------------------------------------- */
