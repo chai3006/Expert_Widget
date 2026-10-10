@@ -57,7 +57,7 @@ describe('config validation', () => {
 });
 
 describe('employers validation', () => {
-  it('accepts the bundled employers with every lastVerified empty', () => {
+  it('accepts the bundled employers', () => {
     const employers = defaultEmployers();
     expect(employers).toHaveLength(5);
     expect(employers.flatMap((s) => s.companies)).toHaveLength(30);

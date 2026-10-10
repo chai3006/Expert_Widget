@@ -4,60 +4,180 @@
       "domain": "automotive-emobility",
       "segment": "OEMs and battery",
       "companies": [
-        { "name": "Mercedes-Benz", "careerUrl": "https://group.mercedes-benz.com/karriere", "lastVerified": "" },
-        { "name": "Volkswagen Group", "careerUrl": "https://www.volkswagen-group.com/en/careers", "lastVerified": "" },
-        { "name": "Audi", "careerUrl": "https://www.audi.com", "lastVerified": "" },
-        { "name": "Porsche", "careerUrl": "https://jobs.porsche.com", "lastVerified": "" },
-        { "name": "PowerCo", "careerUrl": "https://www.powerco.de", "lastVerified": "" },
-        { "name": "BMW Group", "careerUrl": "https://www.bmwgroup.jobs", "lastVerified": "" }
+        {
+          "name": "Mercedes-Benz",
+          "careerUrl": "https://group.mercedes-benz.com/karriere",
+          "lastVerified": "2026-10-10"
+        },
+        {
+          "name": "Volkswagen Group",
+          "careerUrl": "https://www.volkswagen-group.com/en/careers",
+          "lastVerified": ""
+        },
+        {
+          "name": "Audi",
+          "careerUrl": "https://www.audi.com",
+          "lastVerified": "2026-10-10"
+        },
+        {
+          "name": "Porsche",
+          "careerUrl": "https://jobs.porsche.com",
+          "lastVerified": "2026-10-10"
+        },
+        {
+          "name": "PowerCo",
+          "careerUrl": "https://www.powerco.de",
+          "lastVerified": "2026-10-10"
+        },
+        {
+          "name": "BMW Group",
+          "careerUrl": "https://www.bmwgroup.jobs",
+          "lastVerified": "2026-10-10"
+        }
       ]
     },
     {
       "domain": "automotive-emobility",
       "segment": "Tier 1 and tier 2 suppliers",
       "companies": [
-        { "name": "Bosch", "careerUrl": "https://www.bosch.de/karriere", "lastVerified": "" },
-        { "name": "Continental", "careerUrl": "https://www.continental.com/de/karriere", "lastVerified": "" },
-        { "name": "ZF", "careerUrl": "https://www.zf.com/karriere", "lastVerified": "" },
-        { "name": "Schaeffler", "careerUrl": "https://www.schaeffler.de/karriere", "lastVerified": "" },
-        { "name": "Mahle", "careerUrl": "https://www.mahle.com/de/karriere", "lastVerified": "" },
-        { "name": "Webasto", "careerUrl": "https://www.webasto-group.com", "lastVerified": "" },
-        { "name": "Dräxlmaier", "careerUrl": "https://www.draexlmaier.com", "lastVerified": "" },
-        { "name": "Brose", "careerUrl": "https://www.brose.com", "lastVerified": "" },
-        { "name": "Kostal", "careerUrl": "https://www.kostal.com", "lastVerified": "" },
-        { "name": "Marquardt", "careerUrl": "https://www.marquardt.com", "lastVerified": "" },
-        { "name": "Preh", "careerUrl": "https://www.preh.com", "lastVerified": "" },
-        { "name": "Forvia HELLA", "careerUrl": "https://www.hella.com", "lastVerified": "" }
+        {
+          "name": "Bosch",
+          "careerUrl": "https://www.bosch.de/karriere",
+          "lastVerified": "2026-10-10"
+        },
+        {
+          "name": "Continental",
+          "careerUrl": "https://www.continental.com/de/karriere",
+          "lastVerified": "2026-10-10"
+        },
+        {
+          "name": "ZF",
+          "careerUrl": "https://www.zf.com/karriere",
+          "lastVerified": "2026-10-10"
+        },
+        {
+          "name": "Schaeffler",
+          "careerUrl": "https://www.schaeffler.de/karriere",
+          "lastVerified": "2026-10-10"
+        },
+        {
+          "name": "Mahle",
+          "careerUrl": "https://www.mahle.com/de/karriere",
+          "lastVerified": ""
+        },
+        {
+          "name": "Webasto",
+          "careerUrl": "https://www.webasto-group.com",
+          "lastVerified": "2026-10-10"
+        },
+        {
+          "name": "Dräxlmaier",
+          "careerUrl": "https://www.draexlmaier.com",
+          "lastVerified": "2026-10-10"
+        },
+        {
+          "name": "Brose",
+          "careerUrl": "https://www.brose.com",
+          "lastVerified": "2026-10-10"
+        },
+        {
+          "name": "Kostal",
+          "careerUrl": "https://www.kostal.com",
+          "lastVerified": "2026-10-10"
+        },
+        {
+          "name": "Marquardt",
+          "careerUrl": "https://www.marquardt.com",
+          "lastVerified": "2026-10-10"
+        },
+        {
+          "name": "Preh",
+          "careerUrl": "https://www.preh.com",
+          "lastVerified": "2026-10-10"
+        },
+        {
+          "name": "Forvia HELLA",
+          "careerUrl": "https://www.hella.com",
+          "lastVerified": "2026-10-10"
+        }
       ]
     },
     {
       "domain": "automotive-emobility",
       "segment": "Engineering service providers",
       "companies": [
-        { "name": "IAV", "careerUrl": "https://www.iav.com", "lastVerified": "" },
-        { "name": "FEV", "careerUrl": "https://www.fev.com", "lastVerified": "" },
-        { "name": "EDAG", "careerUrl": "https://www.edag.com", "lastVerified": "" },
-        { "name": "Bertrandt", "careerUrl": "https://www.bertrandt.com", "lastVerified": "" }
+        {
+          "name": "IAV",
+          "careerUrl": "https://www.iav.com",
+          "lastVerified": "2026-10-10"
+        },
+        {
+          "name": "FEV",
+          "careerUrl": "https://www.fev.com",
+          "lastVerified": "2026-10-10"
+        },
+        {
+          "name": "EDAG",
+          "careerUrl": "https://www.edag.com",
+          "lastVerified": "2026-10-10"
+        },
+        {
+          "name": "Bertrandt",
+          "careerUrl": "https://www.bertrandt.com",
+          "lastVerified": "2026-10-10"
+        }
       ]
     },
     {
       "domain": "automotive-emobility",
       "segment": "Semiconductors, energy and industrial",
       "companies": [
-        { "name": "Infineon", "careerUrl": "https://www.infineon.com/careers", "lastVerified": "" },
-        { "name": "Siemens", "careerUrl": "https://www.siemens.com/careers", "lastVerified": "" },
-        { "name": "Varta", "careerUrl": "https://www.varta-ag.com", "lastVerified": "" },
-        { "name": "Tesla Grünheide", "careerUrl": "https://www.tesla.com/careers", "lastVerified": "" }
+        {
+          "name": "Infineon",
+          "careerUrl": "https://www.infineon.com/careers",
+          "lastVerified": "2026-10-10"
+        },
+        {
+          "name": "Siemens",
+          "careerUrl": "https://www.siemens.com/careers",
+          "lastVerified": "2026-10-10"
+        },
+        {
+          "name": "Varta",
+          "careerUrl": "https://www.varta-ag.com",
+          "lastVerified": "2026-10-10"
+        },
+        {
+          "name": "Tesla Grünheide",
+          "careerUrl": "https://www.tesla.com/careers",
+          "lastVerified": ""
+        }
       ]
     },
     {
       "domain": "automotive-emobility",
       "segment": "Test, tools and validation",
       "companies": [
-        { "name": "Rohde & Schwarz", "careerUrl": "https://www.rohde-schwarz.com/careers", "lastVerified": "" },
-        { "name": "dSPACE", "careerUrl": "https://www.dspace.com", "lastVerified": "" },
-        { "name": "Vector Informatik", "careerUrl": "https://www.vector.com", "lastVerified": "" },
-        { "name": "ETAS", "careerUrl": "https://www.etas.com", "lastVerified": "" }
+        {
+          "name": "Rohde & Schwarz",
+          "careerUrl": "https://www.rohde-schwarz.com/careers",
+          "lastVerified": ""
+        },
+        {
+          "name": "dSPACE",
+          "careerUrl": "https://www.dspace.com",
+          "lastVerified": "2026-10-10"
+        },
+        {
+          "name": "Vector Informatik",
+          "careerUrl": "https://www.vector.com",
+          "lastVerified": "2026-10-10"
+        },
+        {
+          "name": "ETAS",
+          "careerUrl": "https://www.etas.com",
+          "lastVerified": "2026-10-10"
+        }
       ]
     }
   ]
