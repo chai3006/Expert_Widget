@@ -2,7 +2,7 @@
 // All network access and file reading happens here, never in the renderer.
 
 import { BrowserWindow, Menu, Tray, app, ipcMain, nativeImage, net, screen, shell, type IpcMainInvokeEvent } from 'electron';
-import { mkdirSync } from 'node:fs';
+import { mkdirSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -189,6 +189,32 @@ function createWindow(): void {
 
   void win.loadFile(indexHtml());
   if (DEV) win.webContents.openDevTools({ mode: 'detach' });
+  if (!app.isPackaged) attachDevDiagnostics(win);
+}
+
+/**
+ * Development aid (never active in the installed app): forwards renderer console output to the
+ * terminal and, when EXPERT_WIDGET_CAPTURE=<file.png> is set, saves an image of the window's own
+ * page after it has loaded (optionally after running EXPERT_WIDGET_CAPTURE_JS in the page).
+ */
+function attachDevDiagnostics(w: BrowserWindow): void {
+  w.webContents.on('console-message', (event) => {
+    console.log(`[renderer:${event.level}] ${event.message}`);
+  });
+  const target = process.env.EXPERT_WIDGET_CAPTURE;
+  if (!target) return;
+  w.webContents.once('did-finish-load', () => {
+    setTimeout(async () => {
+      const script = process.env.EXPERT_WIDGET_CAPTURE_JS;
+      if (script) {
+        await w.webContents.executeJavaScript(script);
+        await new Promise((r) => setTimeout(r, 400));
+      }
+      const image = await w.webContents.capturePage();
+      writeFileSync(target, image.toPNG());
+      console.log(`[dev] captured ${target}`);
+    }, Number(process.env.EXPERT_WIDGET_CAPTURE_DELAY ?? 2500));
+  });
 }
 
 function showWindow(): void {
