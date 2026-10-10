@@ -26,8 +26,15 @@ export interface RawItem extends ParsedItem {
   topic: SourceTopic;
   /** When this URL was first fetched; stands in for the date when the source gives none. */
   firstSeen: number;
+  /** English translation made on this PC (only for German texts; null where a text was already English). */
+  translation?: Translation;
   /** Only ever set by the built-in mock data. Normal runs drop such items. */
   mock?: true;
 }
 
 export type SourceAdapter = (body: string, pageUrl: string) => ParsedItem[];
+
+export interface Translation {
+  headline: string | null;
+  excerpt: string | null;
+}

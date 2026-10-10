@@ -88,7 +88,8 @@ function fairOrder(a: NewsCard, b: NewsCard): number {
 
 function usefulCard(u: UsefulEntry, seen: Readonly<Record<string, number>>): NewsCard {
   const { markedAt: _markedAt, ...card } = u;
-  return { ...card, seenAt: seen[u.id] ?? null, useful: true };
+  // Entries saved before translation existed have no `translated` field.
+  return { ...card, translated: card.translated ?? null, seenAt: seen[u.id] ?? null, useful: true };
 }
 
 function toCard(c: Candidate, seen: Readonly<Record<string, number>>): NewsCard {
@@ -107,5 +108,8 @@ function toCard(c: Candidate, seen: Readonly<Record<string, number>>): NewsCard 
     eventEndDate: c.item.eventEndDate,
     seenAt: seen[id] ?? null,
     useful: false,
+    translated: c.item.translation && (c.item.translation.headline || c.item.translation.excerpt)
+      ? { headline: c.item.translation.headline, summary: c.item.translation.excerpt }
+      : null,
   };
 }

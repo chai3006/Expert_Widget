@@ -4,7 +4,7 @@
 import { BrowserWindow, Menu, Tray, app, ipcMain, nativeImage, net, screen, shell, type IpcMainEvent, type IpcMainInvokeEvent } from 'electron';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import type { StatusMessage, ViewModel, WindowMode } from '../shared/types.js';
 import { isHttpUrl } from './config.js';
@@ -13,6 +13,7 @@ import { canonicalUrl, itemId } from './news/dedupe.js';
 import { PoliteFetcher } from './news/fetcher.js';
 import { HOST_INTERVALS_MS, LocalCvProvider, buildProviders } from './providers.js';
 import { runRefresh } from './refresh.js';
+import { BergamotTranslator, unpacked } from './translate/translator.js';
 import { AppStores } from './state/appState.js';
 import { ensureUserFiles, loadUserFiles, resolveHome, userFiles, type LoadedFiles } from './userFiles.js';
 import { buildView, companyKey } from './view.js';
@@ -101,6 +102,7 @@ function refresh(): Promise<ViewModel> {
           cv: MOCK ? new MockCvProvider() : new LocalCvProvider(),
           providers: MOCK ? mockProviders(files.config) : buildProviders(files.config, fetcher),
           isOnline: () => MOCK || net.isOnline(),
+          translator: createTranslator(),
           now: Date.now,
           mock: MOCK,
         });
@@ -119,6 +121,20 @@ function refresh(): Promise<ViewModel> {
       return view;
     });
   return refreshing;
+}
+
+/**
+ * The offline German→English translator. Its worker, engine and model are unpacked next to
+ * app.asar in the installed app (see asarUnpack in package.json), because worker threads and the
+ * WebAssembly engine read them as plain files.
+ */
+function createTranslator(): BergamotTranslator {
+  const engineDir = join(dirname(require.resolve('@browsermt/bergamot-translator/package.json')), 'worker');
+  return new BergamotTranslator(
+    unpacked(join(__dirname, 'translate', 'worker.js')),
+    unpacked(engineDir),
+    unpacked(join(appRoot(), 'assets', 'translation', 'deen')),
+  );
 }
 
 function openExternalSafe(url: unknown): void {

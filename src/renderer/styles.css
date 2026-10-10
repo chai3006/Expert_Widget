@@ -562,6 +562,51 @@ a {
   font-weight: 800;
 }
 
+/* Section title with a control on the right (News feed + EN). */
+.section-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  border-bottom: 2px solid var(--accent-rule);
+}
+
+.section-head .section-title {
+  border-bottom: 0;
+}
+
+/* A 44px target around a small "EN" pill. */
+.lang-toggle {
+  width: var(--target);
+  height: var(--target);
+  margin: -12px -8px -2px 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.lang-pill {
+  padding: 2px 7px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.lang-toggle:hover .lang-pill {
+  border-color: var(--accent);
+}
+
+.lang-toggle[aria-pressed='true'] .lang-pill {
+  background: var(--accent-fill);
+  border-color: var(--accent-fill-border);
+  color: var(--on-accent);
+}
+
 .domain-title {
   margin: 4px 0 0;
   font-size: 13px;

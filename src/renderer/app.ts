@@ -32,6 +32,8 @@ const collapsed = new Set<string>();
 let healthOpen = false;
 /** The Domain mix card starts compact on every start. */
 let mixOpen = false;
+/** Show the English translations (on) or the original texts (off). Remembered per PC. */
+let english = readStored('newsLanguage', ['en', 'de'], 'en') === 'en';
 /** The card just removed with thumbs down, while its Undo bar is showing. */
 let undo: { id: string; timer: number } | null = null;
 const UNDO_MS = 8000;
@@ -417,7 +419,32 @@ const FILTERS: Array<{ id: NewsFilter; label: string }> = [
 ];
 
 function renderNews(v: ViewModel): HTMLElement {
-  const section = h('section', { class: 'section', 'aria-labelledby': 'news-title' }, h('h2', { class: 'section-title', id: 'news-title' }, 'News feed'));
+  const section = h(
+    'section',
+    { class: 'section', 'aria-labelledby': 'news-title' },
+    h(
+      'div',
+      { class: 'section-head' },
+      h('h2', { class: 'section-title', id: 'news-title' }, 'News feed'),
+      h(
+        'button',
+        {
+          class: 'lang-toggle',
+          type: 'button',
+          'aria-pressed': english ? 'true' : 'false',
+          'aria-label': 'Show English translations',
+          title: english ? 'English translations shown (press for the original German)' : 'Original texts shown (press for English translations)',
+          'data-focus-key': 'lang',
+          onclick: () => {
+            english = !english;
+            store('newsLanguage', english ? 'en' : 'de');
+            render();
+          },
+        },
+        h('span', { class: 'lang-pill' }, 'EN'),
+      ),
+    ),
+  );
   section.append(
     h(
       'div',
@@ -547,9 +574,9 @@ function renderNewsCard(n: NewsCard): HTMLElement {
       h(
         'div',
         { class: 'news-body' },
-        h('h3', { class: 'headline' }, n.headline),
+        h('h3', { class: 'headline', ...textAttrs(n.headline, english ? n.translated?.headline : null) }, english ? (n.translated?.headline ?? n.headline) : n.headline),
         isFair ? h('p', { class: 'event-date' }, eventDateLabel(n.eventDate, n.eventEndDate)) : null,
-        n.summary ? h('p', { class: 'summary' }, n.summary) : null,
+        n.summary ? h('p', { class: 'summary', ...textAttrs(n.summary, english ? n.translated?.summary : null) }, english ? (n.translated?.summary ?? n.summary) : n.summary) : null,
         h('div', { class: 'news-footer' }, h('span', {}, `${n.sourceName} · ${n.domainLabel}`), isFair ? null : h('span', {}, shortDateLabel(n.date, Date.now()))),
       ),
     ),
@@ -583,6 +610,11 @@ function renderNewsCard(n: NewsCard): HTMLElement {
       ),
     ),
   );
+}
+
+/** A translated text says so (lang="en") and keeps the original as a tooltip. */
+function textAttrs(original: string, translation: string | null | undefined): Attrs {
+  return translation ? { lang: 'en', title: `Original: ${original}` } : {};
 }
 
 function renderUndoBar(): HTMLElement | string {

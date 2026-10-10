@@ -32,6 +32,10 @@ npm run dev         # real data; opens DevTools in a separate window
 | `npm run check-sources` | Call every news provider once with a test query and print status, item count and a sample headline (`-- --config <path>`, `-- --domains a,b`) |
 | `npm run icons` | Regenerate the app and tray icons |
 
+`npm run compile` (part of `dev`, `start` and `build`) also downloads the offline translation model
+once into `assets/translation/deen/` and checks its SHA-256 hashes (see
+`assets/translation/README.md`). Without it the widget works, just without English translations.
+
 Electron 44 downloads its binary on first start. If `npm run dev` says it is downloading Electron,
 let it finish once.
 
@@ -57,6 +61,12 @@ let it finish once.
   never comes back, also not after Refresh (it is remembered by its address). **Thumbs up** keeps a
   card: it stays on every Refresh, also after it is older than `newsMaxAgeDays` or its fair date has
   passed. Press it again to undo.
+- **English news**: German headlines and summaries are translated to English on this PC during
+  Refresh (no internet service, no key; the Firefox Translations engine and a 17 MB German→English
+  model ship with the app). The small **EN** switch next to "News feed" flips between English and
+  the original texts; hovering a translated headline shows the original. Keyword matching always
+  uses the original text. Machine translation can be clumsy ("Arbeitsplätze" sometimes becomes
+  "workstations"); the article itself opens in its original language.
 - Under the news filters, **Sources: N of M working** opens the list of providers with their last
   result. A provider that failed three Refreshes in a row is marked *needs attention*.
 - The compact **Domain mix** card shows the mix as a thin bar with short names and the time of the
@@ -219,6 +229,7 @@ src/main/          Electron main process (window, tray, IPC, refresh, window geo
   news/            providers and contract, fetcher, adapters (feeds, HTML, GDELT, Google News),
                    Classifier (rule-based), dedupe, expiry, distribution
   state/           JSON state files
+  translate/       offline German→English translation (worker thread + Translator seam)
   mock/            mock data for dev:mock
 src/renderer/      HTML, CSS and the UI script (no framework)
 src/shared/        types, date labels, ordering rules used by both sides

@@ -8,7 +8,7 @@
   "author": "Venkata Chirravuri",
   "license": "UNLICENSED",
   "scripts": {
-    "compile": "tsc -p tsconfig.main.json && tsc -p tsconfig.renderer.json && node scripts/copy-static.mjs",
+    "compile": "tsc -p tsconfig.main.json && tsc -p tsconfig.renderer.json && node scripts/copy-static.mjs && node scripts/get-translation-model.mjs",
     "dev": "npm run compile && electron . --dev",
     "dev:mock": "npm run compile && electron . --mock --dev",
     "start": "npm run compile && electron .",
@@ -33,6 +33,11 @@
       "package.json",
       "!dist/**/*.map"
     ],
+    "asarUnpack": [
+      "dist/main/translate/**",
+      "node_modules/@browsermt/bergamot-translator/worker/**",
+      "assets/translation/**"
+    ],
     "win": {
       "target": [
         "nsis"
@@ -47,6 +52,7 @@
     }
   },
   "dependencies": {
+    "@browsermt/bergamot-translator": "0.4.9",
     "cheerio": "^1.2.0",
     "mammoth": "^1.13.0",
     "pdf-parse": "^2.4.5",

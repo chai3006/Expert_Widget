@@ -127,6 +127,8 @@ export interface NewsCard {
   seenAt: number | null;
   /** Thumbs up: kept on every Refresh and exempt from expiry. */
   useful: boolean;
+  /** English translation made on this PC, when the original is German. */
+  translated: { headline: string | null; summary: string | null } | null;
 }
 
 export type WindowMode = 'collapsed' | 'expanded';

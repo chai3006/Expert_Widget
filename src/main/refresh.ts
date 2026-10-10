@@ -11,6 +11,7 @@ import { canonicalUrl } from './news/dedupe.js';
 import { FetchError } from './news/fetcher.js';
 import { checkContract, type NewsProvider, type ProviderQuery } from './news/provider.js';
 import type { ParsedItem, RawItem } from './news/types.js';
+import { looksGerman, type Translator } from './translate/translator.js';
 import type { AppStores, ProviderHealthRecord, SourceCache } from './state/appState.js';
 
 export type CvResult = { ok: true; profile: CvProfile } | { ok: false; problem: string };
@@ -27,6 +28,8 @@ export interface RefreshDeps {
   /** Enabled providers, in priority order. */
   providers: NewsProvider[];
   isOnline: () => boolean;
+  /** Translates new German headlines and summaries to English on this PC; null to skip. */
+  translator?: Translator | null;
   now: () => number;
   /** Mock runs tag every item so they can never leak into a normal run's view. */
   mock: boolean;
@@ -89,6 +92,17 @@ export async function runRefresh(deps: RefreshDeps): Promise<StatusMessage[]> {
       failures.push(outcome);
       cache[provider.id] = { ...previous, lastError: outcome.error.message, lastErrorAt: fetchedAt };
       health[provider.id] = nextFailure(before, outcome.error.message, fetchedAt);
+    }
+  }
+
+  // 5. English translations for items that do not have one yet (all on this PC).
+  if (deps.translator && outcomes.length > failures.length) {
+    try {
+      await translateNew(cache, deps.translator);
+    } catch (err) {
+      messages.push({ level: 'info', text: `English translation is not available this time (${err instanceof Error ? err.message : String(err)}). Showing the original texts.` });
+    } finally {
+      await deps.translator.close().catch(() => undefined);
     }
   }
 
@@ -158,13 +172,46 @@ export function sourceIsRelevant(source: Pick<NewsProvider, 'domains'>, weights:
 }
 
 function toRawItems(parsed: ParsedItem[], provider: NewsProvider, previous: RawItem[], fetchedAt: number, mock: boolean): RawItem[] {
-  const firstSeen = new Map(previous.map((p) => [canonicalUrl(p.url), p.firstSeen]));
-  return parsed.map((p) => ({
-    ...p,
-    sourceId: provider.id,
-    sourceName: provider.name,
-    topic: provider.topic,
-    firstSeen: firstSeen.get(canonicalUrl(p.url)) ?? fetchedAt,
-    ...(mock ? { mock: true as const } : {}),
-  }));
+  const before = new Map(previous.map((p) => [canonicalUrl(p.url), p]));
+  return parsed.map((p) => {
+    const old = before.get(canonicalUrl(p.url));
+    // A translation is reused as long as the source text is unchanged.
+    const translation = old?.translation && old.headline === p.headline && old.excerpt === p.excerpt ? old.translation : undefined;
+    return {
+      ...p,
+      sourceId: provider.id,
+      sourceName: provider.name,
+      topic: provider.topic,
+      firstSeen: old?.firstSeen ?? fetchedAt,
+      ...(translation ? { translation } : {}),
+      ...(mock ? { mock: true as const } : {}),
+    };
+  });
+}
+
+/** Translates the German headlines and excerpts of cached items that have no translation yet. */
+export async function translateNew(cache: Record<string, SourceCache>, translator: Translator): Promise<number> {
+  const jobs: Array<{ item: RawItem; field: 'headline' | 'excerpt' }> = [];
+  for (const source of Object.values(cache)) {
+    for (const item of source.items) {
+      if (item.translation) continue;
+      if (looksGerman(item.headline)) jobs.push({ item, field: 'headline' });
+      if (item.excerpt && looksGerman(item.excerpt)) jobs.push({ item, field: 'excerpt' });
+      // Texts that are already English get an empty translation, so they are not checked again.
+      item.translation = { headline: null, excerpt: null };
+    }
+  }
+  if (jobs.length === 0) return 0;
+  try {
+    const out = await translator.translate(jobs.map((j) => j.item[j.field]));
+    jobs.forEach((j, i) => {
+      const text = out[i]?.trim();
+      if (text) j.item.translation = { ...j.item.translation!, [j.field]: text };
+    });
+  } catch (err) {
+    // Try again on the next Refresh.
+    for (const j of jobs) delete j.item.translation;
+    throw err;
+  }
+  return jobs.length;
 }

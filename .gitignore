@@ -9,3 +9,6 @@ Thumbs.db
 # Local state written by the app or scripts while developing
 .local-state/
 *.tmp
+
+# Offline translation model, downloaded by scripts/get-translation-model.mjs
+assets/translation/deen/

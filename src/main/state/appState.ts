@@ -38,7 +38,7 @@ export interface Interactions {
   useful: Record<string, UsefulEntry>;
 }
 
-export type UsefulEntry = Omit<NewsCard, 'seenAt' | 'useful'> & { markedAt: number };
+export type UsefulEntry = Omit<NewsCard, 'seenAt' | 'useful' | 'translated'> & { translated?: NewsCard['translated']; markedAt: number };
 
 export interface ButtonPosition {
   x: number;
@@ -94,6 +94,16 @@ function isRawItem(v: unknown): v is RawItem {
   );
 }
 
+/** Drops a damaged translation (it is simply made again on the next Refresh). */
+function cleanTranslation(item: RawItem): RawItem {
+  const t = item.translation as unknown;
+  if (t === undefined) return item;
+  const ok = isObj(t) && (t.headline === null || typeof t.headline === 'string') && (t.excerpt === null || typeof t.excerpt === 'string');
+  if (ok) return item;
+  const { translation: _dropped, ...rest } = item;
+  return rest;
+}
+
 export function sanitizeFeedCache(v: unknown): FeedCache | null {
   if (!isObj(v) || v.version !== 1 || !isNumOrNull(v.lastUpdated) || !isObj(v.sources)) return null;
   const sources: Record<string, SourceCache> = {};
@@ -101,7 +111,7 @@ export function sanitizeFeedCache(v: unknown): FeedCache | null {
     if (!isObj(s) || !Array.isArray(s.items)) return null;
     sources[id] = {
       fetchedAt: typeof s.fetchedAt === 'number' ? s.fetchedAt : null,
-      items: s.items.filter(isRawItem),
+      items: s.items.filter(isRawItem).map(cleanTranslation),
       lastError: typeof s.lastError === 'string' ? s.lastError : null,
       lastErrorAt: typeof s.lastErrorAt === 'number' ? s.lastErrorAt : null,
     };
