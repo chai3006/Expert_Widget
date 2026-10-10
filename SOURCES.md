@@ -184,3 +184,23 @@ None of the robots.txt files checked disallow the pages used.
 - **Fixture:** `test/fixtures/sources/google-news.rss.xml` is **hand-made** in the Google News RSS
   format (fetching a real one would have broken the robots.txt rule).
 - **Fragility:** high. Unofficial, no contract, link format changes without notice.
+
+## check-sources result (10 Oct 2026, 19:36)
+
+`npm run check-sources -- --domains automotive-emobility,energy-storage`:
+
+| Provider | Layer | Enabled | Status | Items | Sample / error |
+|---|---|---|---|---|---|
+| VDI nachrichten Recruiting Tag | 1 | yes | ok | 1 | VDI nachrichten Recruiting Tag Hamburg |
+| messen.de | 1 | yes | ok | 25 | WESER-JOBS |
+| ingenieur.de Wirtschaft | 1 | yes | ok | 10 | Automotive-Ingenieure wechseln in die Rüstungsindustrie … |
+| ingenieur.de | 1 | yes | ok | 10 | Rogfast: Norwegen sprengt einen Rekordtunnel unter dem Meer |
+| Eurofound ERM | 1 | yes | ok | 10 | Aaronia: 150 new jobs planned |
+| produktion.de | 1 | yes | ok | 43 | Wirtschaftswachstum: Deutschland überrascht positiv |
+| Startbase | 1 | yes | ok | 10 | Boomerent: Wie zwei Gründer mit KI den … Immobilienmarkt aufmischen |
+| Munich Startup | 1 | no | ok | 20 | Defencetech: Warum Europas Milliarden nach München fließen |
+| GDELT news search | 2 | yes | failed | 0 | HTTP 429 (too many requests) |
+| Google News search | 3 | no | failed | 0 | robots.txt does not allow fetching this page |
+
+An earlier run the same evening had produktion.de and Startbase fail once with "no network
+connection"; both answered normally a minute later.
