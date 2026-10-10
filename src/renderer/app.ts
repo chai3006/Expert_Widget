@@ -5,6 +5,7 @@ import { eventDateLabel, lastUpdatedLabel, shortDateLabel } from '../shared/form
 import { orderCompanies, orderNews } from '../shared/ordering.js';
 import {
   DOMAIN_LABELS,
+  DOMAIN_SHORT_LABELS,
   TAG_LABELS,
   tagMatchesFilter,
   type CompanyChip,
@@ -29,6 +30,8 @@ let view: ViewModel | null = null;
 let filter: NewsFilter = readStored('newsFilter', ['all', 'hiring', 'funded_startup', 'career_fair'], 'all');
 const collapsed = new Set<string>();
 let healthOpen = false;
+/** The Domain mix card starts compact on every start. */
+let mixOpen = false;
 /** The card just removed with thumbs down, while its Undo bar is showing. */
 let undo: { id: string; timer: number } | null = null;
 const UNDO_MS = 8000;
@@ -270,35 +273,70 @@ function renderBody(v: ViewModel): HTMLElement {
 
 function renderStatus(v: ViewModel): HTMLElement {
   const box = h('div', { class: 'status', role: 'status', 'aria-live': 'polite' });
-  box.append(
-    h(
-      'p',
-      { class: 'last-updated' },
-      'Last updated ',
-      h('strong', { 'data-last-updated': v.lastUpdated ?? '' }, v.lastUpdated ? lastUpdatedLabel(v.lastUpdated, Date.now()) : 'never'),
-    ),
-  );
   if (v.cvStatus) box.append(h('p', { class: `message ${v.cvStatus.level}` }, v.cvStatus.text));
   for (const m of v.messages) box.append(h('p', { class: `message ${m.level}` }, m.text));
   return box;
 }
 
+/**
+ * Compact Domain mix card (about 80px): title and "Updated <time>" on one row, a thin bar and a
+ * one-line legend with short names. A click expands it to the full names and the CV file name.
+ */
 function renderDomainMix(v: ViewModel): HTMLElement {
-  const card = h('section', { class: 'card', 'aria-labelledby': 'mix-title' }, h('h2', { class: 'card-title', id: 'mix-title' }, 'Your domain mix'));
-  if (!v.profile || v.profile.weights.length === 0) {
-    card.append(h('p', { class: 'note' }, 'No domain mix yet. Put one CV in the folder and press Refresh.'), h('p', { class: 'path' }, v.cvFolder));
-    return card;
+  const weights = v.profile?.weights ?? [];
+  const detailsId = 'mix-details';
+  const updated = h(
+    'span',
+    { class: 'mix-updated' },
+    'Updated ',
+    h('strong', { 'data-last-updated': v.lastUpdated ?? '' }, v.lastUpdated ? lastUpdatedLabel(v.lastUpdated, Date.now()) : 'never'),
+  );
+
+  const toggle = h(
+    'button',
+    {
+      class: 'mix-toggle',
+      type: 'button',
+      'aria-expanded': mixOpen ? 'true' : 'false',
+      'aria-controls': detailsId,
+      'data-focus-key': 'mix',
+      onclick: () => {
+        mixOpen = !mixOpen;
+        render();
+      },
+    },
+    h('span', { class: 'mix-head' }, h('span', { class: 'mix-title', id: 'mix-title' }, 'Domain mix'), updated),
+  );
+
+  if (weights.length === 0) {
+    toggle.append(h('span', { class: 'mix-note' }, 'No domain mix yet. Put one CV in the folder and press Refresh.'));
+  } else {
+    const bar = h('span', { class: 'mix-bar', role: 'img', 'aria-label': weights.map((w) => `${DOMAIN_LABELS[w.domain]} ${w.weight}%`).join(', ') });
+    const line = h('span', { class: 'mix-line', 'aria-hidden': 'true' });
+    weights.forEach((w, i) => {
+      const seg = h('span', { class: `mix-${i + 1}` });
+      seg.style.width = `${w.weight}%`;
+      bar.append(seg);
+      // Same order as the bar segments; the expanded details repeat it with colour swatches.
+      line.append(h('span', {}, DOMAIN_SHORT_LABELS[w.domain], h('span', { class: 'weight' }, `${w.weight}%`)));
+    });
+    toggle.append(bar, line);
   }
-  const bar = h('div', { class: 'mix-bar', role: 'img', 'aria-label': v.profile.weights.map((w) => `${DOMAIN_LABELS[w.domain]} ${w.weight}%`).join(', ') });
-  const legend = h('ul', { class: 'legend' });
-  v.profile.weights.forEach((w, i) => {
-    const seg = h('span', { class: `mix-${i + 1}` });
-    seg.style.width = `${w.weight}%`;
-    bar.append(seg);
-    const label = DOMAIN_LABELS[w.domain];
-    legend.append(h('li', {}, h('span', { class: `swatch mix-${i + 1}` }), h('span', {}, label), h('span', { class: 'weight' }, `${w.weight}%`)));
-  });
-  card.append(bar, legend, h('p', { class: 'muted small' }, `Based on your CV · ${v.profile.fileName}`));
+
+  const card = h('section', { class: 'card mix-card', 'aria-labelledby': 'mix-title' }, toggle);
+  if (mixOpen) {
+    const details = h('div', { class: 'mix-details', id: detailsId });
+    if (weights.length > 0 && v.profile) {
+      const legend = h('ul', { class: 'legend' });
+      weights.forEach((w, i) => {
+        legend.append(h('li', {}, h('span', { class: `swatch mix-${i + 1}` }), h('span', {}, DOMAIN_LABELS[w.domain]), h('span', { class: 'weight' }, `${w.weight}%`)));
+      });
+      details.append(legend, h('p', { class: 'muted small' }, `Based on your CV · ${v.profile.fileName}`));
+    } else {
+      details.append(h('p', { class: 'path' }, v.cvFolder));
+    }
+    card.append(details);
+  }
   return card;
 }
 
@@ -308,12 +346,11 @@ function renderEmployers(v: ViewModel): HTMLElement {
     section.append(h('p', { class: 'note' }, 'Employers appear once your CV gives a domain mix.'));
     return section;
   }
-  for (const domain of v.employers) {
+  // Domains without employers in employers.json are left out (no placeholder note).
+  const listed = v.employers.filter((d) => d.segments.length > 0);
+  if (listed.length === 0) return h('div', { hidden: true });
+  for (const domain of listed) {
     section.append(h('h3', { class: 'domain-title' }, h('span', {}, domain.label), h('span', {}, `${domain.weight}%`)));
-    if (domain.segments.length === 0) {
-      section.append(h('p', { class: 'note' }, `No employers listed yet for ${domain.label}`));
-      continue;
-    }
     for (const seg of domain.segments) {
       const id = `${domain.domain}:${seg.segment}`;
       const open = !collapsed.has(id);

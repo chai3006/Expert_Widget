@@ -32,6 +32,22 @@ export const DOMAIN_LABELS: Record<DomainId, string> = {
   'civil-chemical': 'Civil & chemical',
 };
 
+/** Short names for the one-line legend of the compact Domain mix card. */
+export const DOMAIN_SHORT_LABELS: Record<DomainId, string> = {
+  'automotive-emobility': 'Automotive',
+  semiconductors: 'Semicon',
+  'embedded-iot': 'Embedded',
+  'industrial-automation': 'Automation',
+  'energy-storage': 'Storage',
+  'aerospace-defense': 'Aerospace',
+  'machinery-household': 'Machinery',
+  medtech: 'Medtech',
+  'rail-transport': 'Rail',
+  telecom: 'Telecom',
+  'software-ai': 'Software',
+  'civil-chemical': 'Civil/Chem',
+};
+
 export function isDomainId(value: unknown): value is DomainId {
   return typeof value === 'string' && (DOMAIN_IDS as readonly string[]).includes(value);
 }

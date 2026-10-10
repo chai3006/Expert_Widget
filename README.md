@@ -48,7 +48,7 @@ let it finish once.
 - Tray menu: Show/Hide, Expand/Collapse, Refresh now, Start with Windows, Quit. Clicking the tray
   icon shows or hides the widget. Only one instance runs at a time.
 - **Refresh** reads the CV, recomputes the domain mix, updates employers, fetches the news sources
-  and updates **Last updated**. If the PC is offline or a source fails, cached data stays and a
+  and updates the **Updated** time in the Domain mix card. If the PC is offline or a source fails, cached data stays and a
   short message says so.
 - Click a company chip to open its career page in your browser. It is then marked *visited* and
   moves to the end of its segment. Click a news card to open the article; it becomes *Seen* and
@@ -59,6 +59,8 @@ let it finish once.
   passed. Press it again to undo.
 - Under the news filters, **Sources: N of M working** opens the list of providers with their last
   result. A provider that failed three Refreshes in a row is marked *needs attention*.
+- The compact **Domain mix** card shows the mix as a thin bar with short names and the time of the
+  last Refresh ("Updated today, 07:12"). Click it for the full domain names and the CV file name.
 - The sun/moon button switches day and dark mode.
 
 ## Your files
@@ -150,7 +152,7 @@ Nothing is padded with unrelated items.
 ```
 
 Only segments for domains in your CV mix are shown, highest weight first. A domain in your mix with
-no segments shows "No employers listed yet for …". `lastVerified` is the date a link last answered
+no segments is simply left out. `lastVerified` is the date a link last answered
 successfully in `npm run check-links`. Leave it empty for new entries.
 
 ## Adding a news source
