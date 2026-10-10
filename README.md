@@ -2,7 +2,8 @@
 
 A small standalone Windows desktop widget for personal use. It reads your CV from a local folder,
 works out your domain mix, and shows matching engineering employers in Germany (with career-page
-links) plus a news feed of hiring signals, funded startups and career fairs.
+links) plus a news feed of hiring signals, funded startups and career fairs. It sits on the screen
+as a small round button and opens into a panel docked to the right edge.
 
 It changes only when you press **Refresh**: no refresh at start-up, no timer.
 
@@ -28,6 +29,7 @@ npm run dev         # real data; opens DevTools in a separate window
 | `npm run typecheck` | Type-check main, renderer and tests |
 | `npm run build` | Build the NSIS installer into `release/` |
 | `npm run check-links` | Check every career URL in `defaults/employers.json` (add `-- --write` to record `lastVerified`, `-- --file <path>` for another file) |
+| `npm run check-sources` | Call every news provider once with a test query and print status, item count and a sample headline (`-- --config <path>`, `-- --domains a,b`) |
 | `npm run icons` | Regenerate the app and tray icons |
 
 Electron 44 downloads its binary on first start. If `npm run dev` says it is downloading Electron,
@@ -35,16 +37,28 @@ let it finish once.
 
 ## Using the widget
 
-- The window docks to the right edge of the primary screen, stays on top and remembers its
-  position and size. Drag it by the header. The **×** button and closing hide it to the tray.
-- Tray menu: Show/Hide, Refresh now, Start with Windows, Quit. Clicking the tray icon toggles the
-  window. Only one instance runs at a time.
+- **Collapsed** (how it starts): a round **E** button, always on top, with a badge counting unseen
+  news. Drag it anywhere, on any screen. **Double-click** it (or focus it and press **Enter** or
+  **Space**) to expand.
+- **Expanded**: a 420px panel, full height, docked to the right edge of the screen the button is on.
+  The **–** button in the header collapses it back to the button at its last position.
+- The state (collapsed or expanded), the button position and its screen are remembered. If that
+  screen is gone at the next start, the button comes back on the main screen. Refresh never changes
+  the state.
+- Tray menu: Show/Hide, Expand/Collapse, Refresh now, Start with Windows, Quit. Clicking the tray
+  icon shows or hides the widget. Only one instance runs at a time.
 - **Refresh** reads the CV, recomputes the domain mix, updates employers, fetches the news sources
   and updates **Last updated**. If the PC is offline or a source fails, cached data stays and a
   short message says so.
 - Click a company chip to open its career page in your browser. It is then marked *visited* and
   moves to the end of its segment. Click a news card to open the article; it becomes *Seen* and
   sinks to the bottom.
+- **Thumbs down** on a card removes it at once ("Removed from your feed · Undo"). A removed article
+  never comes back, also not after Refresh (it is remembered by its address). **Thumbs up** keeps a
+  card: it stays on every Refresh, also after it is older than `newsMaxAgeDays` or its fair date has
+  passed. Press it again to undo.
+- Under the news filters, **Sources: N of M working** opens the list of providers with their last
+  result. A provider that failed three Refreshes in a row is marked *needs attention*.
 - The sun/moon button switches day and dark mode.
 
 ## Your files
@@ -79,7 +93,9 @@ is shown.
 | `cvFolder` | CV folder. `%VARIABLES%` are expanded. Default `%USERPROFILE%\Documents\ExpertWidget\CV` |
 | `newsMaxAgeDays` | News older than this is hidden (default 7). Career fairs are hidden after their event date instead. |
 | `maxItemsPerTag` | Most cards per group (hiring signals, funded startups, career fairs). Default 12. |
-| `sources` | News sources, see below |
+| `sources` | News sources (layer 1), see below |
+| `search.gdelt` | `{ "enabled": true, "maxRecords": 75 }`: GDELT news search (layer 2) |
+| `search.googleNews` | `{ "enabled": false }`: Google News search (layer 3, fallback). Off by default, see SOURCES.md |
 | `keywords.domains` | Keyword list per domain, German and English. Used to score the CV and to match news to domains. **The order of the domains is the tie-break order.** |
 | `keywords.tags` | Keywords for `hiring_cuts`, `hiring_growth` and `funded_startup` |
 | `keywords.fairExclude` | Career fairs whose name contains one of these are skipped (apprenticeship and school-leaver fairs) |
@@ -94,6 +110,22 @@ keywords of 6 or more characters also match inside longer words ("Batterie" matc
 
 **Domain mix:** each domain's share of all keyword hits in the CV. Domains below 5 % are dropped,
 at most 4 are kept, and the shares are re-normalised to whole numbers summing to 100.
+
+**News providers:** every source is a provider behind one interface (`NewsProvider` in
+`src/main/news/provider.ts`), and all of them feed one list:
+
+1. **Layer 1**: the sources' own RSS/Atom feeds, or a small HTML adapter where there is no feed.
+2. **Layer 2**: GDELT DOC 2.0 search, no key. One query per domain in your mix, built from that
+   domain's keyword list and the hiring/funding keywords, German-language sources in Germany, the
+   last `newsMaxAgeDays` days, at most 75 articles.
+3. **Layer 3**: Google News RSS search, no key, unofficial. Only asked for domains where GDELT found
+   nothing or failed.
+
+The search queries contain only words from `config.json`, never anything from your CV (although they
+do reveal which domains are in your mix). Results are merged and de-duplicated (a feed's copy wins
+over a search hit), then classified with the same rules. Each provider's response is checked: an
+item without a title, link or date (fairs may lack a date) marks that provider as failed for this
+Refresh.
 
 **News selection:** each item gets a tag (cuts, growth, funded, fair) and a domain (the domain
 with most keyword hits, or "All domains"). Items for domains outside your mix are not shown.
@@ -146,11 +178,17 @@ successfully in `npm run check-links`. Leave it empty for new entries.
    `src/main/news/adapters/html.ts` that reads only headlines, short teasers, dates and links.
    Register it in `src/main/news/adapters/index.ts` and in `ADAPTER_IDS` in `src/main/config.ts`.
    Save a copy of the page under `test/fixtures/sources/` and add a test in
-   `test/adapters.test.ts`.
-3. Document it in `SOURCES.md`.
+   `test/adapters.test.ts` and to the contract list in `test/providers.test.ts`. Pass entries with
+   a missing title or link on with an empty field instead of skipping them, so the contract check
+   reports a changed layout instead of hiding it.
+3. Run `npm run check-sources` to try it live, and document it in `SOURCES.md`.
+
+A different kind of provider (another search service, or later a paid news API) implements
+`NewsProvider` (`id`, `name`, `layer`, `topic`, `domains`, `fetch(query)`) and is added in
+`buildProviders` in `src/main/providers.ts` and in `enabledProviders` in `src/main/config.ts`.
 
 Fetching is polite: a clear User-Agent, robots.txt is obeyed, requests to one host are at least
-2 seconds apart, responses are cached and revalidated (ETag / Last-Modified), and every source is
+2 seconds apart (5.5 seconds for GDELT, which asks for one request every 5 seconds), responses are cached and revalidated (ETag / Last-Modified), and every source is
 fetched at most once per Refresh. Only headline, a short excerpt (max. 200 characters), date,
 source and link are stored. Full article text is never stored.
 
@@ -163,8 +201,9 @@ and rename:
 |---|---|
 | `feed-cache.json` | Items per source, Last updated time |
 | `profile.json` | CV file name, modified time, domain weights, last CV problem |
-| `interactions.json` | Visited companies, seen news ids |
-| `ui.json` | Theme, window position and size |
+| `interactions.json` | Visited companies, seen news ids, removed articles (thumbs down, by address), useful cards (thumbs up, the whole card) |
+| `ui.json` | Theme, collapsed or expanded, button position and screen |
+| `health.json` | Last result of each news provider and how many Refreshes in a row it failed |
 | `http-cache\` | Cached responses and robots.txt |
 
 A damaged file is renamed to `<name>.corrupt-<time>.json` and the widget starts fresh. Mock mode
@@ -173,16 +212,17 @@ uses the sub-folder `mock-state\` so mock data never mixes with real data.
 ## Project layout
 
 ```
-src/main/          Electron main process (window, tray, IPC, refresh)
+src/main/          Electron main process (window, tray, IPC, refresh, window geometry)
   cv/              CV file lookup, text extraction, CvProfiler (rule-based)
-  news/            fetcher, adapters, Classifier (rule-based), dedupe, expiry, distribution
+  news/            providers and contract, fetcher, adapters (feeds, HTML, GDELT, Google News),
+                   Classifier (rule-based), dedupe, expiry, distribution
   state/           JSON state files
   mock/            mock data for dev:mock
 src/renderer/      HTML, CSS and the UI script (no framework)
 src/shared/        types, date labels, ordering rules used by both sides
 defaults/          config.json and employers.json copied to Documents on first start
 test/              unit tests and saved source pages
-scripts/           build helpers, check-links, icon generator
+scripts/           build helpers, check-links, check-sources, icon generator
 ```
 
 `CvProfiler` (`src/main/cv/cvProfiler.ts`) and `Classifier` (`src/main/news/classifier.ts`) are

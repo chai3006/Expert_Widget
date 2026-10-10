@@ -1,7 +1,29 @@
 # News sources
 
 Checked on 10 October 2026 against the live sites. Every source has an adapter test in
-`test/adapters.test.ts` that runs against a saved copy of the page in `test/fixtures/sources/`.
+`test/adapters.test.ts` that runs against a saved copy of the page in `test/fixtures/sources/`,
+and `test/providers.test.ts` checks every saved page against the provider contract.
+
+Every source is a **provider** behind one interface (`NewsProvider`, `src/main/news/provider.ts`).
+Three layers feed the same list:
+
+| Layer | Providers | Used for |
+|---|---|---|
+| 1 | The sources below: their RSS/Atom feed, or a small HTML adapter | Everything |
+| 2 | GDELT DOC 2.0 search (no key) | Hiring signals and funded startups, one query per domain in the mix |
+| 3 | Google News RSS search (no key, unofficial) | Fallback for domains GDELT left empty. **Off by default**, see below |
+
+**Contract.** Every response is checked before it is used: each item needs a title, an http(s)
+link and a publication date. Career fairs may have no event date ("date to be confirmed") but a
+date that is given must be readable. One bad item marks the provider as **failed** for this
+Refresh; its earlier items stay in the cache, the others are not affected. The adapters pass an
+incomplete entry on rather than skipping it, so a changed page layout shows up as a failure.
+
+**Source health.** Each Refresh records per provider `ok`, `empty` or `failed` with a time. The
+News feed shows "Sources: N of M working"; the list under it shows each provider, and one that
+failed three Refreshes in a row is marked "needs attention". An offline Refresh is not counted
+against the providers. `npm run check-sources` calls every provider (also the disabled ones) once
+with a test query and prints the same information.
 
 All sources are fetched politely: User-Agent
 `ExpertWidget/<version> (personal desktop widget; manual refresh only)`, robots.txt checked (cached
@@ -115,3 +137,50 @@ None of the robots.txt files checked disallow the pages used.
 - **URL:** `https://www.munich-startup.de/feed/`
 - **Adapter:** `rss`. Works (20 items with dates). Disabled as the brief asks (Munich only). Set
   `"enabled": true` to use it.
+
+## GDELT DOC 2.0 (layer 2)
+
+- **URL:** `https://api.gdeltproject.org/api/v2/doc/doc?query=…&mode=artlist&format=json&maxrecords=75&timespan=7d&sort=datedesc`
+- **Query:** `(domain keywords OR …) (signal keywords OR …) sourcecountry:germany sourcelang:german`.
+  The syntax follows GDELT's own description of the API (blog.gdeltproject.org, "GDELT DOC 2.0 API
+  debuts"): OR blocks in parentheses with upper-case OR, not nested; phrases in double quotes;
+  `sourcecountry:` takes the country name without spaces; `sourcelang:` the language name.
+  `timespan` is `newsMaxAgeDays` + `d`.
+- **Keywords:** the first 8 usable words of the domain's list in `config.json` and the first 5 of
+  each of `hiring_cuts`, `hiring_growth` and `funded_startup`. Usable means letters, digits, spaces
+  and hyphens, at least 4 characters (short acronyms such as ECU are left out). Nothing from the CV
+  is ever part of a query; the queries do show which domains are in the mix.
+- **Answer:** JSON `{ "articles": [ { url, title, seendate, domain, language, sourcecountry, … } ] }`,
+  `{}` when nothing matched. GDELT answers query problems with a plain-text sentence (HTTP 200),
+  which is reported as a failure with that sentence.
+- **Cards:** headline from `title`, source shown as the publisher (`domain`), summary written by
+  the code ("Article on example.de, found by the GDELT news search."), date from `seendate`.
+- **Politeness:** GDELT asks for at most one request every 5 seconds, so the fetcher keeps 5.5 s
+  between GDELT requests (4 domains take about 20 s). No robots.txt on that host (404).
+- **Status on 10 Oct 2026: failing.** Every request from this PC was answered with HTTP 429
+  ("Please limit requests to one every 5 seconds…"), including the very first one after several
+  quiet minutes. That looks like a block on the network address rather than on this app's pace.
+  The provider therefore stays enabled, reports "HTTP 429 (too many requests, try again later)"
+  in the source-health list, and Google News would take over its domains if it were enabled.
+- **Fixture:** because no live answer could be saved, `test/fixtures/sources/gdelt-artlist.json` is
+  a small **hand-made** file in the ArtList JSON format with example.de addresses. Replace it
+  with a real answer once GDELT responds (`mode=artlist&format=json`).
+- **Fragility:** low for the format, but no contract and no key: GDELT can throttle or change at
+  any time.
+
+## Google News RSS search (layer 3, disabled by default)
+
+- **URL:** `https://news.google.com/rss/search?q=…&hl=de&gl=DE&ceid=DE:de`, query
+  `(domain keywords) (signal keywords) when:7d`.
+- **Why it is off:** `https://news.google.com/robots.txt` says `Disallow: /` for every user agent
+  and only allows a few paths (`/topics/`, `/publications/`, `/stories/`, …), not `/rss/search`.
+  The widget obeys robots.txt, so with `"googleNews": { "enabled": true }` the provider would fail
+  with "robots.txt does not allow fetching this page". It is built and tested so that it can be
+  used if that ever changes, but it is never used against the robots.txt.
+- **Parsing:** title is "Headline - Publisher"; the publisher (from `<source>`) is cut off and
+  shown as the source. Article links are `news.google.com/rss/articles/CBMi…` redirects: older ids
+  contain the publisher URL and are decoded locally; newer ids do not, and those keep the Google
+  link (no extra request is made to resolve them).
+- **Fixture:** `test/fixtures/sources/google-news.rss.xml` is **hand-made** in the Google News RSS
+  format (fetching a real one would have broken the robots.txt rule).
+- **Fragility:** high. Unofficial, no contract, link format changes without notice.
