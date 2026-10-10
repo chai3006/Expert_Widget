@@ -1,0 +1,149 @@
+// Types shared by the main process and the renderer. Type-only plus small constant tables.
+
+export const DOMAIN_IDS = [
+  'automotive-emobility',
+  'semiconductors',
+  'embedded-iot',
+  'industrial-automation',
+  'energy-storage',
+  'aerospace-defense',
+  'machinery-household',
+  'medtech',
+  'rail-transport',
+  'telecom',
+  'software-ai',
+  'civil-chemical',
+] as const;
+
+export type DomainId = (typeof DOMAIN_IDS)[number];
+
+export const DOMAIN_LABELS: Record<DomainId, string> = {
+  'automotive-emobility': 'Automotive & e-mobility',
+  semiconductors: 'Semiconductors',
+  'embedded-iot': 'Embedded & IoT',
+  'industrial-automation': 'Industrial automation',
+  'energy-storage': 'Energy & storage',
+  'aerospace-defense': 'Aerospace & defence',
+  'machinery-household': 'Machinery & household',
+  medtech: 'Medtech',
+  'rail-transport': 'Rail & transport',
+  telecom: 'Telecom',
+  'software-ai': 'Software & AI',
+  'civil-chemical': 'Civil & chemical',
+};
+
+export function isDomainId(value: unknown): value is DomainId {
+  return typeof value === 'string' && (DOMAIN_IDS as readonly string[]).includes(value);
+}
+
+/** Domain of a news item: a specific domain, or `all` when no domain keyword matched. */
+export type ItemDomain = DomainId | 'all';
+
+export const NEWS_TAGS = ['hiring_growth', 'hiring_cuts', 'funded_startup', 'career_fair'] as const;
+export type NewsTag = (typeof NEWS_TAGS)[number];
+
+export const TAG_LABELS: Record<NewsTag, string> = {
+  hiring_growth: 'Hiring signal · growth',
+  hiring_cuts: 'Hiring signal · cuts',
+  funded_startup: 'Funded startup',
+  career_fair: 'Career fair',
+};
+
+/** Filter chips in the news section. `hiring` covers both growth and cuts. */
+export type NewsFilter = 'all' | 'hiring' | 'funded_startup' | 'career_fair';
+
+export function tagMatchesFilter(tag: NewsTag, filter: NewsFilter): boolean {
+  if (filter === 'all') return true;
+  if (filter === 'hiring') return tag === 'hiring_growth' || tag === 'hiring_cuts';
+  return tag === filter;
+}
+
+export type Theme = 'day' | 'dark';
+
+export interface DomainWeight {
+  domain: DomainId;
+  /** Whole-number percentage; all weights of a profile sum to 100. */
+  weight: number;
+}
+
+/** The only thing stored about the CV: never the text itself. */
+export interface CvProfile {
+  fileName: string;
+  modifiedMs: number;
+  weights: DomainWeight[];
+  computedAt: number;
+}
+
+export interface CompanyChip {
+  key: string;
+  name: string;
+  careerUrl: string;
+  visitedAt: number | null;
+}
+
+export interface EmployerSegmentView {
+  segment: string;
+  companies: CompanyChip[];
+}
+
+export interface EmployerDomainView {
+  domain: DomainId;
+  label: string;
+  weight: number;
+  /** Empty when employers.json has nothing for this domain; the UI then shows a note. */
+  segments: EmployerSegmentView[];
+}
+
+export interface NewsCard {
+  id: string;
+  tag: NewsTag;
+  headline: string;
+  summary: string;
+  url: string;
+  sourceName: string;
+  domain: ItemDomain;
+  domainLabel: string;
+  /** ISO timestamp of publication (or first sighting), used for ordering. */
+  date: string;
+  /** Career fairs only: ISO date (yyyy-mm-dd) of the event, or null when "date to be confirmed". */
+  eventDate: string | null;
+  eventEndDate: string | null;
+  seenAt: number | null;
+}
+
+export type MessageLevel = 'info' | 'warning' | 'error';
+
+export interface StatusMessage {
+  level: MessageLevel;
+  text: string;
+}
+
+export interface ViewModel {
+  mock: boolean;
+  /** When set, the UI shows only an error screen with this text. */
+  configError: string | null;
+  theme: Theme;
+  lastUpdated: number | null;
+  refreshing: boolean;
+  messages: StatusMessage[];
+  cvFolder: string;
+  /** Problem with the CV folder or file (none, several, unreadable). */
+  cvStatus: StatusMessage | null;
+  profile: CvProfile | null;
+  employers: EmployerDomainView[];
+  news: NewsCard[];
+  /** True once at least one refresh has produced a profile or news. */
+  hasData: boolean;
+}
+
+/** The API the preload script exposes to the renderer as `window.expert`. */
+export interface ExpertApi {
+  getView(): Promise<ViewModel>;
+  refresh(): Promise<ViewModel>;
+  markVisited(companyKey: string): Promise<void>;
+  markSeen(newsId: string): Promise<void>;
+  openExternal(url: string): Promise<void>;
+  setTheme(theme: Theme): Promise<void>;
+  hideWindow(): Promise<void>;
+  onView(callback: (view: ViewModel) => void): () => void;
+}

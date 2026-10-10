@@ -1,0 +1,262 @@
+// Loading and validation of config.json and employers.json. Validation collects every problem with
+// its exact JSON path so the error screen can tell the user precisely what to fix.
+
+import { DOMAIN_IDS, isDomainId, type DomainId } from '../shared/types.js';
+
+export const SOURCE_TOPICS = ['hiring', 'funded_startup', 'career_fair'] as const;
+export type SourceTopic = (typeof SOURCE_TOPICS)[number];
+
+export const ADAPTER_IDS = ['rss', 'ingenieur-recruiting-tag', 'messen-de', 'eurofound-erm', 'produktion-de'] as const;
+export type AdapterId = (typeof ADAPTER_IDS)[number];
+
+export type ScoredTag = 'hiring_growth' | 'hiring_cuts' | 'funded_startup';
+const SCORED_TAGS: ScoredTag[] = ['hiring_cuts', 'hiring_growth', 'funded_startup'];
+
+export interface SourceConfig {
+  id: string;
+  topic: SourceTopic;
+  name: string;
+  url: string;
+  adapter: AdapterId;
+  enabled: boolean;
+  domains: 'all' | DomainId[];
+}
+
+export interface AppConfig {
+  cvFolder: string;
+  newsMaxAgeDays: number;
+  maxItemsPerTag: number;
+  sources: SourceConfig[];
+  keywords: {
+    /** Insertion order is the tie-break order for domains. */
+    domains: Partial<Record<DomainId, string[]>>;
+    tags: Record<ScoredTag, string[]>;
+    fairExclude: string[];
+  };
+}
+
+export interface CompanyEntry {
+  name: string;
+  careerUrl: string;
+  lastVerified: string;
+}
+
+export interface EmployerSegment {
+  domain: DomainId;
+  segment: string;
+  companies: CompanyEntry[];
+}
+
+export type Validated<T> = { ok: true; value: T } | { ok: false; errors: string[] };
+
+const isObject = (v: unknown): v is Record<string, unknown> =>
+  typeof v === 'object' && v !== null && !Array.isArray(v);
+
+export function isHttpUrl(value: unknown): value is string {
+  if (typeof value !== 'string') return false;
+  try {
+    const u = new URL(value);
+    return u.protocol === 'http:' || u.protocol === 'https:';
+  } catch {
+    return false;
+  }
+}
+
+/** Parses JSON and reports syntax errors with a line number where possible. */
+export function parseJson(text: string, fileName: string): Validated<unknown> {
+  try {
+    return { ok: true, value: JSON.parse(text.replace(/^\uFEFF/, '')) };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    const pos = /position (\d+)/.exec(message);
+    if (pos) {
+      const line = text.slice(0, Number(pos[1])).split('\n').length;
+      return { ok: false, errors: [`${fileName} is not valid JSON (line ${line}): ${message}`] };
+    }
+    return { ok: false, errors: [`${fileName} is not valid JSON: ${message}`] };
+  }
+}
+
+function stringList(value: unknown, path: string, errors: string[]): string[] {
+  if (!Array.isArray(value)) {
+    errors.push(`${path}: must be a list of strings`);
+    return [];
+  }
+  const out: string[] = [];
+  value.forEach((v, i) => {
+    if (typeof v !== 'string' || v.trim() === '') errors.push(`${path}[${i}]: must be a non-empty string`);
+    else out.push(v.trim());
+  });
+  return out;
+}
+
+export function validateConfig(raw: unknown): Validated<AppConfig> {
+  const errors: string[] = [];
+  if (!isObject(raw)) return { ok: false, errors: ['config.json: the top level must be an object { ... }'] };
+
+  if (typeof raw.cvFolder !== 'string' || raw.cvFolder.trim() === '') {
+    errors.push('cvFolder: must be a non-empty folder path');
+  }
+  if (!Number.isInteger(raw.newsMaxAgeDays) || (raw.newsMaxAgeDays as number) < 1 || (raw.newsMaxAgeDays as number) > 365) {
+    errors.push('newsMaxAgeDays: must be a whole number between 1 and 365');
+  }
+  const maxItemsPerTag = raw.maxItemsPerTag ?? 12;
+  if (!Number.isInteger(maxItemsPerTag) || (maxItemsPerTag as number) < 1 || (maxItemsPerTag as number) > 100) {
+    errors.push('maxItemsPerTag: must be a whole number between 1 and 100');
+  }
+
+  const sources: SourceConfig[] = [];
+  if (!Array.isArray(raw.sources)) {
+    errors.push('sources: must be a list');
+  } else {
+    const ids = new Set<string>();
+    raw.sources.forEach((s, i) => {
+      const p = `sources[${i}]`;
+      if (!isObject(s)) {
+        errors.push(`${p}: must be an object`);
+        return;
+      }
+      const before = errors.length;
+      if (typeof s.id !== 'string' || !/^[a-z0-9-]+$/.test(s.id)) errors.push(`${p}.id: must be lowercase letters, digits and dashes`);
+      else if (ids.has(s.id)) errors.push(`${p}.id: "${s.id}" is used twice`);
+      else ids.add(s.id);
+      if (!(SOURCE_TOPICS as readonly unknown[]).includes(s.topic)) errors.push(`${p}.topic: must be one of ${SOURCE_TOPICS.join(', ')}`);
+      if (typeof s.name !== 'string' || s.name.trim() === '') errors.push(`${p}.name: must be a non-empty string`);
+      if (!isHttpUrl(s.url)) errors.push(`${p}.url: must be an http or https URL`);
+      if (!(ADAPTER_IDS as readonly unknown[]).includes(s.adapter)) errors.push(`${p}.adapter: must be one of ${ADAPTER_IDS.join(', ')}`);
+      if (typeof s.enabled !== 'boolean') errors.push(`${p}.enabled: must be true or false`);
+      let domains: 'all' | DomainId[] = 'all';
+      if (Array.isArray(s.domains)) {
+        domains = [];
+        s.domains.forEach((d, j) => {
+          if (isDomainId(d)) (domains as DomainId[]).push(d);
+          else errors.push(`${p}.domains[${j}]: unknown domain "${String(d)}"`);
+        });
+      } else if (s.domains !== 'all') {
+        errors.push(`${p}.domains: must be "all" or a list of domain ids`);
+      }
+      if (errors.length === before) {
+        sources.push({
+          id: s.id as string,
+          topic: s.topic as SourceTopic,
+          name: (s.name as string).trim(),
+          url: s.url as string,
+          adapter: s.adapter as AdapterId,
+          enabled: s.enabled as boolean,
+          domains,
+        });
+      }
+    });
+  }
+
+  const domainKeywords: Partial<Record<DomainId, string[]>> = {};
+  const tagKeywords = {} as Record<ScoredTag, string[]>;
+  let fairExclude: string[] = [];
+  if (!isObject(raw.keywords)) {
+    errors.push('keywords: must be an object with "domains" and "tags"');
+  } else {
+    const kw = raw.keywords;
+    if (!isObject(kw.domains)) {
+      errors.push('keywords.domains: must be an object mapping domain ids to keyword lists');
+    } else {
+      for (const [domain, list] of Object.entries(kw.domains)) {
+        if (!isDomainId(domain)) {
+          errors.push(`keywords.domains: unknown domain "${domain}". Known domains: ${DOMAIN_IDS.join(', ')}`);
+          continue;
+        }
+        domainKeywords[domain] = dedupeCaseInsensitive(stringList(list, `keywords.domains.${domain}`, errors));
+      }
+    }
+    if (!isObject(kw.tags)) {
+      errors.push('keywords.tags: must be an object with hiring_growth, hiring_cuts and funded_startup lists');
+    } else {
+      for (const tag of SCORED_TAGS) {
+        if (kw.tags[tag] === undefined) errors.push(`keywords.tags.${tag}: missing`);
+        else tagKeywords[tag] = dedupeCaseInsensitive(stringList(kw.tags[tag], `keywords.tags.${tag}`, errors));
+      }
+      for (const key of Object.keys(kw.tags)) {
+        if (!(SCORED_TAGS as string[]).includes(key)) errors.push(`keywords.tags: unknown tag "${key}"`);
+      }
+    }
+    if (kw.fairExclude !== undefined) fairExclude = stringList(kw.fairExclude, 'keywords.fairExclude', errors);
+  }
+
+  if (errors.length > 0) return { ok: false, errors };
+  return {
+    ok: true,
+    value: {
+      cvFolder: (raw.cvFolder as string).trim(),
+      newsMaxAgeDays: raw.newsMaxAgeDays as number,
+      maxItemsPerTag: maxItemsPerTag as number,
+      sources,
+      keywords: { domains: domainKeywords, tags: tagKeywords, fairExclude },
+    },
+  };
+}
+
+function dedupeCaseInsensitive(list: string[]): string[] {
+  const seen = new Set<string>();
+  return list.filter((k) => {
+    const key = k.toLowerCase();
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+/** Domain order used for tie-breaks: as listed in keywords.domains, then the remaining enum order. */
+export function domainOrder(config: AppConfig): DomainId[] {
+  const listed = Object.keys(config.keywords.domains) as DomainId[];
+  return [...listed, ...DOMAIN_IDS.filter((d) => !listed.includes(d))];
+}
+
+export function validateEmployers(raw: unknown): Validated<EmployerSegment[]> {
+  const errors: string[] = [];
+  if (!isObject(raw) || !Array.isArray(raw.segments)) {
+    return { ok: false, errors: ['employers.json: the top level must be an object with a "segments" list'] };
+  }
+  const segments: EmployerSegment[] = [];
+  raw.segments.forEach((s, i) => {
+    const p = `employers.json segments[${i}]`;
+    if (!isObject(s)) {
+      errors.push(`${p}: must be an object`);
+      return;
+    }
+    const before = errors.length;
+    if (!isDomainId(s.domain)) errors.push(`${p}.domain: unknown domain "${String(s.domain)}"`);
+    if (typeof s.segment !== 'string' || s.segment.trim() === '') errors.push(`${p}.segment: must be a non-empty string`);
+    const companies: CompanyEntry[] = [];
+    if (!Array.isArray(s.companies)) {
+      errors.push(`${p}.companies: must be a list`);
+    } else {
+      s.companies.forEach((c, j) => {
+        const cp = `${p}.companies[${j}]`;
+        if (!isObject(c)) {
+          errors.push(`${cp}: must be an object`);
+          return;
+        }
+        if (typeof c.name !== 'string' || c.name.trim() === '') errors.push(`${cp}.name: must be a non-empty string`);
+        if (!isHttpUrl(c.careerUrl)) errors.push(`${cp}.careerUrl: must be an http or https URL`);
+        const lv = c.lastVerified ?? '';
+        if (typeof lv !== 'string' || (lv !== '' && !/^\d{4}-\d{2}-\d{2}$/.test(lv))) {
+          errors.push(`${cp}.lastVerified: must be empty or a date like 2026-10-10`);
+        }
+        if (typeof c.name === 'string' && isHttpUrl(c.careerUrl) && typeof lv === 'string') {
+          companies.push({ name: c.name.trim(), careerUrl: c.careerUrl, lastVerified: lv });
+        }
+      });
+    }
+    if (errors.length === before) {
+      segments.push({ domain: s.domain as DomainId, segment: (s.segment as string).trim(), companies });
+    }
+  });
+  return errors.length > 0 ? { ok: false, errors } : { ok: true, value: segments };
+}
+
+/** Expands %VAR% references (Windows style) using the given environment. */
+export function expandEnvVars(path: string, env: Record<string, string | undefined>): string {
+  return path.replace(/%([^%]+)%/g, (match, name: string) => {
+    const key = Object.keys(env).find((k) => k.toLowerCase() === name.toLowerCase());
+    return key !== undefined && env[key] !== undefined ? (env[key] as string) : match;
+  });
+}
