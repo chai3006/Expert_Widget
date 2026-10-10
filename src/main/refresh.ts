@@ -195,7 +195,8 @@ export async function translateNew(cache: Record<string, SourceCache>, translato
   for (const source of Object.values(cache)) {
     for (const item of source.items) {
       if (item.translation) continue;
-      if (looksGerman(item.headline)) jobs.push({ item, field: 'headline' });
+      // Career fair titles are event names ("A-Zu-Bi! Neuburg"); only their descriptions are translated.
+      if (item.topic !== 'career_fair' && looksGerman(item.headline)) jobs.push({ item, field: 'headline' });
       if (item.excerpt && looksGerman(item.excerpt)) jobs.push({ item, field: 'excerpt' });
       // Texts that are already English get an empty translation, so they are not checked again.
       item.translation = { headline: null, excerpt: null };

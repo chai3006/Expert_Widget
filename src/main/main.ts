@@ -12,7 +12,7 @@ import { MockCvProvider, mockProviders } from './mock/mockData.js';
 import { canonicalUrl, itemId } from './news/dedupe.js';
 import { PoliteFetcher } from './news/fetcher.js';
 import { HOST_INTERVALS_MS, LocalCvProvider, buildProviders } from './providers.js';
-import { runRefresh } from './refresh.js';
+import { runRefresh, translateNew } from './refresh.js';
 import { BergamotTranslator, unpacked } from './translate/translator.js';
 import { AppStores } from './state/appState.js';
 import { ensureUserFiles, loadUserFiles, resolveHome, userFiles, type LoadedFiles } from './userFiles.js';
@@ -87,6 +87,40 @@ function currentView(): ViewModel {
 
 function pushView(): void {
   if (win && !win.isDestroyed()) win.webContents.send('view:update', currentView());
+}
+
+/**
+ * Translates news that is already cached but has no English version yet (for example news loaded
+ * before translation existed). Runs once at start-up, on this PC only: nothing is fetched, so it is
+ * not a refresh.
+ */
+const itemKey = (i: { url: string; headline: string; excerpt: string }) => JSON.stringify([i.url, i.headline, i.excerpt]);
+
+async function translateCached(): Promise<void> {
+  const sources = Object.fromEntries(
+    Object.entries(stores.feed.value.sources).map(([id, s]) => [id, { ...s, items: s.items.map((i) => ({ ...i })) }]),
+  );
+  const translator = createTranslator();
+  try {
+    const count = await translateNew(sources, translator);
+    if (count === 0) return;
+    // Merge into the current cache rather than replacing it: a Refresh may have finished meanwhile.
+    const done = new Map(Object.values(sources).flatMap((s) => s.items.map((i) => [itemKey(i), i.translation] as const)));
+    stores.feed.update((f) => ({
+      ...f,
+      sources: Object.fromEntries(
+        Object.entries(f.sources).map(([id, s]) => [
+          id,
+          { ...s, items: s.items.map((i) => (i.translation ? i : { ...i, translation: done.get(itemKey(i)) ?? i.translation })) },
+        ]),
+      ),
+    }));
+    pushView();
+  } catch (err) {
+    console.warn(`[translate] cached news not translated: ${err instanceof Error ? err.message : String(err)}`);
+  } finally {
+    await translator.close().catch(() => undefined);
+  }
 }
 
 function refresh(): Promise<ViewModel> {
@@ -526,6 +560,7 @@ if (!app.requestSingleInstanceLock()) {
     createWindow();
     createTray();
     registerHotkey();
+    void translateCached();
     // Mock mode exists to work on the design, so it fills itself once instead of starting empty.
     if (MOCK && stores.feed.value.lastUpdated === null) void refresh();
   });

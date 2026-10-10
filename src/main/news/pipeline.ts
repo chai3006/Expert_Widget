@@ -108,8 +108,14 @@ function toCard(c: Candidate, seen: Readonly<Record<string, number>>): NewsCard 
     eventEndDate: c.item.eventEndDate,
     seenAt: seen[id] ?? null,
     useful: false,
-    translated: c.item.translation && (c.item.translation.headline || c.item.translation.excerpt)
-      ? { headline: c.item.translation.headline, summary: c.item.translation.excerpt }
-      : null,
+    translated: translationFor(c.item, c.tag),
   };
+}
+
+/** The card's English texts. Fair titles are names and stay as they are (also older cached ones). */
+function translationFor(item: RawItem, tag: NewsTag): NewsCard['translated'] {
+  const t = item.translation;
+  const headline = tag === 'career_fair' ? null : (t?.headline ?? null);
+  const summary = t?.excerpt ?? null;
+  return headline || summary ? { headline, summary } : null;
 }

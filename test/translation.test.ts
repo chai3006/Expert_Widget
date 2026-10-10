@@ -76,6 +76,15 @@ describe('translateNew', () => {
     expect(await translateNew(cache, t)).toBe(0);
   });
 
+  it('keeps career fair titles (event names) and translates only their descriptions', async () => {
+    const { t, asked } = fakeTranslator();
+    const fair: RawItem = { ...raw('Job- und Ausbildungsmesse Solingen', 'Karrieremesse für Schüler und Studenten · Solingen'), topic: 'career_fair', publishedAt: null };
+    const cache = cacheOf([fair]);
+    await translateNew(cache, t);
+    expect(asked).toEqual([['Karrieremesse für Schüler und Studenten · Solingen']]);
+    expect(cache.s.items[0].translation).toEqual({ headline: null, excerpt: 'EN: Karrieremesse für Schüler und Studenten · Solingen' });
+  });
+
   it('leaves items untranslated (to retry later) when the translator fails', async () => {
     const { t } = fakeTranslator(true);
     const cache = cacheOf([raw('Werk schafft neue Arbeitsplätze in Sachsen', '')]);
