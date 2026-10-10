@@ -1,0 +1,11 @@
+node_modules/
+dist/
+release/
+coverage/
+*.log
+.DS_Store
+Thumbs.db
+
+# Local state written by the app or scripts while developing
+.local-state/
+*.tmp

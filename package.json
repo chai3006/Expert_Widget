@@ -1,0 +1,10 @@
+{
+  "name": "expert-widget",
+  "productName": "Expert Widget",
+  "version": "0.1.0",
+  "description": "Windows desktop widget: CV-driven employer list and engineering hiring news for Germany",
+  "private": true,
+  "main": "dist/main/main.js",
+  "author": "Venkata Chirravuri",
+  "license": "UNLICENSED"
+}
