@@ -6,5 +6,58 @@
   "private": true,
   "main": "dist/main/main.js",
   "author": "Venkata Chirravuri",
-  "license": "UNLICENSED"
+  "license": "UNLICENSED",
+  "scripts": {
+    "compile": "tsc -p tsconfig.main.json && tsc -p tsconfig.renderer.json && node scripts/copy-static.mjs",
+    "dev": "npm run compile && electron . --dev",
+    "dev:mock": "npm run compile && electron . --mock --dev",
+    "start": "npm run compile && electron .",
+    "build": "npm run compile && electron-builder --win nsis",
+    "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.main.json --noEmit && tsc -p tsconfig.renderer.json --noEmit && tsc -p tsconfig.test.json --noEmit",
+    "check-links": "node scripts/check-links.mjs",
+    "icons": "node scripts/make-icons.mjs"
+  },
+  "build": {
+    "appId": "de.expertwidget.app",
+    "productName": "Expert Widget",
+    "directories": {
+      "output": "release",
+      "buildResources": "build"
+    },
+    "files": [
+      "dist/**/*",
+      "defaults/**/*",
+      "assets/**/*",
+      "package.json",
+      "!dist/**/*.map"
+    ],
+    "win": {
+      "target": [
+        "nsis"
+      ],
+      "icon": "build/icon.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "shortcutName": "Expert Widget"
+    }
+  },
+  "dependencies": {
+    "cheerio": "^1.2.0",
+    "mammoth": "^1.13.0",
+    "pdf-parse": "^2.4.5",
+    "robots-parser": "^3.0.1"
+  },
+  "devDependencies": {
+    "@fontsource-variable/manrope": "^5.3.0",
+    "@fontsource/newsreader": "^5.3.0",
+    "@types/node": "^24.19.2",
+    "electron": "^44.7.0",
+    "electron-builder": "^26.15.3",
+    "typescript": "^5.9.3",
+    "vitest": "^5.0.3"
+  }
 }
