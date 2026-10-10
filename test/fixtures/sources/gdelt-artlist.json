@@ -1,0 +1,5 @@
+{"articles": [
+{"url": "https://www.example-news.de/wirtschaft/zulieferer-baut-stellen-ab-100.html", "url_mobile": "", "title": "Zulieferer kündigt Stellenabbau in der Batteriefertigung an", "seendate": "20261009T081500Z", "socialimage": "", "domain": "example-news.de", "language": "German", "sourcecountry": "Germany"},
+{"url": "https://www.example-zeitung.de/auto/elektroauto-werk-neue-arbeitsplaetze", "url_mobile": "", "title": "Neues Werk für Elektroauto-Batterien schafft 600 Arbeitsplätze", "seendate": "20261008T153000Z", "socialimage": "", "domain": "www.example-zeitung.de", "language": "German", "sourcecountry": "Germany"},
+{"url": "https://www.example-startups.de/batterie-startup-finanzierungsrunde", "url_mobile": "", "title": "Batterie-Startup schließt Finanzierungsrunde über 15 Millionen Euro ab", "seendate": "20261007T100000Z", "socialimage": "", "domain": "example-startups.de", "language": "German", "sourcecountry": "Germany"}
+]}

@@ -1,5 +1,5 @@
 import type { SourceTopic } from '../config.js';
-import type { NewsTag } from '../../shared/types.js';
+import type { DomainId, NewsTag } from '../../shared/types.js';
 
 /** What a source adapter extracts from a page or feed. Headline and short excerpt only, never article text. */
 export interface ParsedItem {
@@ -13,6 +13,10 @@ export interface ParsedItem {
   eventEndDate: string | null;
   /** Set when the source itself says what kind of signal this is (e.g. Eurofound job loss vs creation). */
   tagHint?: NewsTag;
+  /** Search providers: the publisher's site (e.g. "spiegel.de"), shown as the card's source. */
+  publisher?: string;
+  /** Search providers: the domain whose keywords the query used; fallback when no keyword matches the headline. */
+  queryDomain?: DomainId;
 }
 
 /** A parsed item as stored in the feed cache. */

@@ -27,6 +27,11 @@ export interface AppConfig {
   newsMaxAgeDays: number;
   maxItemsPerTag: number;
   sources: SourceConfig[];
+  /** Search providers (layers 2 and 3). */
+  search: {
+    gdelt: { enabled: boolean; maxRecords: number };
+    googleNews: { enabled: boolean };
+  };
   keywords: {
     /** Insertion order is the tie-break order for domains. */
     domains: Partial<Record<DomainId, string[]>>;
@@ -149,6 +154,34 @@ export function validateConfig(raw: unknown): Validated<AppConfig> {
     });
   }
 
+  const search: AppConfig['search'] = { gdelt: { enabled: true, maxRecords: 75 }, googleNews: { enabled: false } };
+  if (raw.search !== undefined) {
+    if (!isObject(raw.search)) {
+      errors.push('search: must be an object with "gdelt" and "googleNews"');
+    } else {
+      for (const key of Object.keys(raw.search)) {
+        if (key !== 'gdelt' && key !== 'googleNews') errors.push(`search: unknown provider "${key}" (known: gdelt, googleNews)`);
+      }
+      const g = raw.search.gdelt;
+      if (g !== undefined) {
+        if (!isObject(g)) errors.push('search.gdelt: must be an object');
+        else {
+          if (g.enabled !== undefined && typeof g.enabled !== 'boolean') errors.push('search.gdelt.enabled: must be true or false');
+          else if (typeof g.enabled === 'boolean') search.gdelt.enabled = g.enabled;
+          if (g.maxRecords !== undefined && (!Number.isInteger(g.maxRecords) || (g.maxRecords as number) < 1 || (g.maxRecords as number) > 75)) {
+            errors.push('search.gdelt.maxRecords: must be a whole number between 1 and 75');
+          } else if (g.maxRecords !== undefined) search.gdelt.maxRecords = g.maxRecords as number;
+        }
+      }
+      const n = raw.search.googleNews;
+      if (n !== undefined) {
+        if (!isObject(n)) errors.push('search.googleNews: must be an object');
+        else if (n.enabled !== undefined && typeof n.enabled !== 'boolean') errors.push('search.googleNews.enabled: must be true or false');
+        else if (typeof n.enabled === 'boolean') search.googleNews.enabled = n.enabled;
+      }
+    }
+  }
+
   const domainKeywords: Partial<Record<DomainId, string[]>> = {};
   const tagKeywords = {} as Record<ScoredTag, string[]>;
   let fairExclude: string[] = [];
@@ -189,6 +222,7 @@ export function validateConfig(raw: unknown): Validated<AppConfig> {
       newsMaxAgeDays: raw.newsMaxAgeDays as number,
       maxItemsPerTag: maxItemsPerTag as number,
       sources,
+      search,
       keywords: { domains: domainKeywords, tags: tagKeywords, fairExclude },
     },
   };
@@ -259,4 +293,25 @@ export function expandEnvVars(path: string, env: Record<string, string | undefin
     const key = Object.keys(env).find((k) => k.toLowerCase() === name.toLowerCase());
     return key !== undefined && env[key] !== undefined ? (env[key] as string) : match;
   });
+}
+
+export const GDELT_PROVIDER_ID = 'gdelt';
+export const GOOGLE_NEWS_PROVIDER_ID = 'google-news';
+
+export interface ProviderInfo {
+  id: string;
+  name: string;
+  layer: 1 | 2 | 3;
+  topic: SourceTopic;
+  domains: 'all' | DomainId[];
+}
+
+/** The enabled providers in priority order: the sources' own feeds, then GDELT, then Google News. */
+export function enabledProviders(config: AppConfig): ProviderInfo[] {
+  const list: ProviderInfo[] = config.sources
+    .filter((s) => s.enabled)
+    .map((s) => ({ id: s.id, name: s.name, layer: 1, topic: s.topic, domains: s.domains }));
+  if (config.search.gdelt.enabled) list.push({ id: GDELT_PROVIDER_ID, name: 'GDELT news search', layer: 2, topic: 'hiring', domains: 'all' });
+  if (config.search.googleNews.enabled) list.push({ id: GOOGLE_NEWS_PROVIDER_ID, name: 'Google News search', layer: 3, topic: 'hiring', domains: 'all' });
+  return list;
 }

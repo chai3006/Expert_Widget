@@ -2,11 +2,12 @@ import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSy
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import type { SourceConfig } from '../src/main/config.js';
-import { MockCvProvider, MockNewsProvider } from '../src/main/mock/mockData.js';
+import { enabledProviders, type ProviderInfo } from '../src/main/config.js';
+import { MockCvProvider, mockProviders } from '../src/main/mock/mockData.js';
 import { FetchError } from '../src/main/news/fetcher.js';
+import type { NewsProvider } from '../src/main/news/provider.js';
 import type { ParsedItem } from '../src/main/news/types.js';
-import { runRefresh, type CvProvider, type NewsProvider } from '../src/main/refresh.js';
+import { runRefresh, type CvProvider } from '../src/main/refresh.js';
 import { AppStores } from '../src/main/state/appState.js';
 import { writeJsonAtomic } from '../src/main/state/jsonStore.js';
 import { buildView } from '../src/main/view.js';
@@ -31,7 +32,7 @@ describe('JSON state files', () => {
     writeFileSync(join(dir, 'interactions.json'), '{"version":1,"visited":{"bosch":1');
     writeFileSync(join(dir, 'ui.json'), JSON.stringify({ version: 1, theme: 'dark', bounds: null }));
     const stores = new AppStores(dir);
-    expect(stores.interactions.value).toEqual({ version: 1, visited: {}, seen: {} });
+    expect(stores.interactions.value).toEqual({ version: 1, visited: {}, seen: {}, removed: {}, useful: {} });
     expect(stores.ui.value.theme).toBe('dark');
     expect(stores.recoveredFiles()).toHaveLength(1);
     expect(readdirSync(dir).some((f) => /^interactions\.corrupt-.*\.json$/.test(f))).toBe(true);
@@ -61,22 +62,26 @@ const okProfile: CvProvider = {
 };
 const failingCv = (problem: string): CvProvider => ({ readProfile: async () => ({ ok: false, problem }) });
 
-function news(handler: (s: SourceConfig) => ParsedItem[] | Error, online = true): NewsProvider {
+/** Fake providers mirroring the enabled ones in the default config (feeds and GDELT). */
+function news(handler: (s: ProviderInfo) => ParsedItem[] | Error, online = true): { providers: NewsProvider[]; isOnline: () => boolean } {
   return {
     isOnline: () => online,
-    fetchSource: async (s) => {
-      const r = handler(s);
-      if (r instanceof Error) throw r;
-      return r;
-    },
+    providers: enabledProviders(config).map((info) => ({
+      ...info,
+      fetch: async () => {
+        const r = handler(info);
+        if (r instanceof Error) throw r;
+        return r;
+      },
+    })),
   };
 }
 
-const headline = (s: SourceConfig): ParsedItem => ({
+const headline = (s: ProviderInfo): ParsedItem => ({
   url: `https://example.com/${s.id}/1`,
   headline: s.topic === 'career_fair' ? `Karrieremesse ${s.id}` : `Autobauer Stellenabbau ${s.id}`,
   excerpt: '',
-  publishedAt: null,
+  publishedAt: s.topic === 'career_fair' ? null : '2026-10-09T10:00:00.000Z',
   eventDate: null,
   eventEndDate: null,
 });
@@ -87,26 +92,26 @@ describe('refresh', () => {
 
   it('updates profile, caches and Last updated', async () => {
     const stores = new AppStores(dir);
-    const messages = await runRefresh({ config, cvFolder: dir, stores, cv: okProfile, news: news((s) => [headline(s)]), now: () => t0, mock: false });
+    const messages = await runRefresh({ config, cvFolder: dir, stores, cv: okProfile, ...news((s) => [headline(s)]), now: () => t0, mock: false });
     expect(messages).toEqual([]);
     expect(stores.feed.value.lastUpdated).toBe(t0);
     expect(stores.profile.value.profile?.fileName).toBe('cv.pdf');
-    expect(Object.keys(stores.feed.value.sources)).toHaveLength(config.sources.filter((s) => s.enabled).length);
+    expect(Object.keys(stores.feed.value.sources)).toHaveLength(enabledProviders(config).length);
   });
 
   it('when offline keeps cached data and says from when', async () => {
     const stores = new AppStores(dir);
-    await runRefresh({ config, cvFolder: dir, stores, cv: okProfile, news: news((s) => [headline(s)]), now: () => t0, mock: false });
+    await runRefresh({ config, cvFolder: dir, stores, cv: okProfile, ...news((s) => [headline(s)]), now: () => t0, mock: false });
     const before = JSON.stringify(stores.feed.value);
-    const messages = await runRefresh({ config, cvFolder: dir, stores, cv: okProfile, news: news((s) => [headline(s)], false), now: () => t1, mock: false });
+    const messages = await runRefresh({ config, cvFolder: dir, stores, cv: okProfile, ...news((s) => [headline(s)], false), now: () => t1, mock: false });
     expect(messages).toEqual([{ level: 'warning', text: 'Offline, showing data from yesterday, 19:40' }]);
     expect(JSON.stringify(stores.feed.value)).toBe(before);
   });
 
   it('treats every source failing with network errors as offline', async () => {
     const stores = new AppStores(dir);
-    await runRefresh({ config, cvFolder: dir, stores, cv: okProfile, news: news((s) => [headline(s)]), now: () => t0, mock: false });
-    const messages = await runRefresh({ config, cvFolder: dir, stores, cv: okProfile, news: news(() => new FetchError('offline', 'no network connection')), now: () => t1, mock: false });
+    await runRefresh({ config, cvFolder: dir, stores, cv: okProfile, ...news((s) => [headline(s)]), now: () => t0, mock: false });
+    const messages = await runRefresh({ config, cvFolder: dir, stores, cv: okProfile, ...news(() => new FetchError('offline', 'no network connection')), now: () => t1, mock: false });
     expect(messages[0].text).toBe('Offline, showing data from yesterday, 19:40');
     expect(stores.feed.value.lastUpdated).toBe(t0);
     expect(stores.feed.value.sources.startbase.items).toHaveLength(1);
@@ -114,13 +119,13 @@ describe('refresh', () => {
 
   it('one failing source keeps its old items and does not break the others', async () => {
     const stores = new AppStores(dir);
-    await runRefresh({ config, cvFolder: dir, stores, cv: okProfile, news: news((s) => [headline(s)]), now: () => t0, mock: false });
+    await runRefresh({ config, cvFolder: dir, stores, cv: okProfile, ...news((s) => [headline(s)]), now: () => t0, mock: false });
     const messages = await runRefresh({
       config,
       cvFolder: dir,
       stores,
       cv: okProfile,
-      news: news((s) => (s.id === 'startbase' ? new FetchError('http', 'the server answered HTTP 503') : [{ ...headline(s), url: `https://example.com/${s.id}/2` }])),
+      ...news((s) => (s.id === 'startbase' ? new FetchError('http', 'the server answered HTTP 503') : [{ ...headline(s), url: `https://example.com/${s.id}/2` }])),
       now: () => t1,
       mock: false,
     });
@@ -133,16 +138,16 @@ describe('refresh', () => {
 
   it('keeps the previous domain mix when the CV cannot be read, and says why', async () => {
     const stores = new AppStores(dir);
-    await runRefresh({ config, cvFolder: dir, stores, cv: okProfile, news: news((s) => [headline(s)]), now: () => t0, mock: false });
-    await runRefresh({ config, cvFolder: dir, stores, cv: failingCv('Could not read cv.pdf: the file is locked by another program.'), news: news((s) => [headline(s)]), now: () => t1, mock: false });
+    await runRefresh({ config, cvFolder: dir, stores, cv: okProfile, ...news((s) => [headline(s)]), now: () => t0, mock: false });
+    await runRefresh({ config, cvFolder: dir, stores, cv: failingCv('Could not read cv.pdf: the file is locked by another program.'), ...news((s) => [headline(s)]), now: () => t1, mock: false });
     expect(stores.profile.value.profile?.weights).toEqual([{ domain: 'automotive-emobility', weight: 100 }]);
     expect(stores.profile.value.lastProblem).toBe('Could not read cv.pdf: the file is locked by another program. Keeping the domain mix from cv.pdf.');
   });
 
   it('keeps first-seen times across refreshes', async () => {
     const stores = new AppStores(dir);
-    await runRefresh({ config, cvFolder: dir, stores, cv: okProfile, news: news((s) => [headline(s)]), now: () => t0, mock: false });
-    await runRefresh({ config, cvFolder: dir, stores, cv: okProfile, news: news((s) => [headline(s)]), now: () => t1, mock: false });
+    await runRefresh({ config, cvFolder: dir, stores, cv: okProfile, ...news((s) => [headline(s)]), now: () => t0, mock: false });
+    await runRefresh({ config, cvFolder: dir, stores, cv: okProfile, ...news((s) => [headline(s)]), now: () => t1, mock: false });
     expect(stores.feed.value.sources.startbase.items[0].firstSeen).toBe(t0);
   });
 });
@@ -151,7 +156,7 @@ describe('mock data', () => {
   it('fills the whole UI, and mock items never show in a normal run', async () => {
     const stores = new AppStores(dir);
     const now = Date.now();
-    await runRefresh({ config, cvFolder: dir, stores, cv: new MockCvProvider(), news: new MockNewsProvider(), now: () => now, mock: true });
+    await runRefresh({ config, cvFolder: dir, stores, cv: new MockCvProvider(), providers: mockProviders(config), isOnline: () => true, now: () => now, mock: true });
     const input = { config, employers: defaultEmployers(), configError: null, stores, cvFolder: dir, messages: [], refreshing: false, now };
     const mockView = buildView({ ...input, mock: true });
     expect(mockView.profile?.weights).toHaveLength(4);

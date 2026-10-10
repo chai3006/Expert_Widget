@@ -1,5 +1,6 @@
 // RSS 2.0 and Atom feeds. Takes title, link, date and the short description only; full article
-// content (content:encoded) is deliberately ignored.
+// content (content:encoded) is deliberately ignored. Entries missing a title, link or date are
+// passed on as they are, so the contract check fails the provider loudly instead of hiding it.
 
 import * as cheerio from 'cheerio';
 import type { ParsedItem, SourceAdapter } from '../types.js';
@@ -14,11 +15,12 @@ export const parseFeed: SourceAdapter = (xml, pageUrl) => {
 
   $('item').each((_, el) => {
     const node = $(el);
-    const url = absoluteUrl(cleanText(node.children('link').first().text()) || cleanText(node.children('guid').first().text()), pageUrl);
+    const href = cleanText(node.children('link').first().text()) || cleanText(node.children('guid').first().text());
+    // An empty href would resolve to the feed's own URL; keep it empty so the contract notices.
+    const url = href ? absoluteUrl(href, pageUrl) : null;
     const headline = htmlToText(node.children('title').first().text());
-    if (!url || !headline) return;
     items.push({
-      url,
+      url: url ?? '',
       headline,
       excerpt: truncate(htmlToText(node.children('description').first().text()).replace(WP_FOOTER, '')),
       publishedAt: toIsoTimestamp(node.children('pubDate').first().text() || node.children('dc\\:date').first().text()),
@@ -31,11 +33,11 @@ export const parseFeed: SourceAdapter = (xml, pageUrl) => {
     const node = $(el);
     const links = node.children('link');
     const alt = links.filter((_, l) => ($(l).attr('rel') ?? 'alternate') === 'alternate').first();
-    const url = absoluteUrl(alt.attr('href') ?? links.first().attr('href') ?? '', pageUrl);
+    const href = alt.attr('href') ?? links.first().attr('href');
+    const url = href ? absoluteUrl(href, pageUrl) : null;
     const headline = htmlToText(node.children('title').first().text());
-    if (!url || !headline) return;
     items.push({
-      url,
+      url: url ?? '',
       headline,
       excerpt: truncate(htmlToText(node.children('summary').first().text())),
       publishedAt: toIsoTimestamp(node.children('published').first().text() || node.children('updated').first().text()),

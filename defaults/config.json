@@ -76,6 +76,10 @@
       "domains": "all"
     }
   ],
+  "search": {
+    "gdelt": { "enabled": true, "maxRecords": 75 },
+    "googleNews": { "enabled": false }
+  },
   "keywords": {
     "domains": {
       "automotive-emobility": [

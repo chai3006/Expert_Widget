@@ -2,9 +2,10 @@
 // Every item produced here carries `mock: true` (added in refresh.ts) and mock mode keeps its state
 // in a separate folder, so none of this can appear in a normal run.
 
-import type { AppConfig, SourceConfig, SourceTopic } from '../config.js';
+import { enabledProviders, type AppConfig, type ProviderInfo, type SourceTopic } from '../config.js';
+import type { NewsProvider, ProviderQuery } from '../news/provider.js';
 import type { ParsedItem } from '../news/types.js';
-import type { CvProvider, CvResult, NewsProvider } from '../refresh.js';
+import type { CvProvider, CvResult } from '../refresh.js';
 
 const DAY = 24 * 60 * 60 * 1000;
 
@@ -58,29 +59,68 @@ function isoDay(t: number): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
-export class MockNewsProvider implements NewsProvider {
-  private readonly served = new Set<SourceTopic>();
+const MOCK_SEARCH: MockSeed[] = [
+  { headline: '[MOCK] Elektroauto-Zulieferer stellt 250 Ingenieure für neue Plattform ein', excerpt: 'Article on example.com, found by the GDELT news search.', ageDays: 1 },
+  { headline: '[MOCK] Embedded-Firma schließt Finanzierungsrunde über 8 Millionen Euro ab', excerpt: 'Article on example.com, found by the GDELT news search.', ageDays: 2 },
+];
 
-  constructor(private readonly now: () => number = Date.now) {}
+/**
+ * Mock providers mirroring the enabled real ones (same ids, names and layers), so the source-health
+ * line looks like a normal run. The first feed of each topic serves mock items, the search serves a
+ * couple, and the second hiring feed always fails so the "needs attention" state can be designed.
+ */
+export function mockProviders(config: AppConfig, now: () => number = Date.now): NewsProvider[] {
+  const served = new Set<SourceTopic>();
+  let hiringFeeds = 0;
+  return enabledProviders(config).map((info) => {
+    let seeds: MockSeed[] = [];
+    let fails = false;
+    if (info.layer === 1) {
+      if (info.topic === 'hiring' && ++hiringFeeds === 2) fails = true;
+      else if (!served.has(info.topic)) {
+        served.add(info.topic);
+        seeds = MOCK_SEEDS[info.topic];
+      }
+    } else if (info.layer === 2) {
+      seeds = MOCK_SEARCH;
+    }
+    return new MockProvider(info, seeds, fails, now);
+  });
+}
 
-  isOnline(): boolean {
-    return true;
+class MockProvider implements NewsProvider {
+  readonly id: string;
+  readonly name: string;
+  readonly layer: 1 | 2 | 3;
+  readonly topic: SourceTopic;
+  readonly domains: ProviderInfo['domains'];
+
+  constructor(
+    info: ProviderInfo,
+    private readonly seeds: MockSeed[],
+    private readonly fails: boolean,
+    private readonly now: () => number,
+  ) {
+    this.id = info.id;
+    this.name = info.name;
+    this.layer = info.layer;
+    this.topic = info.topic;
+    this.domains = info.domains;
   }
 
-  async fetchSource(source: SourceConfig): Promise<ParsedItem[]> {
-    // Only the first source of each topic gets mock items, so nothing shows up twice.
-    if (this.served.has(source.topic)) return [];
-    this.served.add(source.topic);
+  async fetch(query: ProviderQuery): Promise<ParsedItem[]> {
+    if (this.fails) throw new Error('[MOCK] simulated failure');
     const now = this.now();
-    return MOCK_SEEDS[source.topic].map((seed, i) => {
+    return this.seeds.map((seed, i) => {
       const start = seed.eventInDays !== undefined ? isoDay(now + seed.eventInDays * DAY) : null;
       return {
-        url: `https://example.com/mock/${source.topic}/${i + 1}`,
+        url: `https://example.com/mock/${this.id}/${i + 1}`,
         headline: seed.headline,
         excerpt: seed.excerpt,
-        publishedAt: source.topic === 'career_fair' ? null : new Date(now - seed.ageDays * DAY - i * 3600 * 1000).toISOString(),
+        publishedAt: this.topic === 'career_fair' ? null : new Date(now - seed.ageDays * DAY - i * 3600 * 1000).toISOString(),
         eventDate: seed.tbc ? null : start,
         eventEndDate: start && seed.eventDays ? isoDay(now + (seed.eventInDays! + seed.eventDays - 1) * DAY) : start,
+        ...(this.layer > 1 ? { publisher: 'example.com', queryDomain: query.domains[0]?.domain } : {}),
       };
     });
   }

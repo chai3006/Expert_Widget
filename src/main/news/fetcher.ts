@@ -29,6 +29,8 @@ export interface FetcherOptions {
   cacheDir: string;
   fetchImpl: FetchLike;
   minIntervalMs?: number;
+  /** Longer gaps for hosts that ask for them, e.g. { 'api.gdeltproject.org': 5500 }. */
+  hostIntervalsMs?: Record<string, number>;
   timeoutMs?: number;
   maxBytes?: number;
   now?: () => number;
@@ -153,6 +155,7 @@ export class PoliteFetcher {
       throw classifyNetworkError(err);
     }
     if (res.status === 304 && cached) return cached.body;
+    if (res.status === 429) throw new FetchError('http', 'the server answered HTTP 429 (too many requests, try again later)');
     if (!res.ok) throw new FetchError('http', `the server answered HTTP ${res.status}`);
 
     const body = await this.readBody(res);
@@ -168,13 +171,14 @@ export class PoliteFetcher {
 
   private async request(url: string, headers: Record<string, string>): Promise<Response> {
     const host = new URL(url).host;
-    const wait = (this.lastRequestAt.get(host) ?? 0) + this.minIntervalMs - this.now();
+    const interval = Math.max(this.minIntervalMs, this.opts.hostIntervalsMs?.[host] ?? 0);
+    const wait = (this.lastRequestAt.get(host) ?? 0) + interval - this.now();
     if (wait > 0) await this.sleep(wait);
     this.lastRequestAt.set(host, this.now());
     return this.opts.fetchImpl(url, {
       headers: {
         'User-Agent': this.opts.userAgent,
-        Accept: 'text/html,application/rss+xml,application/atom+xml,application/xml;q=0.9,*/*;q=0.5',
+        Accept: 'text/html,application/rss+xml,application/atom+xml,application/xml;q=0.9,application/json;q=0.9,*/*;q=0.5',
         'Accept-Language': 'de-DE,de;q=0.9,en;q=0.8',
         ...headers,
       },

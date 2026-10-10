@@ -16,6 +16,7 @@
     "test": "vitest run",
     "typecheck": "tsc -p tsconfig.main.json --noEmit && tsc -p tsconfig.renderer.json --noEmit && tsc -p tsconfig.test.json --noEmit",
     "check-links": "node scripts/check-links.mjs",
+    "check-sources": "npm run compile && node scripts/check-sources.mjs",
     "icons": "node scripts/make-icons.mjs"
   },
   "build": {

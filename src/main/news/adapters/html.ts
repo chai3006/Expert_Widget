@@ -1,5 +1,7 @@
 // HTML adapters for sources without a usable feed. Each reads only the headline list of one page.
 // Selectors were taken from the live pages in October 2026; see SOURCES.md for fragility notes.
+// A matched entry missing its title or link is passed on with an empty field rather than skipped,
+// so the contract check reports the provider as failed (the layout has probably changed).
 
 import * as cheerio from 'cheerio';
 import type { ParsedItem, SourceAdapter } from '../types.js';
@@ -23,11 +25,10 @@ export const parseIngenieurRecruitingTag: SourceAdapter = (html, pageUrl) => {
     const city = cleanText(cells.eq(2).text());
     const href = $(row).find('a[href]').first().attr('href');
     const url = href ? absoluteUrl(href, pageUrl) : null;
-    if (!city || !url) return;
     const eventDate = germanDateToIso(cells.eq(1).text());
     items.push({
-      url,
-      headline: `VDI nachrichten Recruiting Tag ${city}`,
+      url: url ?? '',
+      headline: city ? `VDI nachrichten Recruiting Tag ${city}` : '',
       excerpt: `Career fair for engineers and IT specialists in ${city}.`,
       publishedAt: null,
       eventDate,
@@ -45,8 +46,8 @@ export const parseMessenDe: SourceAdapter = (html, pageUrl) => {
     const card = $(el);
     const link = card.find('h3 a[href]').first();
     const name = cleanText(link.text());
-    const url = absoluteUrl(link.attr('href') ?? '', pageUrl);
-    if (!name || !url) return;
+    const href = link.attr('href');
+    const url = (href ? absoluteUrl(href, pageUrl) : null) ?? '';
 
     const labelled = (label: string) => {
       const span = card.find('span').filter((_, s) => cleanText($(s).text()) === label).first();
@@ -77,9 +78,8 @@ export const parseEurofound: SourceAdapter = (html, pageUrl) => {
     const cells = $(row).find('td');
     if (cells.length < 6) return;
     const href = cells.eq(0).find('a[href]').attr('href');
-    const url = href ? absoluteUrl(href, pageUrl) : null;
+    const url = (href ? absoluteUrl(href, pageUrl) : null) ?? '';
     const company = cleanText(cells.eq(2).text());
-    if (!url || !company) return;
     const day = englishDateToIso(cleanText(cells.eq(0).text()));
     const country = cleanText(cells.eq(1).text());
     const sector = cleanText(cells.eq(3).text());
@@ -89,7 +89,9 @@ export const parseEurofound: SourceAdapter = (html, pageUrl) => {
 
     let headline: string;
     let tagHint: ParsedItem['tagHint'];
-    if (Number.isFinite(change) && change < 0) {
+    if (!company) {
+      headline = '';
+    } else if (Number.isFinite(change) && change < 0) {
       headline = `${company}: ${Math.abs(change).toLocaleString('en-GB')} jobs to go`;
       tagHint = 'hiring_cuts';
     } else if (Number.isFinite(change) && change > 0) {
@@ -117,11 +119,11 @@ export const parseProduktionDe: SourceAdapter = (html, pageUrl) => {
   const items: ParsedItem[] = [];
   $('article.article-teaser-box').each((_, el) => {
     const card = $(el);
-    const url = absoluteUrl(card.find('a[itemprop="url"]').first().attr('href') ?? '', pageUrl);
+    const href = card.find('a[itemprop="url"]').first().attr('href');
+    const url = href ? absoluteUrl(href, pageUrl) : null;
     const headline = cleanText(card.find('[itemprop="headline"]').first().text());
-    if (!url || !headline) return;
     items.push({
-      url,
+      url: url ?? '',
       headline,
       excerpt: truncate(cleanText(card.find('[itemprop="description"]').first().text())),
       publishedAt: toIsoTimestamp(card.find('time[itemprop="datePublished"]').first().attr('datetime')),
