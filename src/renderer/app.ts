@@ -319,8 +319,8 @@ function renderDomainMix(v: ViewModel): HTMLElement {
       const seg = h('span', { class: `mix-${i + 1}` });
       seg.style.width = `${w.weight}%`;
       bar.append(seg);
-      // Same order as the bar segments; the expanded details repeat it with colour swatches.
-      line.append(h('span', {}, DOMAIN_SHORT_LABELS[w.domain], h('span', { class: 'weight' }, `${w.weight}%`)));
+      // Each name in the colour of its bar segment; the percentages are in the expanded details.
+      line.append(h('span', { class: `mix-text-${i + 1}` }, DOMAIN_SHORT_LABELS[w.domain]));
     });
     toggle.append(bar, line);
   }

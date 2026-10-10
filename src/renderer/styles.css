@@ -33,10 +33,11 @@
   --hover: #efede6;
   --chip-bg: #ffffff;
 
+  /* Domain mix: four distinct hues, also used as text (all at least 5.4:1 on the card). */
   --mix-1: #0f5c5c;
-  --mix-2: #4e9a93;
-  --mix-3: #a9cfc9;
-  --mix-4: #d9c9a3;
+  --mix-2: #1d5fa8;
+  --mix-3: #8a5300;
+  --mix-4: #7a3e9d;
 
   --tag-growth-bg: #ddefe2;
   --tag-growth-text: #1e5a32;
@@ -88,9 +89,9 @@
   --chip-bg: #1b2329;
 
   --mix-1: #3fa7a0;
-  --mix-2: #2a7570;
-  --mix-3: #8fd0c9;
-  --mix-4: #b59c63;
+  --mix-2: #7aaee8;
+  --mix-3: #e0a84f;
+  --mix-4: #c49be3;
 
   --tag-growth-bg: #1f3d2b;
   --tag-growth-text: #bfe8cc;
@@ -511,6 +512,15 @@ a {
 .mix-bar span {
   display: block;
   height: 100%;
+}
+
+.mix-text-1 { color: var(--mix-1); }
+.mix-text-2 { color: var(--mix-2); }
+.mix-text-3 { color: var(--mix-3); }
+.mix-text-4 { color: var(--mix-4); }
+
+.mix-line > span {
+  font-weight: 700;
 }
 
 .mix-1 { background: var(--mix-1); }
