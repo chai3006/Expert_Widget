@@ -1,11 +1,12 @@
 // Builds the complete view model the renderer displays.
 
 import { orderCompanies, orderNews } from '../shared/ordering.js';
-import { DOMAIN_LABELS, type DomainWeight, type EmployerDomainView, type StatusMessage, type ViewModel } from '../shared/types.js';
-import type { AppConfig, EmployerSegment } from './config.js';
+import { DOMAIN_LABELS, type DomainWeight, type EmployerDomainView, type ProviderStatus, type SourceHealthView, type StatusMessage, type ViewModel } from '../shared/types.js';
+import { enabledProviders, type AppConfig, type EmployerSegment, type ProviderInfo } from './config.js';
 import { RuleBasedClassifier } from './news/classifier.js';
 import { buildNewsCards } from './news/pipeline.js';
-import type { AppStores } from './state/appState.js';
+import type { AppStores, HealthState } from './state/appState.js';
+import { NEEDS_ATTENTION_AFTER } from './refresh.js';
 
 export function companyKey(name: string): string {
   return name.trim().toLowerCase();
@@ -61,29 +62,58 @@ export function buildView(input: ViewInput): ViewModel {
     profile: null,
     employers: [],
     news: [],
+    unseenCount: 0,
+    sourceHealth: { working: 0, total: 0, providers: [] },
+    mode: ui.mode,
     hasData: false,
   };
   if (input.configError || !config) return base;
 
   const { profile, lastProblem } = stores.profile.value;
   const weights = profile?.weights ?? [];
-  const { visited, seen } = stores.interactions.value;
-  const news = buildNewsCards({
-    cache: stores.feed.value,
-    config,
-    weights,
-    classifier: new RuleBasedClassifier(config.keywords),
-    seen,
-    now: input.now,
-    allowMock: input.mock,
-  });
+  const { visited, seen, removed, useful } = stores.interactions.value;
+  const providers = enabledProviders(config);
+  const news = orderNews(
+    buildNewsCards({
+      cache: stores.feed.value,
+      config,
+      weights,
+      classifier: new RuleBasedClassifier(config.keywords),
+      providers,
+      seen,
+      removed,
+      useful,
+      now: input.now,
+      allowMock: input.mock,
+    }),
+  );
 
   return {
     ...base,
     cvStatus: lastProblem ? { level: 'warning', text: lastProblem } : null,
     profile,
     employers: buildEmployerView(input.employers, weights, visited),
-    news: orderNews(news),
+    news,
+    unseenCount: news.filter((n) => n.seenAt === null).length,
+    sourceHealth: buildSourceHealth(providers, stores.health.value),
     hasData: profile !== null || stores.feed.value.lastUpdated !== null,
   };
+}
+
+export function buildSourceHealth(providers: readonly ProviderInfo[], health: HealthState): SourceHealthView {
+  const list = providers.map((p) => {
+    const r = health.providers[p.id];
+    return {
+      id: p.id,
+      name: p.name,
+      layer: p.layer,
+      status: (r?.status ?? 'unchecked') as ProviderStatus,
+      checkedAt: r?.checkedAt ?? null,
+      itemCount: r?.itemCount ?? 0,
+      detail: r?.lastError ?? null,
+      needsAttention: (r?.consecutiveFailures ?? 0) >= NEEDS_ATTENTION_AFTER,
+    };
+  });
+  const checked = list.filter((p) => p.status !== 'unchecked');
+  return { working: checked.filter((p) => p.status !== 'failed').length, total: checked.length, providers: list };
 }

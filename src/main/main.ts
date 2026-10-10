@@ -1,26 +1,26 @@
 // Electron main process: window, tray, IPC, and the Refresh button's work.
 // All network access and file reading happens here, never in the renderer.
 
-import { BrowserWindow, Menu, Tray, app, ipcMain, nativeImage, net, screen, shell, type IpcMainInvokeEvent } from 'electron';
+import { BrowserWindow, Menu, Tray, app, ipcMain, nativeImage, net, screen, shell, type IpcMainEvent, type IpcMainInvokeEvent } from 'electron';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
-import type { StatusMessage, Theme, ViewModel } from '../shared/types.js';
+import type { StatusMessage, ViewModel, WindowMode } from '../shared/types.js';
 import { isHttpUrl } from './config.js';
-import { MockCvProvider, MockNewsProvider } from './mock/mockData.js';
+import { MockCvProvider, mockProviders } from './mock/mockData.js';
+import { canonicalUrl, itemId } from './news/dedupe.js';
 import { PoliteFetcher } from './news/fetcher.js';
-import { LocalCvProvider, WebNewsProvider } from './providers.js';
+import { HOST_INTERVALS_MS, LocalCvProvider, buildProviders } from './providers.js';
 import { runRefresh } from './refresh.js';
-import { AppStores, type Bounds } from './state/appState.js';
+import { AppStores } from './state/appState.js';
 import { ensureUserFiles, loadUserFiles, resolveHome, userFiles, type LoadedFiles } from './userFiles.js';
 import { buildView, companyKey } from './view.js';
+import { BUTTON_WINDOW, clampInto, panelBounds, restoreButtonPosition, type Rect } from './windowGeometry.js';
 
 const MOCK = process.argv.includes('--mock');
 const DEV = process.argv.includes('--dev');
-const WIDTH = 420;
 const SEEN_RETENTION_MS = 120 * 24 * 60 * 60 * 1000;
-const BACKGROUND: Record<Theme, string> = { day: '#F6F5F1', dark: '#12181D' };
 
 let win: BrowserWindow | null = null;
 let tray: Tray | null = null;
@@ -92,13 +92,15 @@ function refresh(): Promise<ViewModel> {
           userAgent: `ExpertWidget/${app.getVersion()} (personal desktop widget; manual refresh only)`,
           cacheDir: stores.httpCacheDir,
           fetchImpl: (url, init) => net.fetch(url, init),
+          hostIntervalsMs: HOST_INTERVALS_MS,
         });
         messages = await runRefresh({
           config: files.config,
           cvFolder: files.cvFolder,
           stores,
           cv: MOCK ? new MockCvProvider() : new LocalCvProvider(),
-          news: MOCK ? new MockNewsProvider() : new WebNewsProvider(fetcher, () => net.isOnline()),
+          providers: MOCK ? mockProviders(files.config) : buildProviders(files.config, fetcher),
+          isOnline: () => MOCK || net.isOnline(),
           now: Date.now,
           mock: MOCK,
         });
@@ -124,34 +126,79 @@ function openExternalSafe(url: unknown): void {
 }
 
 // ---- Window -------------------------------------------------------------------------------
+//
+// One frameless, transparent, always-on-top window with two states:
+// - collapsed: just the round "E" button (a 72px window), anywhere on any screen;
+// - expanded: a 420px panel, full work-area height, docked to the right edge of the screen the
+//   button is on.
+// The button is dragged manually over IPC (drag:start/move/end) because -webkit-app-region: drag
+// swallows double-click events on Windows, and double-click is what expands the panel.
 
-function defaultBounds(): Bounds {
-  const area = screen.getPrimaryDisplay().workArea;
-  return { width: WIDTH, height: area.height, x: area.x + area.width - WIDTH, y: area.y };
+const displays = () => screen.getAllDisplays().map((d) => ({ id: d.id, workArea: d.workArea }));
+const primary = () => {
+  const p = screen.getPrimaryDisplay();
+  return { id: p.id, workArea: p.workArea };
+};
+
+let buttonPos = { x: 0, y: 0 };
+
+function buttonRect(): Rect {
+  return { ...buttonPos, width: BUTTON_WINDOW, height: BUTTON_WINDOW };
 }
 
-function isOnScreen(b: Bounds): boolean {
-  return screen.getAllDisplays().some(({ workArea: a }) => {
-    const overlapX = Math.min(b.x + b.width, a.x + a.width) - Math.max(b.x, a.x);
-    const overlapY = Math.min(b.y + b.height, a.y + a.height) - Math.max(b.y, a.y);
-    return overlapX >= 100 && overlapY >= 100;
-  });
+function buttonCentre(): Electron.Point {
+  return { x: Math.round(buttonPos.x + BUTTON_WINDOW / 2), y: Math.round(buttonPos.y + BUTTON_WINDOW / 2) };
+}
+
+function boundsFor(mode: WindowMode): Rect {
+  return mode === 'collapsed' ? buttonRect() : panelBounds(screen.getDisplayNearestPoint(buttonCentre()).workArea);
+}
+
+function saveButton(): void {
+  const display = screen.getDisplayNearestPoint(buttonCentre());
+  buttonPos = clampInto(display.workArea, buttonPos.x, buttonPos.y);
+  stores.ui.update((ui) => ({ ...ui, button: { ...buttonPos, displayId: display.id } }));
+}
+
+function setMode(mode: WindowMode): void {
+  if (!win) return;
+  stores.ui.update((ui) => ({ ...ui, mode }));
+  if (mode === 'expanded') {
+    // Resize first, then draw the panel into the larger window.
+    win.setBounds(boundsFor('expanded'));
+    pushView();
+    showWindow();
+  } else {
+    // Draw the button first, then shrink, so the panel is never squeezed into the small window.
+    pushView();
+    setTimeout(() => win?.setBounds(boundsFor('collapsed')), 30);
+  }
+  tray?.setContextMenu(buildTrayMenu());
+}
+
+/** Screens added, removed or rearranged: bring the button back onto a screen and redock. */
+function onDisplaysChanged(): void {
+  if (!win) return;
+  buttonPos = restoreButtonPosition({ ...buttonPos, displayId: null }, displays(), primary());
+  win.setBounds(boundsFor(stores.ui.value.mode));
 }
 
 function createWindow(): void {
-  const saved = stores.ui.value.bounds;
-  const bounds = saved && isOnScreen(saved) ? saved : defaultBounds();
+  buttonPos = restoreButtonPosition(stores.ui.value.button, displays(), primary());
   win = new BrowserWindow({
-    ...bounds,
-    minWidth: 340,
-    minHeight: 420,
+    ...boundsFor(stores.ui.value.mode),
     frame: false,
+    transparent: true,
+    backgroundColor: '#00000000',
+    resizable: false,
+    maximizable: false,
+    fullscreenable: false,
+    hasShadow: false,
     alwaysOnTop: true,
     skipTaskbar: true,
     show: false,
     title: MOCK ? 'Expert Widget (mock data)' : 'Expert Widget',
     icon: join(appRoot(), 'assets', 'icon.png'),
-    backgroundColor: BACKGROUND[stores.ui.value.theme],
     webPreferences: {
       preload: join(__dirname, 'preload.js'),
       contextIsolation: true,
@@ -177,19 +224,37 @@ function createWindow(): void {
     }
   });
 
-  let saveTimer: NodeJS.Timeout | undefined;
-  const saveBounds = () => {
-    clearTimeout(saveTimer);
-    saveTimer = setTimeout(() => {
-      if (win && !win.isDestroyed() && !win.isMinimized()) stores.ui.update((ui) => ({ ...ui, bounds: win!.getBounds() }));
-    }, 500);
-  };
-  win.on('moved', saveBounds);
-  win.on('resized', saveBounds);
+  screen.on('display-added', onDisplaysChanged);
+  screen.on('display-removed', onDisplaysChanged);
+  screen.on('display-metrics-changed', onDisplaysChanged);
 
   void win.loadFile(indexHtml());
   if (DEV) win.webContents.openDevTools({ mode: 'detach' });
   if (!app.isPackaged) attachDevDiagnostics(win);
+}
+
+// Dragging the collapsed button: the main process reads the cursor itself, so the renderer only
+// says "started", "moved" and "ended". setBounds (not setPosition) keeps the size fixed when the
+// button crosses between screens with different scaling.
+let drag: { cursor: Electron.Point; start: { x: number; y: number } } | null = null;
+
+function dragStart(): void {
+  if (!win || stores.ui.value.mode !== 'collapsed') return;
+  drag = { cursor: screen.getCursorScreenPoint(), start: { ...buttonPos } };
+}
+
+function dragMove(): void {
+  if (!win || !drag) return;
+  const now = screen.getCursorScreenPoint();
+  buttonPos = { x: drag.start.x + now.x - drag.cursor.x, y: drag.start.y + now.y - drag.cursor.y };
+  win.setBounds(buttonRect());
+}
+
+function dragEnd(): void {
+  if (!drag) return;
+  drag = null;
+  saveButton();
+  win?.setBounds(buttonRect());
 }
 
 /**
@@ -238,8 +303,16 @@ function loginItemArgs(): string[] {
 
 function buildTrayMenu(): Menu {
   const startWithWindows = app.getLoginItemSettings({ args: loginItemArgs() }).openAtLogin;
+  const expanded = stores.ui.value.mode === 'expanded';
   return Menu.buildFromTemplate([
     { label: 'Show / Hide', click: toggleWindow },
+    {
+      label: expanded ? 'Collapse' : 'Expand',
+      click: () => {
+        setMode(expanded ? 'collapsed' : 'expanded');
+        showWindow();
+      },
+    },
     { label: 'Refresh now', click: () => void refresh() },
     {
       label: 'Start with Windows',
@@ -265,7 +338,7 @@ function createTray(): void {
 
 // ---- IPC ----------------------------------------------------------------------------------
 
-function fromOurPage(event: IpcMainInvokeEvent): boolean {
+function fromOurPage(event: IpcMainInvokeEvent | IpcMainEvent): boolean {
   const url = event.senderFrame?.url ?? '';
   return url === pathToFileURL(indexHtml()).toString();
 }
@@ -274,6 +347,12 @@ function handle(channel: string, fn: (...args: unknown[]) => unknown): void {
   ipcMain.handle(channel, (event, ...args) => {
     if (!fromOurPage(event)) throw new Error('IPC call from an unexpected page');
     return fn(...args);
+  });
+}
+
+function on(channel: string, fn: () => void): void {
+  ipcMain.on(channel, (event) => {
+    if (fromOurPage(event)) fn();
   });
 }
 
@@ -291,13 +370,49 @@ function registerIpc(): void {
     if (!isShortString(id)) return;
     stores.interactions.update((s) => (s.seen[id] ? s : { ...s, seen: { ...s.seen, [id]: Date.now() } }));
   });
+  handle('feedback:remove', (id) => {
+    if (!isShortString(id)) return;
+    const card = currentView().news.find((n) => n.id === id);
+    if (!card) return;
+    stores.interactions.update((s) => {
+      const { [id]: _dropped, ...useful } = s.useful;
+      return { ...s, useful, removed: { ...s.removed, [canonicalUrl(card.url)]: Date.now() } };
+    });
+  });
+  handle('feedback:undo-remove', (id) => {
+    if (isShortString(id)) {
+      stores.interactions.update((s) => ({ ...s, removed: Object.fromEntries(Object.entries(s.removed).filter(([url]) => itemId(url) !== id)) }));
+    }
+    return currentView();
+  });
+  handle('feedback:useful', (id) => {
+    if (!isShortString(id)) return currentView();
+    if (stores.interactions.value.useful[id]) {
+      stores.interactions.update((s) => {
+        const { [id]: _dropped, ...useful } = s.useful;
+        return { ...s, useful };
+      });
+    } else {
+      // The card is taken from the main process's own view, never from the renderer.
+      const card = currentView().news.find((n) => n.id === id);
+      if (card) {
+        const { seenAt: _seenAt, useful: _useful, ...entry } = card;
+        stores.interactions.update((s) => ({ ...s, useful: { ...s.useful, [id]: { ...entry, markedAt: Date.now() } } }));
+      }
+    }
+    return currentView();
+  });
   handle('shell:open', (url) => openExternalSafe(url));
   handle('ui:theme', (theme) => {
     if (theme !== 'day' && theme !== 'dark') return;
     stores.ui.update((ui) => ({ ...ui, theme }));
-    win?.setBackgroundColor(BACKGROUND[theme]);
   });
-  handle('window:hide', () => win?.hide());
+  handle('window:mode', (mode) => {
+    if (mode === 'collapsed' || mode === 'expanded') setMode(mode);
+  });
+  on('drag:start', dragStart);
+  on('drag:move', dragMove);
+  on('drag:end', dragEnd);
 }
 
 // ---- Start-up -----------------------------------------------------------------------------

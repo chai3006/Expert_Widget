@@ -2,7 +2,7 @@
 // Must stay self-contained: a sandboxed preload can only require 'electron'.
 
 import { contextBridge, ipcRenderer, type IpcRendererEvent } from 'electron';
-import type { ExpertApi, Theme, ViewModel } from '../shared/types.js';
+import type { ExpertApi, Theme, ViewModel, WindowMode } from '../shared/types.js';
 
 const api: ExpertApi = {
   getView: () => ipcRenderer.invoke('view:get'),
@@ -10,8 +10,15 @@ const api: ExpertApi = {
   markVisited: (companyKey: string) => ipcRenderer.invoke('interact:visited', companyKey),
   markSeen: (newsId: string) => ipcRenderer.invoke('interact:seen', newsId),
   openExternal: (url: string) => ipcRenderer.invoke('shell:open', url),
+  removeNews: (newsId: string) => ipcRenderer.invoke('feedback:remove', newsId),
+  undoRemove: (newsId: string) => ipcRenderer.invoke('feedback:undo-remove', newsId),
+  toggleUseful: (newsId: string) => ipcRenderer.invoke('feedback:useful', newsId),
   setTheme: (theme: Theme) => ipcRenderer.invoke('ui:theme', theme),
-  hideWindow: () => ipcRenderer.invoke('window:hide'),
+  setMode: (mode: WindowMode) => ipcRenderer.invoke('window:mode', mode),
+  // Fire-and-forget messages: pointer moves are frequent and need no answer.
+  dragStart: () => ipcRenderer.send('drag:start'),
+  dragMove: () => ipcRenderer.send('drag:move'),
+  dragEnd: () => ipcRenderer.send('drag:end'),
   onView: (callback: (view: ViewModel) => void) => {
     const listener = (_event: IpcRendererEvent, view: ViewModel) => callback(view);
     ipcRenderer.on('view:update', listener);

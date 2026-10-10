@@ -109,6 +109,34 @@ export interface NewsCard {
   eventDate: string | null;
   eventEndDate: string | null;
   seenAt: number | null;
+  /** Thumbs up: kept on every Refresh and exempt from expiry. */
+  useful: boolean;
+}
+
+export type WindowMode = 'collapsed' | 'expanded';
+
+/** Result of a provider's last Refresh. `unchecked`: not run yet (for example, no domain mix). */
+export type ProviderStatus = 'ok' | 'empty' | 'failed' | 'unchecked';
+
+export interface ProviderHealthView {
+  id: string;
+  name: string;
+  /** 1: source feeds and pages, 2: GDELT, 3: Google News. */
+  layer: 1 | 2 | 3;
+  status: ProviderStatus;
+  checkedAt: number | null;
+  itemCount: number;
+  /** Error text for a failed provider, or a note such as "not needed this time". */
+  detail: string | null;
+  /** Failed three Refreshes in a row. */
+  needsAttention: boolean;
+}
+
+export interface SourceHealthView {
+  /** Providers whose last Refresh did not fail. */
+  working: number;
+  total: number;
+  providers: ProviderHealthView[];
 }
 
 export type MessageLevel = 'info' | 'warning' | 'error';
@@ -132,6 +160,10 @@ export interface ViewModel {
   profile: CvProfile | null;
   employers: EmployerDomainView[];
   news: NewsCard[];
+  /** Unseen cards in the feed (removed ones are never in it); shown on the collapsed button. */
+  unseenCount: number;
+  sourceHealth: SourceHealthView;
+  mode: WindowMode;
   /** True once at least one refresh has produced a profile or news. */
   hasData: boolean;
 }
@@ -143,7 +175,16 @@ export interface ExpertApi {
   markVisited(companyKey: string): Promise<void>;
   markSeen(newsId: string): Promise<void>;
   openExternal(url: string): Promise<void>;
+  /** Thumbs down: hides the card for good (by canonical URL). */
+  removeNews(newsId: string): Promise<void>;
+  undoRemove(newsId: string): Promise<ViewModel>;
+  /** Thumbs up, or undo it when already set. */
+  toggleUseful(newsId: string): Promise<ViewModel>;
   setTheme(theme: Theme): Promise<void>;
-  hideWindow(): Promise<void>;
+  setMode(mode: WindowMode): Promise<void>;
+  /** Manual dragging of the collapsed button (see main.ts for why -webkit-app-region is not used). */
+  dragStart(): void;
+  dragMove(): void;
+  dragEnd(): void;
   onView(callback: (view: ViewModel) => void): () => void;
 }

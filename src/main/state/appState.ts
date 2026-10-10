@@ -2,7 +2,7 @@
 // Each file is versioned plain JSON; anything that does not look right is treated as corrupt.
 
 import { join } from 'node:path';
-import { isDomainId, type CvProfile, type Theme } from '../../shared/types.js';
+import { NEWS_TAGS, isDomainId, type CvProfile, type NewsCard, type Theme, type WindowMode } from '../../shared/types.js';
 import type { RawItem } from '../news/types.js';
 import { JsonStore } from './jsonStore.js';
 
@@ -32,19 +32,40 @@ export interface Interactions {
   visited: Record<string, number>;
   /** news id → time first opened */
   seen: Record<string, number>;
+  /** Thumbs down: canonical URL → time removed. Never shown again. */
+  removed: Record<string, number>;
+  /** Thumbs up: news id → the full card as it was, so it survives Refresh and expiry. */
+  useful: Record<string, UsefulEntry>;
 }
 
-export interface Bounds {
+export type UsefulEntry = Omit<NewsCard, 'seenAt' | 'useful'> & { markedAt: number };
+
+export interface ButtonPosition {
   x: number;
   y: number;
-  width: number;
-  height: number;
+  /** Electron display id the button was on, to notice when that screen is gone. */
+  displayId: number | null;
 }
 
 export interface UiState {
-  version: 1;
+  version: 2;
   theme: Theme;
-  bounds: Bounds | null;
+  mode: WindowMode;
+  button: ButtonPosition | null;
+}
+
+export interface ProviderHealthRecord {
+  status: 'ok' | 'empty' | 'failed';
+  checkedAt: number;
+  itemCount: number;
+  lastError: string | null;
+  /** Failed Refreshes in a row; three or more means "needs attention". */
+  consecutiveFailures: number;
+}
+
+export interface HealthState {
+  version: 1;
+  providers: Record<string, ProviderHealthRecord>;
 }
 
 const isObj = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null && !Array.isArray(v);
@@ -100,22 +121,63 @@ export function sanitizeProfileState(v: unknown): ProfileState | null {
   return { version: 1, profile, lastProblem: typeof v.lastProblem === 'string' ? v.lastProblem : null };
 }
 
+const isStrOrNull = (v: unknown) => v === null || typeof v === 'string';
+
+function isUsefulEntry(v: unknown): v is UsefulEntry {
+  return (
+    isObj(v) &&
+    ['id', 'headline', 'summary', 'url', 'sourceName', 'domainLabel', 'date'].every((k) => typeof v[k] === 'string') &&
+    (NEWS_TAGS as readonly unknown[]).includes(v.tag) &&
+    (v.domain === 'all' || isDomainId(v.domain)) &&
+    isStrOrNull(v.eventDate) &&
+    isStrOrNull(v.eventEndDate) &&
+    typeof v.markedAt === 'number'
+  );
+}
+
 export function sanitizeInteractions(v: unknown): Interactions | null {
   if (!isObj(v) || v.version !== 1) return null;
   const visited = sanitizeNumberMap(v.visited);
   const seen = sanitizeNumberMap(v.seen);
-  return visited && seen ? { version: 1, visited, seen } : null;
+  // `removed` and `useful` were added later; older files simply do not have them yet.
+  const removed = v.removed === undefined ? {} : sanitizeNumberMap(v.removed);
+  if (!visited || !seen || !removed) return null;
+  if (v.useful !== undefined && !isObj(v.useful)) return null;
+  const useful: Record<string, UsefulEntry> = {};
+  for (const [id, entry] of Object.entries((v.useful as Record<string, unknown>) ?? {})) {
+    if (isUsefulEntry(entry)) useful[id] = entry;
+  }
+  return { version: 1, visited, seen, removed, useful };
 }
 
 export function sanitizeUiState(v: unknown): UiState | null {
-  if (!isObj(v) || v.version !== 1) return null;
+  if (!isObj(v) || (v.version !== 1 && v.version !== 2)) return null;
   const theme: Theme = v.theme === 'dark' ? 'dark' : 'day';
-  const b = v.bounds;
-  const bounds =
-    isObj(b) && [b.x, b.y, b.width, b.height].every((n) => typeof n === 'number' && Number.isFinite(n))
-      ? { x: b.x as number, y: b.y as number, width: b.width as number, height: b.height as number }
+  // Version 1 (a resizable panel with saved bounds) becomes version 2: start as the button.
+  if (v.version === 1) return { version: 2, theme, mode: 'collapsed', button: null };
+  const mode: WindowMode = v.mode === 'expanded' ? 'expanded' : 'collapsed';
+  const b = v.button;
+  const button =
+    isObj(b) && typeof b.x === 'number' && Number.isFinite(b.x) && typeof b.y === 'number' && Number.isFinite(b.y)
+      ? { x: b.x, y: b.y, displayId: typeof b.displayId === 'number' ? b.displayId : null }
       : null;
-  return { version: 1, theme, bounds };
+  return { version: 2, theme, mode, button };
+}
+
+export function sanitizeHealth(v: unknown): HealthState | null {
+  if (!isObj(v) || v.version !== 1 || !isObj(v.providers)) return null;
+  const providers: Record<string, ProviderHealthRecord> = {};
+  for (const [id, r] of Object.entries(v.providers)) {
+    if (!isObj(r) || !['ok', 'empty', 'failed'].includes(r.status as string) || typeof r.checkedAt !== 'number') continue;
+    providers[id] = {
+      status: r.status as ProviderHealthRecord['status'],
+      checkedAt: r.checkedAt,
+      itemCount: typeof r.itemCount === 'number' ? r.itemCount : 0,
+      lastError: typeof r.lastError === 'string' ? r.lastError : null,
+      consecutiveFailures: typeof r.consecutiveFailures === 'number' ? r.consecutiveFailures : 0,
+    };
+  }
+  return { version: 1, providers };
 }
 
 export class AppStores {
@@ -123,12 +185,14 @@ export class AppStores {
   readonly profile: JsonStore<ProfileState>;
   readonly interactions: JsonStore<Interactions>;
   readonly ui: JsonStore<UiState>;
+  readonly health: JsonStore<HealthState>;
 
   constructor(readonly dir: string) {
     this.feed = new JsonStore(join(dir, 'feed-cache.json'), () => ({ version: 1, lastUpdated: null, sources: {} }), sanitizeFeedCache);
     this.profile = new JsonStore(join(dir, 'profile.json'), () => ({ version: 1, profile: null, lastProblem: null }), sanitizeProfileState);
-    this.interactions = new JsonStore(join(dir, 'interactions.json'), () => ({ version: 1, visited: {}, seen: {} }), sanitizeInteractions);
-    this.ui = new JsonStore(join(dir, 'ui.json'), () => ({ version: 1, theme: 'day', bounds: null }), sanitizeUiState);
+    this.interactions = new JsonStore(join(dir, 'interactions.json'), () => ({ version: 1, visited: {}, seen: {}, removed: {}, useful: {} }), sanitizeInteractions);
+    this.ui = new JsonStore(join(dir, 'ui.json'), () => ({ version: 2, theme: 'day', mode: 'collapsed', button: null }), sanitizeUiState);
+    this.health = new JsonStore(join(dir, 'health.json'), () => ({ version: 1, providers: {} }), sanitizeHealth);
   }
 
   get httpCacheDir(): string {
@@ -137,6 +201,6 @@ export class AppStores {
 
   /** Files that were corrupt at start-up and moved aside. */
   recoveredFiles(): string[] {
-    return [this.feed, this.profile, this.interactions, this.ui].flatMap((s) => (s.recoveredFrom ? [s.recoveredFrom] : []));
+    return [this.feed, this.profile, this.interactions, this.ui, this.health].flatMap((s) => (s.recoveredFrom ? [s.recoveredFrom] : []));
   }
 }
