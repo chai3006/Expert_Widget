@@ -200,6 +200,8 @@ export interface ExpertApi {
   toggleUseful(newsId: string): Promise<ViewModel>;
   setTheme(theme: Theme): Promise<void>;
   setMode(mode: WindowMode): Promise<void>;
+  /** The X button: hides the widget to the tray; it keeps running. */
+  hideWindow(): Promise<void>;
   /** Manual dragging of the collapsed button (see main.ts for why -webkit-app-region is not used). */
   dragStart(): void;
   dragMove(): void;

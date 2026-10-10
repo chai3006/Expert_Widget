@@ -49,8 +49,9 @@ let it finish once.
 - The state (collapsed or expanded), the button position and its screen are remembered. If that
   screen is gone at the next start, the button comes back on the main screen. Refresh never changes
   the state.
-- Tray menu: Show/Hide, Expand/Collapse, Refresh now, Start with Windows, Quit. Clicking the tray
-  icon shows or hides the widget. Only one instance runs at a time.
+- Tray menu (right-click): Show/Hide, Expand/Collapse, Refresh now, Start with Windows, Quit.
+  Left-clicking the tray icon shows or hides the widget. Only one instance runs at a time. See
+  "I can't find the widget" below.
 - **Refresh** reads the CV, recomputes the domain mix, updates employers, fetches the news sources
   and updates the **Updated** time in the Domain mix card. If the PC is offline or a source fails, cached data stays and a
   short message says so.
@@ -72,6 +73,24 @@ let it finish once.
 - The compact **Domain mix** card shows the mix as a thin bar with short names and the time of the
   last Refresh ("Updated today, 07:12"). Click it for the full domain names and the CV file name.
 - The sun/moon button switches day and dark mode.
+
+## I can't find the widget
+
+The widget keeps running until you choose **Quit** in its tray menu. The **×** button, Alt+F4 and
+closing it from the taskbar only hide it.
+
+- **Tray icon:** a teal **E** at the bottom right of the taskbar. If you do not see it, click the
+  small **^** arrow (hidden icons). **Left-click** the icon to show or hide the widget;
+  **right-click** for the menu (Show/Hide, Expand/Collapse, Refresh now, Start with Windows, Quit).
+  Tip: drag the icon from the hidden-icons area onto the taskbar to keep it visible.
+- **Hotkey:** **Ctrl+Alt+E** shows or hides the widget from anywhere. Change it with `"hotkey"` in
+  `config.json` (for example `"Ctrl+Shift+X"`, or `""` for none). If another program already uses
+  it, the tray menu says so.
+- **Start menu / desktop:** start **Expert** again. If it is already running, no second copy opens;
+  the running widget comes to the front, expanded.
+- **Start with Windows:** on by default after installation (toggle it in the tray menu). After a
+  restart the widget appears as the small round button; nothing is refreshed until you press
+  Refresh.
 
 ## Your files
 
@@ -104,6 +123,7 @@ is shown.
 |---|---|
 | `cvFolder` | CV folder. `%VARIABLES%` are expanded. Default `%USERPROFILE%\Documents\ExpertWidget\CV` |
 | `newsMaxAgeDays` | News older than this is hidden (default 7). Career fairs are hidden after their event date instead. |
+| `hotkey` | Show/hide hotkey from anywhere, default `"Ctrl+Alt+E"`; `""` for none |
 | `maxItemsPerTag` | Most cards per group (hiring signals, funded startups, career fairs). Default 12. |
 | `sources` | News sources (layer 1), see below |
 | `search.gdelt` | `{ "enabled": true, "maxRecords": 75 }`: GDELT news search (layer 2) |

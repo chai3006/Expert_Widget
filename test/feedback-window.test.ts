@@ -178,13 +178,13 @@ describe('thumbs up', () => {
 describe('window state', () => {
   it('starts collapsed, remembers mode and button position, and reads the old format', () => {
     const fresh = new AppStores(dir);
-    expect(fresh.ui.value).toEqual({ version: 2, theme: 'day', mode: 'collapsed', button: null });
+    expect(fresh.ui.value).toEqual({ version: 2, theme: 'day', mode: 'collapsed', button: null, autostartDefaultApplied: false });
     fresh.ui.update((u) => ({ ...u, mode: 'expanded', button: { x: 100, y: 200, displayId: 7 } }));
     expect(new AppStores(dir).ui.value).toMatchObject({ mode: 'expanded', button: { x: 100, y: 200, displayId: 7 } });
 
     writeFileSync(join(dir, 'ui.json'), JSON.stringify({ version: 1, theme: 'dark', bounds: { x: 1, y: 2, width: 420, height: 900 } }));
     const migrated = new AppStores(dir);
-    expect(migrated.ui.value).toEqual({ version: 2, theme: 'dark', mode: 'collapsed', button: null });
+    expect(migrated.ui.value).toEqual({ version: 2, theme: 'dark', mode: 'collapsed', button: null, autostartDefaultApplied: false });
     expect(migrated.recoveredFiles()).toEqual([]);
   });
 

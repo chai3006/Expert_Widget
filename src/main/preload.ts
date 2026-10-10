@@ -15,6 +15,7 @@ const api: ExpertApi = {
   toggleUseful: (newsId: string) => ipcRenderer.invoke('feedback:useful', newsId),
   setTheme: (theme: Theme) => ipcRenderer.invoke('ui:theme', theme),
   setMode: (mode: WindowMode) => ipcRenderer.invoke('window:mode', mode),
+  hideWindow: () => ipcRenderer.invoke('window:hide'),
   // Fire-and-forget messages: pointer moves are frequent and need no answer.
   dragStart: () => ipcRenderer.send('drag:start'),
   dragMove: () => ipcRenderer.send('drag:move'),

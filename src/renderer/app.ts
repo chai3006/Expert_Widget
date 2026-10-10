@@ -63,6 +63,7 @@ const ICONS = {
   sun: 'M12 4V2M12 22v-2M4 12H2M22 12h-2M5.6 5.6 4.2 4.2M19.8 19.8l-1.4-1.4M5.6 18.4l-1.4 1.4M19.8 4.2l-1.4 1.4M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z',
   moon: 'M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z',
   minus: 'M5 12h14',
+  close: 'M6 6l12 12M18 6 6 18',
   chevron: 'M6 9l6 6 6-6',
   thumbUp: 'M7 10v11H3V10h4zm0 0 4-8a3 3 0 0 1 3 3v4h5.2a2 2 0 0 1 2 2.4l-1.5 7.6a2 2 0 0 1-2 1.6H7',
   thumbDown: 'M17 14V3h4v11h-4zm0 0-4 8a3 3 0 0 1-3-3v-4H4.8a2 2 0 0 1-2-2.4l1.5-7.6a2 2 0 0 1 2-1.6H17',
@@ -190,7 +191,7 @@ function renderHeader(v: ViewModel): HTMLElement {
   return h(
     'header',
     { class: 'header' },
-    h('div', { class: 'brand' }, h('h1', { class: 'brand-title' }, 'Expert'), v.mock ? h('span', { class: 'mock-badge' }, 'Mock data') : null),
+    h('div', { class: 'brand' }, h('h1', { class: 'brand-title' }, 'Expert'), v.mock ? h('span', { class: 'mock-badge', title: 'Mock data (npm run dev:mock)' }, 'Mock') : null),
     h(
       'button',
       {
@@ -234,6 +235,18 @@ function renderHeader(v: ViewModel): HTMLElement {
         onclick: () => void api.setMode('collapsed'),
       },
       icon('minus'),
+    ),
+    h(
+      'button',
+      {
+        class: 'icon-button',
+        type: 'button',
+        'data-focus-key': 'hide',
+        'aria-label': 'Hide to the tray (the widget keeps running)',
+        title: 'Hide to the tray. Bring it back with the tray icon or the hotkey.',
+        onclick: () => void api.hideWindow(),
+      },
+      icon('close'),
     ),
   );
 }

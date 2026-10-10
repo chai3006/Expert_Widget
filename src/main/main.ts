@@ -1,13 +1,13 @@
 // Electron main process: window, tray, IPC, and the Refresh button's work.
 // All network access and file reading happens here, never in the renderer.
 
-import { BrowserWindow, Menu, Tray, app, ipcMain, nativeImage, net, screen, shell, type IpcMainEvent, type IpcMainInvokeEvent } from 'electron';
+import { BrowserWindow, Menu, Tray, app, globalShortcut, ipcMain, nativeImage, net, screen, shell, type IpcMainEvent, type IpcMainInvokeEvent } from 'electron';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import type { StatusMessage, ViewModel, WindowMode } from '../shared/types.js';
-import { isHttpUrl } from './config.js';
+import { DEFAULT_HOTKEY, isHttpUrl } from './config.js';
 import { MockCvProvider, mockProviders } from './mock/mockData.js';
 import { canonicalUrl, itemId } from './news/dedupe.js';
 import { PoliteFetcher } from './news/fetcher.js';
@@ -17,6 +17,16 @@ import { BergamotTranslator, unpacked } from './translate/translator.js';
 import { AppStores } from './state/appState.js';
 import { ensureUserFiles, loadUserFiles, resolveHome, userFiles, type LoadedFiles } from './userFiles.js';
 import { buildView, companyKey } from './view.js';
+import {
+  AUTOSTART_FLAG,
+  hotkeyMenuNote,
+  onCloseRequest,
+  secondInstanceAction,
+  shouldApplyAutostartDefault,
+  startupMode,
+  toggleAction,
+  type HotkeyState,
+} from './windowBehaviour.js';
 import { BUTTON_WINDOW, clampInto, panelBounds, restoreButtonPosition, type Rect } from './windowGeometry.js';
 
 const MOCK = process.argv.includes('--mock');
@@ -85,6 +95,7 @@ function refresh(): Promise<ViewModel> {
   pushView();
   refreshing = (async () => {
     files = loadFiles(); // pick up edits to config.json and employers.json
+    registerHotkey();
     if (!files.ok) {
       messages = [];
     } else {
@@ -233,8 +244,9 @@ function createWindow(): void {
     openExternalSafe(url);
   });
   win.once('ready-to-show', () => win?.show());
+  // X, Alt+F4 and the taskbar only hide the widget; only Quit in the tray menu exits.
   win.on('close', (event) => {
-    if (!quitting) {
+    if (onCloseRequest(quitting) === 'hide') {
       event.preventDefault();
       win?.hide();
     }
@@ -305,23 +317,55 @@ function showWindow(): void {
   win.focus();
 }
 
+/** Tray left-click and the global hotkey. */
 function toggleWindow(): void {
-  if (win?.isVisible()) win.hide();
+  if (!win) return;
+  if (toggleAction(win.isVisible()) === 'hide') win.hide();
   else showWindow();
+}
+
+// ---- Global hotkey ------------------------------------------------------------------------
+
+let hotkey: HotkeyState = { status: 'off' };
+
+/** (Re-)registers the show/hide hotkey from config.json; a taken hotkey only adds a tray note. */
+function registerHotkey(): void {
+  const wanted = files.ok ? files.config.hotkey : DEFAULT_HOTKEY;
+  // Unchanged and working: nothing to do. A taken hotkey is tried again on every Refresh.
+  if (hotkey.status === 'active' && hotkey.hotkey === wanted) return;
+  globalShortcut.unregisterAll();
+  if (!wanted) {
+    hotkey = { status: 'off' };
+  } else {
+    let ok = false;
+    try {
+      ok = globalShortcut.register(wanted, toggleWindow);
+    } catch {
+      ok = false;
+    }
+    hotkey = ok ? { status: 'active', hotkey: wanted } : { status: 'taken', hotkey: wanted };
+  }
+  tray?.setContextMenu(buildTrayMenu());
 }
 
 // ---- Tray ---------------------------------------------------------------------------------
 
 function loginItemArgs(): string[] {
   // In development the executable is electron.exe, which needs the app folder as argument.
-  return app.isPackaged ? [] : [appRoot()];
+  // The flag tells a start at login apart from a start from the Start menu.
+  return app.isPackaged ? [AUTOSTART_FLAG] : [appRoot(), AUTOSTART_FLAG];
+}
+
+function setStartWithWindows(on: boolean): void {
+  app.setLoginItemSettings({ openAtLogin: on, path: process.execPath, args: loginItemArgs() });
 }
 
 function buildTrayMenu(): Menu {
   const startWithWindows = app.getLoginItemSettings({ args: loginItemArgs() }).openAtLogin;
   const expanded = stores.ui.value.mode === 'expanded';
+  const note = hotkeyMenuNote(hotkey);
   return Menu.buildFromTemplate([
-    { label: 'Show / Hide', click: toggleWindow },
+    { label: hotkey.status === 'active' ? `Show / Hide\t${hotkey.hotkey}` : 'Show / Hide', click: toggleWindow },
     {
       label: expanded ? 'Collapse' : 'Expand',
       click: () => {
@@ -335,10 +379,11 @@ function buildTrayMenu(): Menu {
       type: 'checkbox',
       checked: startWithWindows,
       click: (item) => {
-        app.setLoginItemSettings({ openAtLogin: item.checked, path: process.execPath, args: loginItemArgs() });
+        setStartWithWindows(item.checked);
         tray?.setContextMenu(buildTrayMenu());
       },
     },
+    ...(note ? [{ type: 'separator' as const }, { label: note, enabled: false }] : []),
     { type: 'separator' },
     { label: 'Quit', click: () => app.quit() },
   ]);
@@ -348,6 +393,8 @@ function createTray(): void {
   const image = nativeImage.createFromPath(join(appRoot(), 'assets', 'tray.png'));
   tray = new Tray(image);
   tray.setToolTip(MOCK ? 'Expert Widget (mock data)' : 'Expert Widget');
+  // Right-click opens the menu (Windows shows a context menu only on right-click);
+  // left-click shows or hides the widget.
   tray.setContextMenu(buildTrayMenu());
   tray.on('click', toggleWindow);
 }
@@ -423,6 +470,7 @@ function registerIpc(): void {
     if (theme !== 'day' && theme !== 'dark') return;
     stores.ui.update((ui) => ({ ...ui, theme }));
   });
+  handle('window:hide', () => win?.hide());
   handle('window:mode', (mode) => {
     if (mode === 'collapsed' || mode === 'expanded') setMode(mode);
   });
@@ -446,7 +494,14 @@ if (!app.isPackaged && process.env.EXPERT_WIDGET_USER_DATA) app.setPath('userDat
 if (!app.requestSingleInstanceLock()) {
   app.quit();
 } else {
-  app.on('second-instance', showWindow);
+  // A second start (Start menu, desktop icon) brings this widget to the front, expanded.
+  app.on('second-instance', () => {
+    const action = secondInstanceAction();
+    if (!win) return;
+    setMode(action.mode);
+    showWindow();
+  });
+  app.on('will-quit', () => globalShortcut.unregisterAll());
   app.on('before-quit', () => {
     quitting = true;
   });
@@ -459,9 +514,18 @@ if (!app.requestSingleInstanceLock()) {
     stores = new AppStores(MOCK ? join(app.getPath('userData'), 'mock-state') : app.getPath('userData'));
     pruneSeen();
     files = loadFiles();
+    // After a start at Windows login the widget is the small button (no refresh either way).
+    const mode = startupMode(process.argv, stores.ui.value.mode);
+    if (mode !== stores.ui.value.mode) stores.ui.update((ui) => ({ ...ui, mode }));
+    // "Start with Windows" is on by default: switched on once, the first time the installed app runs.
+    if (shouldApplyAutostartDefault(app.isPackaged && !MOCK, stores.ui.value.autostartDefaultApplied)) {
+      setStartWithWindows(true);
+      stores.ui.update((ui) => ({ ...ui, autostartDefaultApplied: true }));
+    }
     registerIpc();
     createWindow();
     createTray();
+    registerHotkey();
     // Mock mode exists to work on the design, so it fills itself once instead of starting empty.
     if (MOCK && stores.feed.value.lastUpdated === null) void refresh();
   });

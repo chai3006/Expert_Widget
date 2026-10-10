@@ -2,6 +2,7 @@
 // its exact JSON path so the error screen can tell the user precisely what to fix.
 
 import { DOMAIN_IDS, isDomainId, type DomainId } from '../shared/types.js';
+import { isValidHotkey } from './windowBehaviour.js';
 
 export const SOURCE_TOPICS = ['hiring', 'funded_startup', 'career_fair'] as const;
 export type SourceTopic = (typeof SOURCE_TOPICS)[number];
@@ -26,6 +27,8 @@ export interface AppConfig {
   cvFolder: string;
   newsMaxAgeDays: number;
   maxItemsPerTag: number;
+  /** Global show/hide hotkey, e.g. "Ctrl+Alt+E"; "" switches it off. */
+  hotkey: string;
   sources: SourceConfig[];
   /** Search providers (layers 2 and 3). */
   search: {
@@ -51,6 +54,8 @@ export interface EmployerSegment {
   segment: string;
   companies: CompanyEntry[];
 }
+
+export const DEFAULT_HOTKEY = 'Ctrl+Alt+E';
 
 export type Validated<T> = { ok: true; value: T } | { ok: false; errors: string[] };
 
@@ -108,6 +113,11 @@ export function validateConfig(raw: unknown): Validated<AppConfig> {
   const maxItemsPerTag = raw.maxItemsPerTag ?? 12;
   if (!Number.isInteger(maxItemsPerTag) || (maxItemsPerTag as number) < 1 || (maxItemsPerTag as number) > 100) {
     errors.push('maxItemsPerTag: must be a whole number between 1 and 100');
+  }
+
+  const hotkey = raw.hotkey ?? DEFAULT_HOTKEY;
+  if (typeof hotkey !== 'string' || (hotkey.trim() !== '' && !isValidHotkey(hotkey.trim()))) {
+    errors.push('hotkey: must be a key combination like "Ctrl+Alt+E" (modifiers Ctrl, Alt, Shift, then one key), or "" for none');
   }
 
   const sources: SourceConfig[] = [];
@@ -221,6 +231,7 @@ export function validateConfig(raw: unknown): Validated<AppConfig> {
       cvFolder: (raw.cvFolder as string).trim(),
       newsMaxAgeDays: raw.newsMaxAgeDays as number,
       maxItemsPerTag: maxItemsPerTag as number,
+      hotkey: (hotkey as string).trim(),
       sources,
       search,
       keywords: { domains: domainKeywords, tags: tagKeywords, fairExclude },

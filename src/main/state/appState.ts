@@ -52,6 +52,8 @@ export interface UiState {
   theme: Theme;
   mode: WindowMode;
   button: ButtonPosition | null;
+  /** "Start with Windows" was switched on once by default (installed app only). */
+  autostartDefaultApplied: boolean;
 }
 
 export interface ProviderHealthRecord {
@@ -164,14 +166,14 @@ export function sanitizeUiState(v: unknown): UiState | null {
   if (!isObj(v) || (v.version !== 1 && v.version !== 2)) return null;
   const theme: Theme = v.theme === 'dark' ? 'dark' : 'day';
   // Version 1 (a resizable panel with saved bounds) becomes version 2: start as the button.
-  if (v.version === 1) return { version: 2, theme, mode: 'collapsed', button: null };
+  if (v.version === 1) return { version: 2, theme, mode: 'collapsed', button: null, autostartDefaultApplied: false };
   const mode: WindowMode = v.mode === 'expanded' ? 'expanded' : 'collapsed';
   const b = v.button;
   const button =
     isObj(b) && typeof b.x === 'number' && Number.isFinite(b.x) && typeof b.y === 'number' && Number.isFinite(b.y)
       ? { x: b.x, y: b.y, displayId: typeof b.displayId === 'number' ? b.displayId : null }
       : null;
-  return { version: 2, theme, mode, button };
+  return { version: 2, theme, mode, button, autostartDefaultApplied: v.autostartDefaultApplied === true };
 }
 
 export function sanitizeHealth(v: unknown): HealthState | null {
@@ -201,7 +203,7 @@ export class AppStores {
     this.feed = new JsonStore(join(dir, 'feed-cache.json'), () => ({ version: 1, lastUpdated: null, sources: {} }), sanitizeFeedCache);
     this.profile = new JsonStore(join(dir, 'profile.json'), () => ({ version: 1, profile: null, lastProblem: null }), sanitizeProfileState);
     this.interactions = new JsonStore(join(dir, 'interactions.json'), () => ({ version: 1, visited: {}, seen: {}, removed: {}, useful: {} }), sanitizeInteractions);
-    this.ui = new JsonStore(join(dir, 'ui.json'), () => ({ version: 2, theme: 'day', mode: 'collapsed', button: null }), sanitizeUiState);
+    this.ui = new JsonStore(join(dir, 'ui.json'), () => ({ version: 2, theme: 'day', mode: 'collapsed', button: null, autostartDefaultApplied: false }), sanitizeUiState);
     this.health = new JsonStore(join(dir, 'health.json'), () => ({ version: 1, providers: {} }), sanitizeHealth);
   }
 

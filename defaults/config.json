@@ -2,6 +2,7 @@
   "cvFolder": "%USERPROFILE%\\Documents\\ExpertWidget\\CV",
   "newsMaxAgeDays": 7,
   "maxItemsPerTag": 12,
+  "hotkey": "Ctrl+Alt+E",
   "sources": [
     {
       "id": "ingenieur-recruiting-tag",
