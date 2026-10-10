@@ -1,0 +1,815 @@
+
+
+
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="x-ua-compatible" content="ie=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <title> Search | Restructuring events database </title>
+
+    <link
+      rel="icon"
+      type="image/x-icon"
+      href="/restructuring-events/assets/img/effavicon.ico"
+    />
+    <link rel="stylesheet" href="/restructuring-events/assets/css/app.css" />
+    
+    
+
+    <!--Webtools-->
+    <script defer src="https://webtools.europa.eu/load.js" type="text/javascript"></script>
+  
+    <!--Cookie consent kit-->
+    <script type="application/json">{ "utility" : "cck" }</script>
+
+    <!--Fix CCK on mobile-->
+	  <style>.cck-container {z-index:150!important;} .image a:hover {background-color:transparent}</style>
+
+    <!--Europa Analytics-->
+	  <script type="application/json">{"utility":"analytics","siteID":"354cb5e0-bff7-4f58-8932-b30b08c7dbfc","sitePath":["apps.eurofound.europa.eu"],"instance":"ec"}</script>
+  </head>
+
+  <body>
+    <div class="page">
+      <header class="header surface-c">
+  <div>
+    <div class="logo">
+      <a
+        href="https://apps.eurofound.europa.eu/"
+        rel="external noopener noreferrer"
+      >
+        <span>Eurofound apps</span>
+      </a>
+    </div>
+
+    <div
+      class="title-bar"
+      data-responsive-toggle="responsive-menu"
+      data-hide-for="large"
+    >
+      <button class="menu-icon" type="button" data-toggle="responsive-menu">
+        Menu
+      </button>
+    </div>
+
+    <div class="top-bar" id="responsive-menu">
+      <nav
+        class="main-navigation"
+        role="navigation"
+        aria-label="Main navigation"
+      >
+        <ul
+          class="menu vertical accordion-menu large-horizontal"
+          data-accordion-menu
+        >
+          <li>
+            <ul class="menu vertical nested large-horizontal is-active">
+                
+                    
+                        <li><a href="https://static.eurofound.europa.eu/covid19db">EU PolicyWatch</a></li>
+                    
+                
+                    
+                        <li><a href="https://apps.eurofound.europa.eu/platformeconomydb">Platform Economy database</a></li>
+                    
+                
+                    
+                        <li class="active"><a href="https://apps.eurofound.europa.eu/restructuring-events">Restructuring events</a></li>
+                    
+                
+                    
+                        <li><a href="https://apps.eurofound.europa.eu/legislationdb/">Restructuring legislation</a></li>
+                    
+                
+            </ul>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+</header>
+
+      <main>
+        
+
+<section  class="site-header surface-b show-for-medium">
+  <div>
+    <div class="content">
+      
+      <p class="title">Restructuring events</p>
+      
+
+      <p class="subtitle display-h3">
+        European Restructuring Monitor (ERM)
+      </p>
+      <p>
+        The restructuring events database contains factsheets with data on large-scale restructuring events reported in the principal national media and company websites in each EU Member State. This database was created in 2002.
+      </p>
+      
+    <div style="margin-top:15px" class=""> 
+      <div class="secondary button-group hollow no-gaps stacked-for-small">
+        <a class="button"  href="/restructuring-events">Home</a>
+        <a class="button"  href="/restructuring-events/methodology">Methodology</a>
+        <a class="button" style="background:#368275;color:#fff"  href="/restructuring-events/search">Search</a>
+        <a class="button"  href="/restructuring-events/calculator">Statistics</a>
+      </div>
+  </div>
+    
+    </div>
+    <div class="image">
+      <a href="/restructuring-events"  style="background-color: transparent !important;" title="Home">
+      <img
+        alt="Restructuring events database"
+        src="/restructuring-events/assets/img/restructuring-events.svg"
+      />
+    </a>
+    </div>
+  </div>
+</section>
+
+        <section class="main-content">
+          
+<div>
+  <div class="content">
+    <div class="page-header surface-c panel">
+      <nav aria-label="You are here:" role="navigation">
+        <ul class="breadcrumbs" style="padding-top: 50px">
+          <li><a href="/restructuring-events">Restructuring events</a></li>
+          <li>
+            <span class="show-for-sr">Current:</span> Search
+          </li>
+        </ul>
+      </nav>
+      <h1>Search Database</h1>
+    </div>
+
+    <div class="panel surface-c">
+    <form
+  id="search-page-form"
+  class="form search-page-form"
+  onreset="doSearchFormReset()"
+>
+  <div class="grid-x grid-margin-x">
+    <div class="cell">
+      <label class="field field-type-text ">
+  <span class="label ">Company Name</span>
+
+  <span class="input">
+    <input
+      type="text"
+      maxlength="300"
+      name="company"
+      
+    />
+  </span>
+</label>
+
+    </div>
+
+    <div class="cell medium-6 xlarge-4">
+      <label
+  class="field field-type-select "
+>
+  <span class="label "
+    >Country</span
+  >
+  <select
+    class="multy-select"
+    name="Country"
+    multiple="multiple"
+    
+  >
+    
+      <option value="Austria">Austria</option>
+    
+      <option value="Belgium">Belgium</option>
+    
+      <option value="Bulgaria">Bulgaria</option>
+    
+      <option value="Croatia">Croatia</option>
+    
+      <option value="Cyprus">Cyprus</option>
+    
+      <option value="Czechia">Czechia</option>
+    
+      <option value="Denmark">Denmark</option>
+    
+      <option value="Estonia">Estonia</option>
+    
+      <option value="European Union">European Union</option>
+    
+      <option value="Finland">Finland</option>
+    
+      <option value="France">France</option>
+    
+      <option value="Germany">Germany</option>
+    
+      <option value="Greece">Greece</option>
+    
+      <option value="Hungary">Hungary</option>
+    
+      <option value="Ireland">Ireland</option>
+    
+      <option value="Italy">Italy</option>
+    
+      <option value="Latvia">Latvia</option>
+    
+      <option value="Lithuania">Lithuania</option>
+    
+      <option value="Luxembourg">Luxembourg</option>
+    
+      <option value="Malta">Malta</option>
+    
+      <option value="Netherlands">Netherlands</option>
+    
+      <option value="Norway">Norway</option>
+    
+      <option value="Poland">Poland</option>
+    
+      <option value="Portugal">Portugal</option>
+    
+      <option value="Romania">Romania</option>
+    
+      <option value="Slovakia">Slovakia</option>
+    
+      <option value="Slovenia">Slovenia</option>
+    
+      <option value="Spain">Spain</option>
+    
+      <option value="Sweden">Sweden</option>
+    
+      <option value="United Kingdom">United Kingdom</option>
+    
+      <option value="World">World</option>
+    
+  </select>
+</label>
+
+    </div>
+
+    <div class="cell medium-6 xlarge-4">
+      <label
+  class="field field-type-select "
+>
+  <span class="label "
+    >Sector</span
+  >
+  <select
+    class="multy-select"
+    name="Sector"
+    multiple="multiple"
+    
+  >
+    
+      <option value="Accommodation / Food">Accommodation / Food</option>
+    
+      <option value="Adminstrative / Support Services">Adminstrative / Support Services</option>
+    
+      <option value="Agriculture / Forestry / Fishing">Agriculture / Forestry / Fishing</option>
+    
+      <option value="Arts / Sports">Arts / Sports</option>
+    
+      <option value="Construction">Construction</option>
+    
+      <option value="Education">Education</option>
+    
+      <option value="Electricity">Electricity</option>
+    
+      <option value="Financial / Insurance/ Estate">Financial / Insurance/ Estate</option>
+    
+      <option value="Health / Social work">Health / Social work</option>
+    
+      <option value="Households / Extraterritorial">Households / Extraterritorial</option>
+    
+      <option value="Information / Computing">Information / Computing</option>
+    
+      <option value="Manufacturing">Manufacturing</option>
+    
+      <option value="Media">Media</option>
+    
+      <option value="Mining / Quarrying">Mining / Quarrying</option>
+    
+      <option value="Other Services">Other Services</option>
+    
+      <option value="Professional Services">Professional Services</option>
+    
+      <option value="Public Administration / Defence">Public Administration / Defence</option>
+    
+      <option value="Transportation / Storage">Transportation / Storage</option>
+    
+      <option value="Water / Waste">Water / Waste</option>
+    
+      <option value="Wholesale / Retail">Wholesale / Retail</option>
+    
+  </select>
+</label>
+
+    </div>
+
+    <div class="cell medium-6 xlarge-4">
+      <label
+  class="field field-type-select "
+>
+  <span class="label "
+    >Restructuring Type</span
+  >
+  <select
+    class="multy-select"
+    name="Restructuring Type"
+    multiple="multiple"
+    
+  >
+    
+      <option value=""></option>
+    
+      <option value="Bankruptcy">Bankruptcy</option>
+    
+      <option value="Business expansion">Business expansion</option>
+    
+      <option value="Closure">Closure</option>
+    
+      <option value="Internal restructuring">Internal restructuring</option>
+    
+      <option value="Merger/Acquisition">Merger/Acquisition</option>
+    
+      <option value="Offshoring/Delocalisation">Offshoring/Delocalisation</option>
+    
+      <option value="Outsourcing">Outsourcing</option>
+    
+      <option value="Relocation">Relocation</option>
+    
+      <option value="Reshoring">Reshoring</option>
+    
+  </select>
+</label>
+
+    </div>
+
+    <!-- Hide thematic markers -->
+    <!--
+    <div class="cell medium-6 xlarge-3">
+      <label
+  class="field field-type-select "
+>
+  <span class="label "
+    >Thematic Marker</span
+  >
+  <select
+    class="multy-select"
+    name="Thematic Marker"
+    multiple="multiple"
+    
+  >
+    
+  </select>
+</label>
+
+    </div>
+    -->
+
+    <div class="cell medium-6 xlarge-4">
+      <label class="field field-type-text ">
+	<span class="label ">From</span>
+	<span class="input">
+		<input
+			type="date"
+			name="date-from"
+			
+			
+			
+			>
+	</span>
+</label>
+
+    </div>
+
+    <div class="cell medium-6 xlarge-4">
+      <label class="field field-type-text ">
+	<span class="label ">To</span>
+	<span class="input">
+		<input
+			type="date"
+			name="date-to"
+			
+			
+			
+			>
+	</span>
+</label>
+
+    </div>
+
+    <div class="cell">
+      <div class="actions">
+        <button class="button secondary" type="submit">Apply</button>
+        <input class="button outlined secondary" type="reset" value="Reset"></input>
+      </div>
+    </div>
+  </div>
+</form>
+
+
+
+
+<script src="/restructuring-events/assets/js/scripts/search-page.js"></script>
+
+
+    </div>
+
+    <div class="results-section">
+
+      
+
+
+<style>
+  .company-name {
+    text-decoration:underline !important; 
+    text-underline-offset: 5px !important; 
+    text-decoration-thickness: 0.05em !important; 
+    color: var(--link-default-fg-color) !important;
+  }
+  .company-name:hover {
+    color: #fff !important;
+    background-color: var(--link-default-fg-color) !important;
+    text-decoration-color: var(--link-default-fg-color) !important;
+
+  }
+</style>
+<div class="results-table-container">
+  <table class="restructuring-events-table">
+    <thead>
+      <tr>
+        <th>Announcement date</th>
+        <th>Country</th>
+        <th>Company</th>
+        <th>Sector</th>
+        <th>Restructuring type</th>
+        <th>Employment change</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      
+      <tr>
+        <td>
+          <a href="/restructuring-events/detail/301216" class="rowlink">2 October 2026</a>
+        </td>
+        <td>
+          <a href="/restructuring-events/detail/301216" class="rowlink"><figure><img src="https://static.eurofound.europa.eu/assets/flags/4-3/de.svg" alt="Flag" class="countryflags" /><figcaption>Germany</figcaption></figure></a>
+        </td>
+        <td>
+          <a href="/restructuring-events/detail/301216" class="rowlink company-name">Aaronia</a>
+        </td>
+        <td>
+          <a href="/restructuring-events/detail/301216" class="rowlink">Manufacturing</a>
+        </td>
+        <td>
+          <a href="/restructuring-events/detail/301216" class="rowlink">Business expansion</a>
+        </td>
+        <td class="job-creation">
+          <a href="/restructuring-events/detail/301216" class="rowlink">+150</a>
+        </td>
+        <td><a href="/restructuring-events/detail/301216" class="button icon-arrow-right hollow small" style="border-bottom:0;background-color:transparent" title="View"></a></td>
+      </tr>
+      
+      <tr>
+        <td>
+          <a href="/restructuring-events/detail/301220" class="rowlink">2 October 2026</a>
+        </td>
+        <td>
+          <a href="/restructuring-events/detail/301220" class="rowlink"><figure><img src="https://static.eurofound.europa.eu/assets/flags/4-3/de.svg" alt="Flag" class="countryflags" /><figcaption>Germany</figcaption></figure></a>
+        </td>
+        <td>
+          <a href="/restructuring-events/detail/301220" class="rowlink company-name">Breyden</a>
+        </td>
+        <td>
+          <a href="/restructuring-events/detail/301220" class="rowlink">Manufacturing</a>
+        </td>
+        <td>
+          <a href="/restructuring-events/detail/301220" class="rowlink">Closure</a>
+        </td>
+        <td class="job-loss">
+          <a href="/restructuring-events/detail/301220" class="rowlink">-290</a>
+        </td>
+        <td><a href="/restructuring-events/detail/301220" class="button icon-arrow-right hollow small" style="border-bottom:0;background-color:transparent" title="View"></a></td>
+      </tr>
+      
+      <tr>
+        <td>
+          <a href="/restructuring-events/detail/301215" class="rowlink">1 October 2026</a>
+        </td>
+        <td>
+          <a href="/restructuring-events/detail/301215" class="rowlink"><figure><img src="https://static.eurofound.europa.eu/assets/flags/4-3/de.svg" alt="Flag" class="countryflags" /><figcaption>Germany</figcaption></figure></a>
+        </td>
+        <td>
+          <a href="/restructuring-events/detail/301215" class="rowlink company-name">Aldi Süd</a>
+        </td>
+        <td>
+          <a href="/restructuring-events/detail/301215" class="rowlink">Wholesale / Retail</a>
+        </td>
+        <td>
+          <a href="/restructuring-events/detail/301215" class="rowlink">Internal restructuring</a>
+        </td>
+        <td class="job-loss">
+          <a href="/restructuring-events/detail/301215" class="rowlink">-150</a>
+        </td>
+        <td><a href="/restructuring-events/detail/301215" class="button icon-arrow-right hollow small" style="border-bottom:0;background-color:transparent" title="View"></a></td>
+      </tr>
+      
+      <tr>
+        <td>
+          <a href="/restructuring-events/detail/301214" class="rowlink">30 September 2026</a>
+        </td>
+        <td>
+          <a href="/restructuring-events/detail/301214" class="rowlink"><figure><img src="https://static.eurofound.europa.eu/assets/flags/4-3/de.svg" alt="Flag" class="countryflags" /><figcaption>Germany</figcaption></figure></a>
+        </td>
+        <td>
+          <a href="/restructuring-events/detail/301214" class="rowlink company-name">Paul Köster</a>
+        </td>
+        <td>
+          <a href="/restructuring-events/detail/301214" class="rowlink">Manufacturing</a>
+        </td>
+        <td>
+          <a href="/restructuring-events/detail/301214" class="rowlink">Internal restructuring</a>
+        </td>
+        <td class="job-loss">
+          <a href="/restructuring-events/detail/301214" class="rowlink">-90</a>
+        </td>
+        <td><a href="/restructuring-events/detail/301214" class="button icon-arrow-right hollow small" style="border-bottom:0;background-color:transparent" title="View"></a></td>
+      </tr>
+      
+      <tr>
+        <td>
+          <a href="/restructuring-events/detail/301193" class="rowlink">29 September 2026</a>
+        </td>
+        <td>
+          <a href="/restructuring-events/detail/301193" class="rowlink"><figure><img src="https://static.eurofound.europa.eu/assets/flags/4-3/de.svg" alt="Flag" class="countryflags" /><figcaption>Germany</figcaption></figure></a>
+        </td>
+        <td>
+          <a href="/restructuring-events/detail/301193" class="rowlink company-name">Moldtecs</a>
+        </td>
+        <td>
+          <a href="/restructuring-events/detail/301193" class="rowlink">Manufacturing</a>
+        </td>
+        <td>
+          <a href="/restructuring-events/detail/301193" class="rowlink">Internal restructuring</a>
+        </td>
+        <td class="job-loss">
+          <a href="/restructuring-events/detail/301193" class="rowlink">-300</a>
+        </td>
+        <td><a href="/restructuring-events/detail/301193" class="button icon-arrow-right hollow small" style="border-bottom:0;background-color:transparent" title="View"></a></td>
+      </tr>
+      
+      <tr>
+        <td>
+          <a href="/restructuring-events/detail/301185" class="rowlink">28 September 2026</a>
+        </td>
+        <td>
+          <a href="/restructuring-events/detail/301185" class="rowlink"><figure><img src="https://static.eurofound.europa.eu/assets/flags/4-3/de.svg" alt="Flag" class="countryflags" /><figcaption>Germany</figcaption></figure></a>
+        </td>
+        <td>
+          <a href="/restructuring-events/detail/301185" class="rowlink company-name">Bosch</a>
+        </td>
+        <td>
+          <a href="/restructuring-events/detail/301185" class="rowlink">Manufacturing</a>
+        </td>
+        <td>
+          <a href="/restructuring-events/detail/301185" class="rowlink">Internal restructuring</a>
+        </td>
+        <td class="job-loss">
+          <a href="/restructuring-events/detail/301185" class="rowlink">-900</a>
+        </td>
+        <td><a href="/restructuring-events/detail/301185" class="button icon-arrow-right hollow small" style="border-bottom:0;background-color:transparent" title="View"></a></td>
+      </tr>
+      
+      <tr>
+        <td>
+          <a href="/restructuring-events/detail/301183" class="rowlink">25 September 2026</a>
+        </td>
+        <td>
+          <a href="/restructuring-events/detail/301183" class="rowlink"><figure><img src="https://static.eurofound.europa.eu/assets/flags/4-3/de.svg" alt="Flag" class="countryflags" /><figcaption>Germany</figcaption></figure></a>
+        </td>
+        <td>
+          <a href="/restructuring-events/detail/301183" class="rowlink company-name">WDR</a>
+        </td>
+        <td>
+          <a href="/restructuring-events/detail/301183" class="rowlink">Media</a>
+        </td>
+        <td>
+          <a href="/restructuring-events/detail/301183" class="rowlink">Internal restructuring</a>
+        </td>
+        <td class="job-loss">
+          <a href="/restructuring-events/detail/301183" class="rowlink">-133</a>
+        </td>
+        <td><a href="/restructuring-events/detail/301183" class="button icon-arrow-right hollow small" style="border-bottom:0;background-color:transparent" title="View"></a></td>
+      </tr>
+      
+      <tr>
+        <td>
+          <a href="/restructuring-events/detail/301190" class="rowlink">24 September 2026</a>
+        </td>
+        <td>
+          <a href="/restructuring-events/detail/301190" class="rowlink"><figure><img src="https://static.eurofound.europa.eu/assets/flags/4-3/de.svg" alt="Flag" class="countryflags" /><figcaption>Germany</figcaption></figure></a>
+        </td>
+        <td>
+          <a href="/restructuring-events/detail/301190" class="rowlink company-name">Zahoransky</a>
+        </td>
+        <td>
+          <a href="/restructuring-events/detail/301190" class="rowlink">Manufacturing</a>
+        </td>
+        <td>
+          <a href="/restructuring-events/detail/301190" class="rowlink">Internal restructuring</a>
+        </td>
+        <td class="job-loss">
+          <a href="/restructuring-events/detail/301190" class="rowlink">-120</a>
+        </td>
+        <td><a href="/restructuring-events/detail/301190" class="button icon-arrow-right hollow small" style="border-bottom:0;background-color:transparent" title="View"></a></td>
+      </tr>
+      
+      <tr>
+        <td>
+          <a href="/restructuring-events/detail/301154" class="rowlink">23 September 2026</a>
+        </td>
+        <td>
+          <a href="/restructuring-events/detail/301154" class="rowlink"><figure><img src="https://static.eurofound.europa.eu/assets/flags/4-3/de.svg" alt="Flag" class="countryflags" /><figcaption>Germany</figcaption></figure></a>
+        </td>
+        <td>
+          <a href="/restructuring-events/detail/301154" class="rowlink company-name">Warsteiner Brauerei</a>
+        </td>
+        <td>
+          <a href="/restructuring-events/detail/301154" class="rowlink">Manufacturing</a>
+        </td>
+        <td>
+          <a href="/restructuring-events/detail/301154" class="rowlink">Internal restructuring</a>
+        </td>
+        <td class="job-loss">
+          <a href="/restructuring-events/detail/301154" class="rowlink">-125</a>
+        </td>
+        <td><a href="/restructuring-events/detail/301154" class="button icon-arrow-right hollow small" style="border-bottom:0;background-color:transparent" title="View"></a></td>
+      </tr>
+      
+      <tr>
+        <td>
+          <a href="/restructuring-events/detail/301155" class="rowlink">21 September 2026</a>
+        </td>
+        <td>
+          <a href="/restructuring-events/detail/301155" class="rowlink"><figure><img src="https://static.eurofound.europa.eu/assets/flags/4-3/de.svg" alt="Flag" class="countryflags" /><figcaption>Germany</figcaption></figure></a>
+        </td>
+        <td>
+          <a href="/restructuring-events/detail/301155" class="rowlink company-name">Mubea</a>
+        </td>
+        <td>
+          <a href="/restructuring-events/detail/301155" class="rowlink">Manufacturing</a>
+        </td>
+        <td>
+          <a href="/restructuring-events/detail/301155" class="rowlink">Internal restructuring</a>
+        </td>
+        <td class="job-loss">
+          <a href="/restructuring-events/detail/301155" class="rowlink">-200</a>
+        </td>
+        <td><a href="/restructuring-events/detail/301155" class="button icon-arrow-right hollow small" style="border-bottom:0;background-color:transparent" title="View"></a></td>
+      </tr>
+      
+    </tbody>
+  </table>
+</div>
+
+
+
+
+
+<script src="/restructuring-events/assets/js/scripts/pagination.js"></script>
+
+
+<nav aria-label="Pagination" class="pagination-wrapper">
+  <ul class="pagination text-center">
+    
+
+    
+
+    
+      
+      <li class="current">
+        <span class="show-for-sr">You're on page</span> 1
+      </li>
+      
+    
+      
+      <li>
+        <a
+          href="?page=2"
+          aria-label="Page 2"
+          class="button outlined small"
+          onclick="return goToPage(2)"
+        >
+          2
+        </a>
+      </li>
+      
+    
+      
+      <li>
+        <a
+          href="?page=3"
+          aria-label="Page 3"
+          class="button outlined small"
+          onclick="return goToPage(3)"
+        >
+          3
+        </a>
+      </li>
+      
+    
+
+    
+    
+      <li class="pagination-next">
+        <a
+          href="?page=2"
+          aria-label="Page 2"
+          class="button outlined small icon-arrow-right icon-only"
+          onclick="return goToPage(2)"
+        >
+          Next
+        </a>
+      </li>
+    
+    
+    
+    
+    
+    <li class="pagination-last">
+      <a
+          href="?page=199"
+          aria-label="Page 199"
+          class="button outlined small icon-arrow-double-right icon-only"
+          onclick="return goToPage(199)"
+        >
+          Last
+        </a>
+		</li>
+    
+    
+  </ul>
+  <p class="text-center">1,989 events</p>
+</nav>
+
+
+
+
+
+
+
+
+
+
+
+    </div>
+    
+    <p>
+      <a style="display: none;" id="csv-download-button" class="button">Export data</a>
+    </p>
+  </div>
+</div>
+
+        </section>
+        
+      </main>
+
+      <footer class="footer surface-d">
+  <div>
+    <div class="footer-top">
+      <div class="logo">
+        <a href="https://www.eurofound.europa.eu/"><span>Eurofound</span></a>
+      </div>
+      <p class="moto">
+        <a href="https://apps.eurofound.europa.eu">Eurofound apps</a>
+      </p>
+
+      <div class="small-list horizontal bullets rich-text">
+        <h2 class="heading show-for-sr">Quick links</h2>
+        <ul>
+          
+            <li><a href="https://static.eurofound.europa.eu/covid19db">EU PolicyWatch</a></li>
+          
+            <li><a href="https://apps.eurofound.europa.eu/platformeconomydb">Platform Economy database</a></li>
+          
+            <li><a href="https://apps.eurofound.europa.eu/restructuring-events">Restructuring events</a></li>
+          
+            <li><a href="https://apps.eurofound.europa.eu/legislationdb/">Restructuring legislation</a></li>
+          
+        </ul>
+      </div>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <script src="/restructuring-events/assets/js/app.js"></script>
+    
+    
+  </body>
+</html>

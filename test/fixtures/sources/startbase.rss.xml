@@ -1,0 +1,121 @@
+<?xml version="1.0"?>
+<rss version="2.0"
+     xmlns:content="http://purl.org/rss/1.0/modules/content/"
+     xmlns:wfw="http://wellformedweb.org/CommentAPI/"
+     xmlns:dc="http://purl.org/dc/elements/1.1/"
+     xmlns:atom="http://www.w3.org/2005/Atom"
+     xmlns:sy="http://purl.org/rss/1.0/modules/syndication/"
+     xmlns:slash="http://purl.org/rss/1.0/modules/slash/"
+		>
+
+	<channel>
+		<title>Startbase</title>
+		<link>https://www.startbase.de/</link>
+		<atom:link href="https://www.startbase.de/feed/" rel="self" type="application/rss+xml" />
+		<description>Startbase RSS Feed: Startups, Stories, Startistics</description>
+		<lastBuildDate>Sat, 10 Oct 2026 08:00:00 +0200</lastBuildDate>
+		<language>de-DE</language>
+
+		
+			<item>
+				<title>Boomerent: Wie zwei Gründer mit KI den intransparenten Immobilienmarkt aufmischen</title>
+				<link>https://www.startbase.de/portraits/boomerent-wie-zwei-gruender-mit-ki-den-intransparenten-immobilienmarkt-aufmischen/</link>
+				<pubDate>Sat, 10 Oct 2026 06:00:00 +0000</pubDate>
+				<description><![CDATA[<p><img width="2000" height="1500" src="https://cdn.startbase.com/images/magazine/2026/10/Stephan_Ron_Foto_Jennifer-Wickert_Reaktor-Wildau-220x165.jpeg 220w" sizes="auto, (max-width: 2000px) 100vw, 2000px" /></p> Startbase begleitet Startups aus dem Reaktor Wildau - Auftakt der Serie Startbase startet eine neue exklusive Serie über die Startups des zweiten Batches des Accelerators Reaktor Wildau. Jeden Samstag begleiten wir die teilnehmenden Unternehmen ...]]></description>
+				<dc:creator></dc:creator>
+				<guid>https://www.startbase.de/portraits/boomerent-wie-zwei-gruender-mit-ki-den-intransparenten-immobilienmarkt-aufmischen/</guid>
+			</item>
+
+		
+			<item>
+				<title>Startupnews zum Wochenende KW 41/2026</title>
+				<link>https://www.startbase.de/news/startupnews-zum-wochenende-kw-41-2026/</link>
+				<pubDate>Fri, 09 Oct 2026 08:00:00 +0000</pubDate>
+				<description><![CDATA[<p><img width="1600" height="1067" src="https://cdn.startbase.com/images/magazine/2026/10/anny-hidesk-gruender-1-220x147.jpg 220w" sizes="auto, (max-width: 1600px) 100vw, 1600px" /></p> Funding Bosch Ventures legt 100-Millionen-Euro-Fonds für deutsche Deep-Tech-Startups auf Bosch Ventures hat mit Spark einen neuen Fonds über 100 Millionen Euro angekündigt, der gezielt in deutsche Deep-Tech-Startups investieren soll. Ab...]]></description>
+				<dc:creator></dc:creator>
+				<guid>https://www.startbase.de/news/startupnews-zum-wochenende-kw-41-2026/</guid>
+			</item>
+
+		
+			<item>
+				<title>TODAY erhält 2,8 Millionen Euro</title>
+				<link>https://www.startbase.de/news/today-erhaelt-28-millionen-euro/</link>
+				<pubDate>Thu, 08 Oct 2026 08:00:00 +0000</pubDate>
+				<description><![CDATA[<p><img width="2219" height="1664" src="https://cdn.startbase.com/images/magazine/2026/10/Today_Artem-Demchenkov-Michael-Gackstatter-220x165.jpg 220w" sizes="auto, (max-width: 2219px) 100vw, 2219px" /></p>...]]></description>
+				<dc:creator></dc:creator>
+				<guid>https://www.startbase.de/news/today-erhaelt-28-millionen-euro/</guid>
+			</item>
+
+		
+			<item>
+				<title>Evorimo automatisiert den Immobilienverkauf ohne Makler</title>
+				<link>https://www.startbase.de/portraits/evorimo-automatisiert-den-immobilienverkauf-ohnemakler/</link>
+				<pubDate>Thu, 08 Oct 2026 05:30:00 +0000</pubDate>
+				<description><![CDATA[<p><img width="1535" height="1024" src="https://cdn.startbase.com/images/magazine/2026/10/Evorimo_Benjamin_Lorenz-220x147.png 220w" sizes="auto, (max-width: 1535px) 100vw, 1535px" /></p>...]]></description>
+				<dc:creator></dc:creator>
+				<guid>https://www.startbase.de/portraits/evorimo-automatisiert-den-immobilienverkauf-ohnemakler/</guid>
+			</item>
+
+		
+			<item>
+				<title>Finches erhält 2 Millionen Euro für KI-Frühwarnsystem im Agrareinkauf</title>
+				<link>https://www.startbase.de/news/finches-erhaelt-2-millionen-euro-fuer-ki-fruehwarnsystem-im-agrareinkauf/</link>
+				<pubDate>Thu, 08 Oct 2026 04:00:00 +0000</pubDate>
+				<description><![CDATA[<p><img width="2000" height="1472" src="https://cdn.startbase.com/images/magazine/2026/10/Finches_founding-team-220x162.jpeg 220w" sizes="auto, (max-width: 2000px) 100vw, 2000px" /></p>...]]></description>
+				<dc:creator></dc:creator>
+				<guid>https://www.startbase.de/news/finches-erhaelt-2-millionen-euro-fuer-ki-fruehwarnsystem-im-agrareinkauf/</guid>
+			</item>
+
+		
+			<item>
+				<title>Konsileo erhält 5 Millionen Pfund für weiteres Wachstum</title>
+				<link>https://www.startbase.de/news/konsileo-erhaelt-5-millionen-pfund-fuer-weiteres-wachstum/</link>
+				<pubDate>Wed, 07 Oct 2026 11:00:00 +0000</pubDate>
+				<description><![CDATA[<p><img width="602" height="630" src="https://cdn.startbase.com/images/magazine/2026/10/JW-172x180.png 172w" sizes="auto, (max-width: 602px) 100vw, 602px" /></p>...]]></description>
+				<dc:creator></dc:creator>
+				<guid>https://www.startbase.de/news/konsileo-erhaelt-5-millionen-pfund-fuer-weiteres-wachstum/</guid>
+			</item>
+
+		
+			<item>
+				<title>finmid holt sich 17 Millionen Euro</title>
+				<link>https://www.startbase.de/news/finmid-holt-sich-17-millionen-euro/</link>
+				<pubDate>Wed, 07 Oct 2026 09:30:00 +0000</pubDate>
+				<description><![CDATA[<p><img width="2000" height="1333" src="https://cdn.startbase.com/images/magazine/2026/10/Max-Alex-220x147.jpg 220w" sizes="auto, (max-width: 2000px) 100vw, 2000px" /></p>...]]></description>
+				<dc:creator></dc:creator>
+				<guid>https://www.startbase.de/news/finmid-holt-sich-17-millionen-euro/</guid>
+			</item>
+
+		
+			<item>
+				<title>Was Venture Capital letzte Nacht in den USA gemacht hat</title>
+				<link>https://www.startbase.de/news/was-venture-capital-letzte-nacht-in-den-usa-gemacht-hat/</link>
+				<pubDate>Wed, 07 Oct 2026 07:30:00 +0000</pubDate>
+				<description><![CDATA[<p><img width="2560" height="1707" src="https://cdn.startbase.com/images/magazine/2026/10/assets_MS2003065_000001_014A5897_GROUP-portrait_EDIT001-220x147.jpg 220w" sizes="auto, (max-width: 2560px) 100vw, 2560px" /></p>...]]></description>
+				<dc:creator></dc:creator>
+				<guid>https://www.startbase.de/news/was-venture-capital-letzte-nacht-in-den-usa-gemacht-hat/</guid>
+			</item>
+
+		
+			<item>
+				<title>German Indian Innovation Summit 2026 setzt auf gemeinsame KI- und Industrieprojekte</title>
+				<link>https://www.startbase.de/news/german-indian-innovation-summit-2026-setzt-auf-gemeinsame-ki-und-industrieprojekte/</link>
+				<pubDate>Wed, 07 Oct 2026 05:00:00 +0000</pubDate>
+				<description><![CDATA[<p><img width="1600" height="900" src="https://cdn.startbase.com/images/magazine/2026/10/GIIC-Summit-2026_KCH_0001-220x124.jpg 220w" sizes="auto, (max-width: 1600px) 100vw, 1600px" /></p>...]]></description>
+				<dc:creator></dc:creator>
+				<guid>https://www.startbase.de/news/german-indian-innovation-summit-2026-setzt-auf-gemeinsame-ki-und-industrieprojekte/</guid>
+			</item>
+
+		
+			<item>
+				<title>calliora erhält 6 Millionen Dollar für KI-Plattform für Krankenhausfinanzen</title>
+				<link>https://www.startbase.de/news/calliora-erhaelt-6-millionen-dollar-fuer-ki-plattform-fuer-krankenhausfinanzen/</link>
+				<pubDate>Tue, 06 Oct 2026 13:00:00 +0000</pubDate>
+				<description><![CDATA[<p><img width="2000" height="1334" src="https://cdn.startbase.com/images/magazine/2026/10/gruender-flur-220x147.jpg 220w" sizes="auto, (max-width: 2000px) 100vw, 2000px" /></p>...]]></description>
+				<dc:creator></dc:creator>
+				<guid>https://www.startbase.de/news/calliora-erhaelt-6-millionen-dollar-fuer-ki-plattform-fuer-krankenhausfinanzen/</guid>
+			</item>
+
+		
+	</channel>
+</rss>

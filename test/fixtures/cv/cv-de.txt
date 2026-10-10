@@ -1,0 +1,18 @@
+Max Mustermann
+Lebenslauf
+
+Berufserfahrung
+Seit 2020  Konstruktionsingenieur, Sondermaschinenbau, Ulm
+  - Konstruktion von Werkzeugmaschinen und Verpackungsmaschinen in Creo und SolidWorks
+  - Auslegung von Hydraulik und Pneumatik, Getriebe für Fertigungsanlagen
+  - Inbetriebnahme mit SPS-Programmierung im TIA Portal, Robotik-Zellen mit Cobot
+
+2016 - 2020  Entwicklungsingenieur Maschinenbau, Landtechnik
+  - Konstruktion von Baugruppen für Erntemaschinen, Fertigungstechnik
+  - Automatisierung von Prüfständen
+
+Ausbildung
+Studium Maschinenbau (Dipl.-Ing.), Schwerpunkt Fertigungstechnik
+
+Kenntnisse
+CAD (Creo, SolidWorks), Industrie 4.0, OPC UA, Englisch fließend

@@ -1,0 +1,22 @@
+Jane Example
+Senior Embedded Software Engineer
+
+Profile
+Embedded software engineer with eight years in automotive electronics. Focus on AUTOSAR basic
+software, ECU bring-up and battery management systems for electric vehicles.
+
+Experience
+2021 - today  Tier-1 supplier, Stuttgart
+  - Embedded firmware for a battery management system (BMS) on an Infineon AURIX microcontroller
+  - AUTOSAR Classic configuration, CAN bus and CAN FD communication, ISO 26262 ASIL-C
+  - Hardware-in-the-Loop tests for the powertrain ECU
+
+2017 - 2021  Engineering service provider, Munich
+  - Firmware for automotive body electronics, MISRA C, FreeRTOS
+  - Bootloader and diagnostics for an electric vehicle charging controller (Wallbox)
+
+Skills
+C, C++, Python for test automation, embedded Linux (Yocto), lithium-ion cell monitoring
+
+Education
+M.Sc. Electrical Engineering
