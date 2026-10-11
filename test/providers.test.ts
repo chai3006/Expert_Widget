@@ -17,7 +17,7 @@ import {
 import { checkContract, ContractError, type NewsProvider, type ProviderQuery } from '../src/main/news/provider.js';
 import type { ParsedItem } from '../src/main/news/types.js';
 import { GdeltProvider, GoogleNewsProvider } from '../src/main/providers.js';
-import { runRefresh, uncoveredDomains, type CvProvider } from '../src/main/refresh.js';
+import { SEARCH_MIN_GAP_MS, runRefresh, uncoveredDomains, type CvProvider } from '../src/main/refresh.js';
 import { AppStores } from '../src/main/state/appState.js';
 import { buildView } from '../src/main/view.js';
 import type { PoliteFetcher } from '../src/main/news/fetcher.js';
@@ -234,8 +234,64 @@ describe('layers', () => {
     await refresh(stores, [
       fake('gdelt', 2, () => [item('https://example.com/a', { queryDomain: 'automotive-emobility' }), item('https://example.com/b', { queryDomain: 'energy-storage' })]),
       fake('google-news', 3, () => [], none),
-    ]);
+    ], 11);
     expect(none).toHaveLength(0);
+  });
+
+  it('asks the searches at most every 15 minutes, however often Refresh is pressed', async () => {
+    const stores = new AppStores(dir);
+    const gdeltCalls: ProviderQuery[] = [];
+    const feedCalls: ProviderQuery[] = [];
+    const googleCalls: ProviderQuery[] = [];
+    const providers = [
+      fake('feed', 1, () => [item('https://example.com/feed/1')], feedCalls),
+      fake('gdelt', 2, () => [item('https://example.com/g/1', { queryDomain: 'automotive-emobility' })], gdeltCalls),
+      fake('google-news', 3, () => [], googleCalls),
+    ];
+    const at = (ms: number) => runRefresh({ config, cvFolder: dir, stores, cv: twoDomains, providers, isOnline: () => true, now: () => t(10) + ms, mock: false });
+
+    await at(0);
+    const messages = await at(60_000);
+    await at(SEARCH_MIN_GAP_MS - 1);
+    expect(feedCalls).toHaveLength(3);
+    expect(gdeltCalls).toHaveLength(1);
+    // The skipped search still covers its domain, so Google News is not asked for it.
+    expect(googleCalls.map((q) => q.domains.map((d) => d.domain))).toEqual([['energy-storage']]);
+    expect(messages).toEqual([]);
+    expect(stores.feed.value.sources.gdelt.items).toHaveLength(1);
+
+    await at(SEARCH_MIN_GAP_MS);
+    expect(gdeltCalls).toHaveLength(2);
+  });
+
+  it('waits 15 minutes after "too many requests" but retries other failures on the next Refresh', async () => {
+    const stores = new AppStores(dir);
+    const calls: ProviderQuery[] = [];
+    let error = new Error('the server answered HTTP 429 (too many requests, try again later)');
+    const providers = [fake('gdelt', 2, () => error, calls)];
+    const at = (ms: number) => runRefresh({ config, cvFolder: dir, stores, cv: twoDomains, providers, isOnline: () => true, now: () => t(10) + ms, mock: false });
+
+    const first = await at(0);
+    expect(first[0].text).toMatch(/asked again in 15 minutes/);
+    expect(await at(60_000)).toEqual([]);
+    expect(calls).toHaveLength(1);
+
+    error = new Error('the server answered HTTP 500');
+    await at(SEARCH_MIN_GAP_MS);
+    await at(SEARCH_MIN_GAP_MS + 1);
+    expect(calls).toHaveLength(3);
+  });
+
+  it('searches again at once when the domain mix changes', async () => {
+    const stores = new AppStores(dir);
+    const calls: ProviderQuery[] = [];
+    const providers = [fake('gdelt', 2, () => [], calls)];
+    await refresh(stores, providers);
+    const oneDomain: CvProvider = {
+      readProfile: async () => ({ ok: true, profile: { fileName: 'cv.pdf', modifiedMs: 2, computedAt: 2, weights: [{ domain: 'energy-storage', weight: 100 }] } }),
+    };
+    await runRefresh({ config, cvFolder: dir, stores, cv: oneDomain, providers, isOnline: () => true, now: () => t(10) + 1, mock: false });
+    expect(calls.map((q) => q.domains.map((d) => d.domain))).toEqual([['automotive-emobility', 'energy-storage'], ['energy-storage']]);
   });
 
   it('does not search without a domain mix', async () => {

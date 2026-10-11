@@ -156,7 +156,9 @@ None of the robots.txt files checked disallow the pages used.
 - **Cards:** headline from `title`, source shown as the publisher (`domain`), summary written by
   the code ("Article on example.de, found by the GDELT news search."), date from `seendate`.
 - **Politeness:** GDELT asks for at most one request every 5 seconds, so the fetcher keeps 5.5 s
-  between GDELT requests (4 domains take about 20 s). No robots.txt on that host (404).
+  between GDELT requests (4 domains take about 20 s). GDELT's index changes every 15 minutes, so it
+  is asked at most every 15 minutes (and 15 minutes after an HTTP 429), however often Refresh is
+  pressed; a changed domain mix asks again at once. No robots.txt on that host (404).
 - **Status on 10 Oct 2026: failing.** Every request from this PC was answered with HTTP 429
   ("Please limit requests to one every 5 seconds…"), including the very first one after several
   quiet minutes. That looks like a block on the network address rather than on this app's pace.

@@ -221,7 +221,9 @@ A different kind of provider (another search service, or later a paid news API) 
 
 Fetching is polite: a clear User-Agent, robots.txt is obeyed, requests to one host are at least
 2 seconds apart (5.5 seconds for GDELT, which asks for one request every 5 seconds), responses are cached and revalidated (ETag / Last-Modified), and every source is
-fetched at most once per Refresh. Only headline, a short excerpt (max. 200 characters), date,
+fetched at most once per Refresh. The searches (GDELT, Google News) are asked at most every 15
+minutes however often Refresh is pressed, and wait 15 minutes after "too many requests"; in between,
+their last results are shown. A new domain mix asks them again at once. Only headline, a short excerpt (max. 200 characters), date,
 source and link are stored. Full article text is never stored.
 
 ## Local state

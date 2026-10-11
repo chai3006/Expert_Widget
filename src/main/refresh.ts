@@ -1,6 +1,7 @@
 // One Refresh, in order: read the CV and recompute the domain mix, then run the news providers.
 // Layer 1 (feeds) and layer 2 (GDELT) run together; layer 3 (Google News) runs only for domains
-// the search in layer 2 could not cover. A failing step or provider never stops the others, caches
+// the search in layer 2 could not cover. Searches are asked at most every SEARCH_MIN_GAP_MS (their
+// index changes no faster), so Refresh can be pressed freely. A failing step or provider never stops the others, caches
 // keep the last good data, and every provider's result is recorded as source health.
 
 import { lastUpdatedLabel } from '../shared/format.js';
@@ -38,6 +39,8 @@ export interface RefreshDeps {
 const MAX_ITEMS_PER_SOURCE = 60;
 const MAX_ITEMS_PER_SEARCH = 150;
 export const NEEDS_ATTENTION_AFTER = 3;
+/** GDELT updates its index every 15 minutes and throttles callers that ask more often. */
+export const SEARCH_MIN_GAP_MS = 15 * 60_000;
 
 type Outcome = { provider: NewsProvider; items: ParsedItem[] } | { provider: NewsProvider; error: Error };
 
@@ -60,7 +63,10 @@ export async function runRefresh(deps: RefreshDeps): Promise<StatusMessage[]> {
   // 2. Which providers run. Search needs a domain mix to know what to search for.
   const query = buildProviderQuery(config, weights.map((w) => w.domain));
   const feeds = deps.providers.filter((p) => p.layer === 1 && sourceIsRelevant(p, weights));
-  const searches = query.domains.length > 0 ? deps.providers.filter((p) => p.layer === 2) : [];
+  const cached = stores.feed.value.sources;
+  const now = deps.now();
+  const allSearches = query.domains.length > 0 ? deps.providers.filter((p) => p.layer === 2) : [];
+  const searches = allSearches.filter((p) => searchIsDue(cached[p.id], query, now));
   const fallbacks = query.domains.length > 0 ? deps.providers.filter((p) => p.layer === 3) : [];
 
   if (feeds.length + searches.length + fallbacks.length > 0 && !deps.isOnline()) {
@@ -70,9 +76,15 @@ export async function runRefresh(deps: RefreshDeps): Promise<StatusMessage[]> {
 
   // 3. Layers 1 and 2 together, then layer 3 for the domains the search left empty.
   const outcomes = await runAll([...feeds, ...searches], query);
-  const uncovered = uncoveredDomains(query, outcomes.filter((o) => o.provider.layer === 2));
-  if (fallbacks.length > 0 && uncovered.length > 0) {
-    outcomes.push(...(await runAll(fallbacks, { ...query, domains: query.domains.filter((d) => uncovered.includes(d.domain)) })));
+  // A search that was not due still covers its domains with the items it found last time.
+  const reused: Outcome[] = allSearches
+    .filter((p) => !searches.includes(p) && cached[p.id]?.lastError === null && cached[p.id]?.fetchedAt !== null)
+    .map((p) => ({ provider: p, items: cached[p.id].items }));
+  const uncovered = uncoveredDomains(query, [...outcomes.filter((o) => o.provider.layer === 2), ...reused]);
+  const fallbackQuery = { ...query, domains: query.domains.filter((d) => uncovered.includes(d.domain)) };
+  const dueFallbacks = fallbacks.filter((p) => searchIsDue(cached[p.id], fallbackQuery, now));
+  if (dueFallbacks.length > 0 && uncovered.length > 0) {
+    outcomes.push(...(await runAll(dueFallbacks, fallbackQuery)));
   }
 
   // 4. Caches and health.
@@ -86,11 +98,22 @@ export async function runRefresh(deps: RefreshDeps): Promise<StatusMessage[]> {
     const before = health[provider.id];
     if ('items' in outcome) {
       const limit = provider.layer === 1 ? MAX_ITEMS_PER_SOURCE : MAX_ITEMS_PER_SEARCH;
-      cache[provider.id] = { fetchedAt, items: toRawItems(outcome.items.slice(0, limit), provider, previous.items, fetchedAt, deps.mock), lastError: null, lastErrorAt: null };
+      cache[provider.id] = {
+        fetchedAt,
+        items: toRawItems(outcome.items.slice(0, limit), provider, previous.items, fetchedAt, deps.mock),
+        lastError: null,
+        lastErrorAt: null,
+        ...(provider.layer === 1 ? {} : { query: queryKey(provider.layer === 2 ? query : fallbackQuery) }),
+      };
       health[provider.id] = { status: outcome.items.length > 0 ? 'ok' : 'empty', checkedAt: fetchedAt, itemCount: outcome.items.length, lastError: null, consecutiveFailures: 0 };
     } else {
       failures.push(outcome);
-      cache[provider.id] = { ...previous, lastError: outcome.error.message, lastErrorAt: fetchedAt };
+      cache[provider.id] = {
+        ...previous,
+        lastError: outcome.error.message,
+        lastErrorAt: fetchedAt,
+        ...(provider.layer === 1 ? {} : { query: queryKey(provider.layer === 2 ? query : fallbackQuery) }),
+      };
       health[provider.id] = nextFailure(before, outcome.error.message, fetchedAt);
     }
   }
@@ -115,7 +138,9 @@ export async function runRefresh(deps: RefreshDeps): Promise<StatusMessage[]> {
   if (allOffline) {
     messages.push(offlineMessage(previousUpdate, fetchedAt));
   } else if (failures.length > 0) {
-    const list = failures.map((f) => `${f.provider.name} (${f.error.message})`).join(', ');
+    const list = failures
+      .map((f) => `${f.provider.name} (${isRateLimited(f.error.message) ? `${f.error.message}; it will be asked again in ${SEARCH_MIN_GAP_MS / 60_000} minutes` : f.error.message})`)
+      .join(', ');
     messages.push({
       level: 'warning',
       text: `${failures.length === 1 ? 'One source' : `${failures.length} sources`} could not be loaded: ${list}. Showing earlier items where available.`,
@@ -138,6 +163,25 @@ async function runAll(providers: NewsProvider[], query: ProviderQuery): Promise<
       ? { provider: providers[i], items: r.value }
       : { provider: providers[i], error: r.reason instanceof Error ? r.reason : new Error(String(r.reason)) },
   );
+}
+
+/**
+ * A search runs when it has never answered this query, when its last answer is older than
+ * SEARCH_MIN_GAP_MS, or after a failure. After "too many requests" it waits the same gap.
+ */
+export function searchIsDue(cache: SourceCache | undefined, query: ProviderQuery, now: number): boolean {
+  if (!cache || cache.query !== queryKey(query)) return true;
+  if (cache.lastError === null) return cache.fetchedAt === null || now - cache.fetchedAt >= SEARCH_MIN_GAP_MS;
+  if (isRateLimited(cache.lastError)) return cache.lastErrorAt === null || now - cache.lastErrorAt >= SEARCH_MIN_GAP_MS;
+  return true;
+}
+
+function isRateLimited(error: string): boolean {
+  return error.includes('HTTP 429');
+}
+
+export function queryKey(query: ProviderQuery): string {
+  return JSON.stringify([query.domains, query.signalKeywords, query.maxAgeDays]);
 }
 
 /** Domains with no usable search result: all of them when the search failed or did not run. */

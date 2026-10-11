@@ -11,6 +11,8 @@ export interface SourceCache {
   items: RawItem[];
   lastError: string | null;
   lastErrorAt: number | null;
+  /** Search providers only: the query the cached items answer, so a new domain mix asks again. */
+  query?: string;
 }
 
 export interface FeedCache {
@@ -116,6 +118,7 @@ export function sanitizeFeedCache(v: unknown): FeedCache | null {
       items: s.items.filter(isRawItem).map(cleanTranslation),
       lastError: typeof s.lastError === 'string' ? s.lastError : null,
       lastErrorAt: typeof s.lastErrorAt === 'number' ? s.lastErrorAt : null,
+      ...(typeof s.query === 'string' ? { query: s.query } : {}),
     };
   }
   return { version: 1, lastUpdated: v.lastUpdated as number | null, sources };
