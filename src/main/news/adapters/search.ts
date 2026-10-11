@@ -1,6 +1,6 @@
 // Search providers (layers 2 and 3): building queries from config.json keyword lists and parsing
 // the answers. Queries contain only domain names' keyword lists and the signal keywords from the
-// config, never anything taken from the CV.
+// config, or a watchlist company's name, never anything taken from the CV.
 
 import * as cheerio from 'cheerio';
 import type { DomainId } from '../../../shared/types.js';
@@ -25,14 +25,18 @@ function pick(list: readonly string[] | undefined, n: number): string[] {
   return (list ?? []).filter(isSearchableKeyword).slice(0, n);
 }
 
-/** One query per domain in the mix, highest weight first. */
-export function buildProviderQuery(config: AppConfig, domains: readonly DomainId[]): ProviderQuery {
+/**
+ * One query per domain in the mix, highest weight first, and one per watchlist company. Company
+ * names the services cannot take as a phrase (see isSearchableKeyword) are not searched; news
+ * from the feeds still matches them.
+ */
+export function buildProviderQuery(config: AppConfig, domains: readonly DomainId[], companies: readonly string[] = []): ProviderQuery {
   const queries: DomainQuery[] = domains
     .map((domain) => ({ domain, keywords: pick(config.keywords.domains[domain], DOMAIN_TERMS) }))
     .filter((q) => q.keywords.length > 0);
   const t = config.keywords.tags;
   const signalKeywords = [...pick(t.hiring_cuts, SIGNAL_TERMS_PER_TAG), ...pick(t.hiring_growth, SIGNAL_TERMS_PER_TAG), ...pick(t.funded_startup, SIGNAL_TERMS_PER_TAG)];
-  return { domains: queries, signalKeywords, maxAgeDays: config.newsMaxAgeDays };
+  return { domains: queries, companies: companies.filter(isSearchableKeyword), signalKeywords, maxAgeDays: config.newsMaxAgeDays };
 }
 
 const term = (k: string) => (k.includes(' ') ? `"${k}"` : k);
@@ -60,6 +64,22 @@ export function gdeltUrl(q: DomainQuery, signalKeywords: readonly string[], maxA
   return `${GDELT_ENDPOINT}?${params.toString()}`;
 }
 
+/**
+ * A watchlist company by name alone, as a phrase. No country or language filter: the exact name
+ * is specific enough, and news about a startup is often in English.
+ */
+export function gdeltCompanyUrl(name: string, maxAgeDays: number, maxRecords = 75): string {
+  const params = new URLSearchParams({
+    query: `"${name}"`,
+    mode: 'artlist',
+    format: 'json',
+    maxrecords: String(maxRecords),
+    timespan: `${maxAgeDays}d`,
+    sort: 'datedesc',
+  });
+  return `${GDELT_ENDPOINT}?${params.toString()}`;
+}
+
 /** "20261010T071500Z" → ISO timestamp. */
 export function gdeltDate(s: unknown): string | null {
   if (typeof s !== 'string') return null;
@@ -71,7 +91,7 @@ export function gdeltDate(s: unknown): string | null {
  * Parses an ArtList JSON answer. GDELT answers query problems with a plain-text sentence (still
  * HTTP 200), and an empty result with `{}`. Each article must have url, title and seendate.
  */
-export function parseGdelt(body: string, domain: DomainId): ParsedItem[] {
+export function parseGdelt(body: string, domain?: DomainId): ParsedItem[] {
   let data: unknown;
   try {
     data = JSON.parse(body);
@@ -92,7 +112,7 @@ export function parseGdelt(body: string, domain: DomainId): ParsedItem[] {
       eventDate: null,
       eventEndDate: null,
       publisher,
-      queryDomain: domain,
+      ...(domain ? { queryDomain: domain } : {}),
     };
   });
 }
@@ -102,6 +122,10 @@ export function parseGdelt(body: string, domain: DomainId): ParsedItem[] {
 export function googleNewsUrl(q: DomainQuery, signalKeywords: readonly string[], maxAgeDays: number): string {
   const query = `${orGroup(q.keywords)} ${orGroup(signalKeywords)} when:${maxAgeDays}d`;
   return `https://news.google.com/rss/search?q=${encodeURIComponent(query)}&hl=de&gl=DE&ceid=DE:de`;
+}
+
+export function googleNewsCompanyUrl(name: string, maxAgeDays: number): string {
+  return `https://news.google.com/rss/search?q=${encodeURIComponent(`"${name}" when:${maxAgeDays}d`)}&hl=de&gl=DE&ceid=DE:de`;
 }
 
 /**
@@ -126,7 +150,7 @@ export function decodeGoogleNewsLink(link: string): string {
 }
 
 /** Google News RSS: `title` is "Headline - Publisher" and `<source>` names the publisher. */
-export function parseGoogleNews(xml: string, domain: DomainId): ParsedItem[] {
+export function parseGoogleNews(xml: string, domain?: DomainId): ParsedItem[] {
   const $ = cheerio.load(xml, { xml: true });
   if ($('rss').length === 0 && $('feed').length === 0) throw new ContractError('Google News did not answer with an RSS feed');
   const items: ParsedItem[] = [];
@@ -144,7 +168,7 @@ export function parseGoogleNews(xml: string, domain: DomainId): ParsedItem[] {
       eventDate: null,
       eventEndDate: null,
       publisher: publisher || undefined,
-      queryDomain: domain,
+      ...(domain ? { queryDomain: domain } : {}),
     });
   });
   return items;

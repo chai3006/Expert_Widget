@@ -3,6 +3,15 @@
 
 import type { CompanyChip, NewsCard } from './types.js';
 
+export function companyKey(name: string): string {
+  return name.trim().toLowerCase();
+}
+
+/** Visited-state key of a watchlist company, separate from the same name under Employers. */
+export function watchlistKey(name: string): string {
+  return `watchlist:${companyKey(name)}`;
+}
+
 /** Unvisited companies keep their order; visited ones follow, earliest visit first. */
 export function orderCompanies<T extends Pick<CompanyChip, 'visitedAt'>>(companies: readonly T[]): T[] {
   const unvisited = companies.filter((c) => c.visitedAt === null);

@@ -1,4 +1,4 @@
-// Loading and validation of config.json and employers.json. Validation collects every problem with
+// Loading and validation of config.json, employers.json and watchlist.json. Validation collects every problem with
 // its exact JSON path so the error screen can tell the user precisely what to fix.
 
 import { DOMAIN_IDS, isDomainId, type DomainId } from '../shared/types.js';
@@ -53,6 +53,18 @@ export interface EmployerSegment {
   domain: DomainId;
   segment: string;
   companies: CompanyEntry[];
+}
+
+/** A company the user keeps an eye on (watchlist.json). Not filtered by the CV domain mix. */
+export interface WatchlistEntry {
+  name: string;
+  /** "" until the user fills it in; the chip then says "no link". */
+  website: string;
+  note: string;
+  /** yyyy-mm-dd or "". */
+  addedAt: string;
+  /** yyyy-mm-dd of the last successful `npm run check-links`, or "". */
+  lastVerified: string;
 }
 
 export const DEFAULT_HOTKEY = 'Ctrl+Alt+E';
@@ -296,6 +308,48 @@ export function validateEmployers(raw: unknown): Validated<EmployerSegment[]> {
     }
   });
   return errors.length > 0 ? { ok: false, errors } : { ok: true, value: segments };
+}
+
+const isDayOrEmpty = (v: unknown) => typeof v === 'string' && (v === '' || /^\d{4}-\d{2}-\d{2}$/.test(v));
+
+export function validateWatchlist(raw: unknown): Validated<WatchlistEntry[]> {
+  if (!isObject(raw) || !Array.isArray(raw.companies)) {
+    return { ok: false, errors: ['watchlist.json: the top level must be an object with a "companies" list'] };
+  }
+  const errors: string[] = [];
+  const names = new Set<string>();
+  const entries: WatchlistEntry[] = [];
+  raw.companies.forEach((c, i) => {
+    const p = `watchlist.json companies[${i}]`;
+    if (!isObject(c)) {
+      errors.push(`${p}: must be an object`);
+      return;
+    }
+    const before = errors.length;
+    const name = typeof c.name === 'string' ? c.name.trim() : '';
+    if (name === '') errors.push(`${p}.name: must be a non-empty string`);
+    else if (names.has(name.toLowerCase())) errors.push(`${p}.name: "${name}" is listed twice`);
+    else names.add(name.toLowerCase());
+    const website = c.website ?? '';
+    if (typeof website !== 'string' || (website.trim() !== '' && !isHttpUrl(website.trim()))) {
+      errors.push(`${p}.website: must be empty or an http or https URL`);
+    }
+    const note = c.note ?? '';
+    if (typeof note !== 'string') errors.push(`${p}.note: must be a string`);
+    for (const key of ['addedAt', 'lastVerified'] as const) {
+      if (!isDayOrEmpty(c[key] ?? '')) errors.push(`${p}.${key}: must be empty or a date like 2026-10-11`);
+    }
+    if (errors.length === before) {
+      entries.push({
+        name,
+        website: (website as string).trim(),
+        note: (note as string).trim(),
+        addedAt: (c.addedAt as string | undefined) ?? '',
+        lastVerified: (c.lastVerified as string | undefined) ?? '',
+      });
+    }
+  });
+  return errors.length > 0 ? { ok: false, errors } : { ok: true, value: entries };
 }
 
 /** Expands %VAR% references (Windows style) using the given environment. */

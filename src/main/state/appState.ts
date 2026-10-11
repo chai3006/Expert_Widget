@@ -40,7 +40,12 @@ export interface Interactions {
   useful: Record<string, UsefulEntry>;
 }
 
-export type UsefulEntry = Omit<NewsCard, 'seenAt' | 'useful' | 'translated'> & { translated?: NewsCard['translated']; markedAt: number };
+export type UsefulEntry = Omit<NewsCard, 'seenAt' | 'useful' | 'translated' | 'watchlist'> & {
+  translated?: NewsCard['translated'];
+  /** Not used when reading back: the label follows the current watchlist.json. */
+  watchlist?: string[];
+  markedAt: number;
+};
 
 export interface ButtonPosition {
   x: number;

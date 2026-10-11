@@ -703,6 +703,95 @@ a {
   text-transform: lowercase;
 }
 
+/* ---- Watchlist -------------------------------------------------------------------------- */
+
+.watch-card {
+  padding: 0;
+}
+
+.watch-card .chips {
+  padding-top: 14px;
+}
+
+/* A company chip with its news indicator right next to it. */
+.watch-item {
+  display: inline-flex;
+  align-items: center;
+}
+
+.chip.no-link {
+  border-style: dashed;
+  border-color: var(--visited-border);
+  color: var(--muted);
+  font-weight: 500;
+  cursor: default;
+}
+
+.chip.no-link:hover {
+  border-color: var(--visited-border);
+}
+
+/* A 44px target around a small "N news" pill, like the EN switch. */
+.watch-news {
+  min-width: var(--target);
+  height: var(--target);
+  margin-left: -4px;
+  padding: 0 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.watch-news-pill {
+  padding: 2px 7px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.watch-news:hover .watch-news-pill {
+  border-color: var(--accent);
+}
+
+.watch-news.has-new .watch-news-pill {
+  border-color: var(--accent);
+  color: var(--accent);
+  font-weight: 800;
+}
+
+.watch-news[aria-pressed='true'] .watch-news-pill {
+  background: var(--accent-fill);
+  border-color: var(--accent-fill-border);
+  color: var(--on-accent);
+}
+
+.watch-label {
+  margin-left: 8px;
+  padding: 0 6px;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.company-filter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 0 0 0 14px;
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  background: var(--card);
+  font-size: 13px;
+}
+
 .note {
   margin: 0;
   font-size: 13px;

@@ -11,7 +11,7 @@ import { runRefresh, type CvProvider } from '../src/main/refresh.js';
 import { AppStores } from '../src/main/state/appState.js';
 import { writeJsonAtomic } from '../src/main/state/jsonStore.js';
 import { buildView } from '../src/main/view.js';
-import { defaultConfig, defaultEmployers } from './helpers/config.js';
+import { defaultConfig, defaultEmployers, defaultWatchlist } from './helpers/config.js';
 
 let dir: string;
 beforeEach(() => {
@@ -156,14 +156,18 @@ describe('mock data', () => {
   it('fills the whole UI, and mock items never show in a normal run', async () => {
     const stores = new AppStores(dir);
     const now = Date.now();
-    await runRefresh({ config, cvFolder: dir, stores, cv: new MockCvProvider(), providers: mockProviders(config), isOnline: () => true, now: () => now, mock: true });
-    const input = { config, employers: defaultEmployers(), configError: null, stores, cvFolder: dir, messages: [], refreshing: false, now };
+    const watchlist = defaultWatchlist();
+    await runRefresh({ config, cvFolder: dir, stores, cv: new MockCvProvider(), providers: mockProviders(config), watchlist: watchlist.map((w) => w.name), isOnline: () => true, now: () => now, mock: true });
+    const input = { config, employers: defaultEmployers(), watchlist, configError: null, stores, cvFolder: dir, messages: [], refreshing: false, now };
     const mockView = buildView({ ...input, mock: true });
     expect(mockView.profile?.weights).toHaveLength(4);
     expect(mockView.employers[0].segments.length).toBeGreaterThan(0);
     const tags = new Set(mockView.news.map((n) => n.tag));
     expect([...tags].sort()).toEqual(['career_fair', 'funded_startup', 'hiring_cuts', 'hiring_growth']);
     expect(mockView.news.every((n) => n.headline.startsWith('[MOCK]'))).toBe(true);
+    // Every watchlist company has mock news, and those cards come first.
+    expect(mockView.watchlist.map((c) => [c.name, c.newsCount > 0])).toEqual([['CELUS', true], ['Valispace', true], ['Hefex Labs', true]]);
+    expect(mockView.news[0].watchlist.length).toBeGreaterThan(0);
 
     const normalView = buildView({ ...input, mock: false });
     expect(normalView.news).toEqual([]);
@@ -173,7 +177,7 @@ describe('mock data', () => {
 describe('view', () => {
   it('shows the empty state before the first refresh and a config error screen', () => {
     const stores = new AppStores(dir);
-    const base = { mock: false, config, employers: defaultEmployers(), configError: null, stores, cvFolder: 'C:\\cv', messages: [], refreshing: false, now: 0 };
+    const base = { mock: false, config, employers: defaultEmployers(), watchlist: [], configError: null, stores, cvFolder: 'C:\\cv', messages: [], refreshing: false, now: 0 };
     expect(buildView(base).hasData).toBe(false);
     const broken = buildView({ ...base, config: null, configError: 'config.json has problems' });
     expect(broken.configError).toBe('config.json has problems');

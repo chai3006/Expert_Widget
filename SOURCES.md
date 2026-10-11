@@ -146,6 +146,10 @@ None of the robots.txt files checked disallow the pages used.
   debuts"): OR blocks in parentheses with upper-case OR, not nested; phrases in double quotes;
   `sourcecountry:` takes the country name without spaces; `sourcelang:` the language name.
   `timespan` is `newsMaxAgeDays` + `d`.
+- **Watchlist queries:** one more request per company in `watchlist.json`: `query="<name>"`, no
+  `sourcecountry`/`sourcelang` filter, same `timespan` and `maxrecords`. Only articles whose title
+  names the company exactly are kept. Google News, when enabled, gets the same:
+  `q="<name>" when:7d`.
 - **Keywords:** the first 8 usable words of the domain's list in `config.json` and the first 5 of
   each of `hiring_cuts`, `hiring_growth` and `funded_startup`. Usable means letters, digits, spaces
   and hyphens, at least 4 characters (short acronyms such as ECU are left out). Nothing from the CV

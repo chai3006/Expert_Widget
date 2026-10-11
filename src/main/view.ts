@@ -1,16 +1,24 @@
 // Builds the complete view model the renderer displays.
 
-import { orderCompanies, orderNews } from '../shared/ordering.js';
-import { DOMAIN_LABELS, type DomainWeight, type EmployerDomainView, type ProviderStatus, type SourceHealthView, type StatusMessage, type ViewModel } from '../shared/types.js';
-import { enabledProviders, type AppConfig, type EmployerSegment, type ProviderInfo } from './config.js';
+import { companyKey, orderCompanies, orderNews, watchlistKey } from '../shared/ordering.js';
+import {
+  DOMAIN_LABELS,
+  type DomainWeight,
+  type EmployerDomainView,
+  type NewsCard,
+  type ProviderStatus,
+  type SourceHealthView,
+  type StatusMessage,
+  type ViewModel,
+  type WatchlistChip,
+} from '../shared/types.js';
+import { enabledProviders, type AppConfig, type EmployerSegment, type ProviderInfo, type WatchlistEntry } from './config.js';
 import { RuleBasedClassifier } from './news/classifier.js';
 import { buildNewsCards } from './news/pipeline.js';
 import type { AppStores, HealthState } from './state/appState.js';
 import { NEEDS_ATTENTION_AFTER } from './refresh.js';
 
-export function companyKey(name: string): string {
-  return name.trim().toLowerCase();
-}
+export { companyKey };
 
 export function buildEmployerView(
   segments: readonly EmployerSegment[],
@@ -35,10 +43,32 @@ export function buildEmployerView(
   }));
 }
 
+/** Watchlist chips in file order (visited ones last), each with its count of new news cards. */
+export function buildWatchlistView(
+  entries: readonly WatchlistEntry[],
+  news: readonly NewsCard[],
+  visited: Readonly<Record<string, number>>,
+): WatchlistChip[] {
+  return orderCompanies(
+    entries.map((e) => {
+      const key = watchlistKey(e.name);
+      return {
+        key,
+        name: e.name,
+        website: e.website || null,
+        note: e.note,
+        visitedAt: visited[key] ?? null,
+        newsCount: news.filter((n) => n.seenAt === null && n.watchlist.some((w) => companyKey(w) === companyKey(e.name))).length,
+      };
+    }),
+  );
+}
+
 export interface ViewInput {
   mock: boolean;
   config: AppConfig | null;
   employers: EmployerSegment[];
+  watchlist: WatchlistEntry[];
   configError: string | null;
   stores: AppStores;
   cvFolder: string;
@@ -61,6 +91,7 @@ export function buildView(input: ViewInput): ViewModel {
     cvStatus: null,
     profile: null,
     employers: [],
+    watchlist: [],
     news: [],
     unseenCount: 0,
     sourceHealth: { working: 0, total: 0, providers: [] },
@@ -80,6 +111,7 @@ export function buildView(input: ViewInput): ViewModel {
       weights,
       classifier: new RuleBasedClassifier(config.keywords),
       providers,
+      watchlist: input.watchlist.map((w) => w.name),
       seen,
       removed,
       useful,
@@ -93,6 +125,7 @@ export function buildView(input: ViewInput): ViewModel {
     cvStatus: lastProblem ? { level: 'warning', text: lastProblem } : null,
     profile,
     employers: buildEmployerView(input.employers, weights, visited),
+    watchlist: buildWatchlistView(input.watchlist, news, visited),
     news,
     unseenCount: news.filter((n) => n.seenAt === null).length,
     sourceHealth: buildSourceHealth(providers, stores.health.value),

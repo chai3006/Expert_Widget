@@ -97,6 +97,18 @@ export interface CompanyChip {
   visitedAt: number | null;
 }
 
+/** A watchlist company. `website` is null until the user fills it in (the chip says "no link"). */
+export interface WatchlistChip {
+  /** Key for the visited state, kept apart from the employers' keys. */
+  key: string;
+  name: string;
+  website: string | null;
+  note: string;
+  visitedAt: number | null;
+  /** New (unseen) cards in the News feed that mention this company. */
+  newsCount: number;
+}
+
 export interface EmployerSegmentView {
   segment: string;
   companies: CompanyChip[];
@@ -129,6 +141,8 @@ export interface NewsCard {
   useful: boolean;
   /** English translation made on this PC, when the original is German. */
   translated: { headline: string | null; summary: string | null } | null;
+  /** Watchlist companies the card mentions; such cards come first and skip the domain mix. */
+  watchlist: string[];
 }
 
 export type WindowMode = 'collapsed' | 'expanded';
@@ -177,6 +191,7 @@ export interface ViewModel {
   cvStatus: StatusMessage | null;
   profile: CvProfile | null;
   employers: EmployerDomainView[];
+  watchlist: WatchlistChip[];
   news: NewsCard[];
   /** Unseen cards in the feed (removed ones are never in it); shown on the collapsed button. */
   unseenCount: number;

@@ -17,6 +17,8 @@ export interface DomainQuery {
 /** What a search provider looks for. Feed providers ignore it. */
 export interface ProviderQuery {
   domains: DomainQuery[];
+  /** Watchlist company names, each searched on its own by name only. */
+  companies: string[];
   /** Hiring and funding words from config.json (growth, cuts, funded). */
   signalKeywords: string[];
   maxAgeDays: number;

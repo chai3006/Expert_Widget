@@ -33,7 +33,7 @@ npm run dev         # real data; opens DevTools in a separate window
 | `npm test` | Unit tests (no network: sources are tested against saved pages) |
 | `npm run typecheck` | Type-check main, renderer and tests |
 | `npm run build` | Build the NSIS installer into `release/` |
-| `npm run check-links` | Check every career URL in `defaults/employers.json` (add `-- --write` to record `lastVerified`, `-- --file <path>` for another file) |
+| `npm run check-links` | Check every career URL in `defaults/employers.json` and every website in `defaults/watchlist.json` (add `-- --write` to record `lastVerified`, `-- --file <path>` / `-- --watchlist <path>` for other files) |
 | `npm run check-sources` | Call every news provider once with a test query and print status, item count and a sample headline (`-- --config <path>`, `-- --domains a,b`) |
 | `npm run icons` | Regenerate the app and tray icons |
 
@@ -63,6 +63,12 @@ let it finish once.
 - Click a company chip to open its career page in your browser. It is then marked *visited* and
   moves to the end of its segment. Click a news card to open the article; it becomes *Seen* and
   sinks to the bottom.
+- **Watchlist** (between Employers and News feed): the companies in `watchlist.json`, whatever your
+  CV says. A chip opens the company's website and is then marked *visited*, like an employer. A
+  company without a website shows *no link* until you add one. The small **news** pill next to
+  each chip counts the new cards in the News feed that name the company; click it to show only
+  those (click again, or **Show all news**, to go back). Those cards carry a **Watchlist** label
+  and come first in the feed.
 - **Thumbs down** on a card removes it at once ("Removed from your feed · Undo"). A removed article
   never comes back, also not after Refresh (it is remembered by its address). **Thumbs up** keeps a
   card: it stays on every Refresh, also after it is older than `newsMaxAgeDays` or its fair date has
@@ -106,6 +112,7 @@ Documents\ExpertWidget\
   CV\              put exactly one CV here (.pdf, .docx or .txt, German or English)
   config.json      settings, sources and keyword lists
   employers.json   employer segments and career links
+  watchlist.json   companies you keep an eye on
 ```
 
 Edit the JSON files with any text editor, save, and press Refresh. If a file is invalid, the
@@ -158,8 +165,14 @@ at most 4 are kept, and the shares are re-normalised to whole numbers summing to
 3. **Layer 3**: Google News RSS search, no key, unofficial. Only asked for domains where GDELT found
    nothing or failed.
 
-The search queries contain only words from `config.json`, never anything from your CV (although they
-do reveal which domains are in your mix). Results are merged and de-duplicated (a feed's copy wins
+Layers 2 and 3 also search once per watchlist company, by the company name alone (any country and
+language), within the same limits: 5.5 s between GDELT requests, at most every 15 minutes, 15
+minutes' pause after "too many requests". Each extra company adds about 5.5 s to a Refresh that
+asks GDELT. Names shorter than 4 characters, or with characters other than letters, digits,
+spaces and hyphens, are not searched; news from the feeds still matches them.
+
+The search queries contain only words from `config.json` and the names in `watchlist.json`, never
+anything from your CV (although they do reveal which domains are in your mix). Results are merged and de-duplicated (a feed's copy wins
 over a search hit), then classified with the same rules. Each provider's response is checked: an
 item without a title, link or date (fairs may lack a date) marks that provider as failed for this
 Refresh.
@@ -169,6 +182,15 @@ with most keyword hits, or "All domains"). Items for domains outside your mix ar
 Hiring signals and funded startups are shared out in proportion to your domain weights; general
 hiring news fills free slots; general startup news is shown only when none matches your domains.
 Nothing is padded with unrelated items.
+
+**Watchlist news:** an item that names a watchlist company (the exact name as a whole word in the
+headline or summary; case and umlaut spelling do not matter, so "Celus" counts for CELUS but
+"Celusion" does not) gets a **Watchlist** label. It keeps the tag the rules above give it, comes
+first in the feed and is not shared out by domain weight (at most `maxItemsPerTag` per group still
+applies). If it is about a fair, expo, webinar, conference, meetup or other event of the company, it
+is tagged **Career fair**, with the event date when the source gives one and "Date to be
+confirmed" otherwise. An item that names the company but is not a hiring, funding or event signal
+is not shown.
 
 ### employers.json
 
@@ -189,6 +211,24 @@ Nothing is padded with unrelated items.
 Only segments for domains in your CV mix are shown, highest weight first. A domain in your mix with
 no segments is simply left out. `lastVerified` is the date a link last answered
 successfully in `npm run check-links`. Leave it empty for new entries.
+
+### watchlist.json
+
+```json
+{
+  "companies": [
+    { "name": "CELUS", "website": "https://www.celus.io/about", "note": "", "addedAt": "2026-10-11", "lastVerified": "" },
+    { "name": "Hefex Labs", "website": "", "note": "Website to be added.", "addedAt": "2026-10-11", "lastVerified": "" }
+  ]
+}
+```
+
+**To watch another company, add an entry to `watchlist.json`, save, and press Refresh.** Nothing
+else needs changing. `name` is required and is what news is matched against, so use the name the
+company goes by in the press. `website` may stay `""` until you know it; the chip then says
+*no link*. `note` is shown when you hover the chip. `addedAt` and `lastVerified` are dates like
+`2026-10-11`, or empty; `lastVerified` is set by `npm run check-links -- --write`. A new or
+renamed company is searched at the next Refresh, even within the 15-minute gap.
 
 ## Adding a news source
 
@@ -240,7 +280,7 @@ and rename:
 |---|---|
 | `feed-cache.json` | Items per source, Last updated time |
 | `profile.json` | CV file name, modified time, domain weights, last CV problem |
-| `interactions.json` | Visited companies, seen news ids, removed articles (thumbs down, by address), useful cards (thumbs up, the whole card) |
+| `interactions.json` | Visited companies (employers and watchlist, kept apart), seen news ids, removed articles (thumbs down, by address), useful cards (thumbs up, the whole card) |
 | `ui.json` | Theme, collapsed or expanded, button position and screen |
 | `health.json` | Last result of each news provider and how many Refreshes in a row it failed |
 | `http-cache\` | Cached responses and robots.txt |

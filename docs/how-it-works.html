@@ -106,7 +106,7 @@ code, .file { font: 13px var(--mono); background: color-mix(in srgb, var(--ink) 
 .step-no { display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--ink); color: var(--bg); font: 600 12px var(--mono); margin-right: 8px; vertical-align: 1px; }
 
 /* screen output */
-.screen { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
+.screen { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 10px; }
 .screen div { background: var(--surface); border: 1.5px solid var(--pc); border-radius: 8px; padding: 8px 10px; font-size: 13px; min-width: 0; }
 .screen b { display: block; font-size: 13px; }
 .screen span { color: var(--muted); }
@@ -151,7 +151,7 @@ code, .file { font: 13px var(--mono); background: color-mix(in srgb, var(--ink) 
       <div class="decision">
         <div class="q">Is this the very first start?</div>
         <div class="branches">
-          <div class="branch go"><span class="lab">Yes</span><br>Creates <span class="file">Documents\ExpertWidget\</span> with an empty <span class="file">CV\</span> folder, <span class="file">config.json</span> and <span class="file">employers.json</span>.</div>
+          <div class="branch go"><span class="lab">Yes</span><br>Creates <span class="file">Documents\ExpertWidget\</span> with an empty <span class="file">CV\</span> folder, <span class="file">config.json</span>, <span class="file">employers.json</span> and <span class="file">watchlist.json</span>.</div>
           <div class="branch plain"><span class="lab">No</span><br>Uses the files that are already there.</div>
         </div>
       </div>
@@ -193,7 +193,7 @@ code, .file { font: 13px var(--mono); background: color-mix(in srgb, var(--ink) 
         <p class="cap"><span class="step-no">2</span>Fetch news, both at the same time</p>
         <div class="lanes">
           <div class="node net"><span class="where">internet</span><span class="t">News sites</span><span class="d">ingenieur.de, startbase, Munich Startup, messen.de, produktion.de and others from <span class="file">config.json</span>. <b>Every Refresh.</b> Only sites that fit your domains.</span></div>
-          <div class="node net"><span class="where">internet</span><span class="t">GDELT news search</span><span class="d">One search per domain in your mix, using only keywords from <span class="file">config.json</span>, never your CV. <b>At most every 15 minutes.</b> In between, its last results are reused.</span></div>
+          <div class="node net"><span class="where">internet</span><span class="t">GDELT news search</span><span class="d">One search per domain in your mix, using only keywords from <span class="file">config.json</span>, and one per watchlist company, by its name. Never your CV. <b>At most every 15 minutes.</b> In between, its last results are reused.</span></div>
         </div>
       </div>
       <div class="arrow"></div>
@@ -221,6 +221,7 @@ code, .file { font: 13px var(--mono); background: color-mix(in srgb, var(--ink) 
 
       <div class="node pc"><span class="where">this PC</span><span class="t"><span class="step-no">4</span>Sort out what to show</span>
         <span class="d"><b>Employers:</b> from <span class="file">employers.json</span>, only the segments for your domains, strongest domain first. Companies you already visited move to the end.</span>
+        <span class="d"><b>Watchlist:</b> every company in <span class="file">watchlist.json</span>, whatever your domains. News that names one gets a Watchlist label and comes first.</span>
         <span class="d"><b>News:</b> duplicates removed; each item gets a tag (job cuts, hiring, funded startup, career fair) and a domain. Items outside your domains, older than 7 days, or thumbed down are dropped. Thumbed-up items always stay.</span>
       </div>
       <div class="arrow"></div>
@@ -229,6 +230,7 @@ code, .file { font: 13px var(--mono); background: color-mix(in srgb, var(--ink) 
         <div class="screen">
           <div><b>Domain mix</b><span>your mix and "Updated today, 07:12"</span></div>
           <div><b>Employers</b><span>career-page links</span></div>
+          <div><b>Watchlist</b><span>your companies, news counts</span></div>
           <div><b>News feed</b><span>filters, EN switch, source status</span></div>
         </div>
       </div>
@@ -259,6 +261,7 @@ code, .file { font: 13px var(--mono); background: color-mix(in srgb, var(--ink) 
           <li><span class="file">CV\</span> <span>exactly one CV</span></li>
           <li><span class="file">config.json</span> <span>keywords, news sites, settings</span></li>
           <li><span class="file">employers.json</span> <span>companies and career links</span></li>
+          <li><span class="file">watchlist.json</span> <span>companies you keep an eye on</span></li>
         </ul>
       </div>
       <div class="box">

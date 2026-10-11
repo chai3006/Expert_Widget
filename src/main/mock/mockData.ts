@@ -51,6 +51,21 @@ const MOCK_SEEDS: Record<SourceTopic, MockSeed[]> = {
     { headline: '[MOCK] VDI nachrichten Recruiting Tag Stuttgart', excerpt: 'Career fair for engineers and IT specialists in Stuttgart.', ageDays: 0, eventInDays: 9 },
     { headline: '[MOCK] Karrieretag Automotive München', excerpt: 'Karrieremesse für Fach- und Führungskräfte · München', ageDays: 0, eventInDays: 21, eventDays: 2 },
     { headline: '[MOCK] Engineering Career Day Berlin', excerpt: 'Karrieremesse · Berlin', ageDays: 0, tbc: true },
+    { headline: '[MOCK] Startup-Karrieretag München mit CELUS und 30 weiteren Hardware-Startups', excerpt: 'Karrieremesse · München', ageDays: 0, eventInDays: 14 },
+  ],
+};
+
+/** Watchlist search results, by company name (the names in defaults/watchlist.json). */
+const MOCK_WATCHLIST_SEARCH: Record<string, MockSeed[]> = {
+  CELUS: [
+    { headline: '[MOCK] CELUS sammelt 25 Millionen Euro in Series B ein', excerpt: 'Article on example.com, found by the GDELT news search.', ageDays: 1 },
+  ],
+  Valispace: [
+    { headline: '[MOCK] Valispace expandiert und schafft neue Stellen in Bremen', excerpt: 'Article on example.com, found by the GDELT news search.', ageDays: 2 },
+    { headline: '[MOCK] Webinar: Valispace zeigt Requirements Engineering für Hardware-Teams', excerpt: 'Article on example.com, found by the GDELT news search.', ageDays: 0 },
+  ],
+  'Hefex Labs': [
+    { headline: '[MOCK] Hefex Labs eröffnet Labor in Garching und sucht Fachkräfte', excerpt: 'Article on example.com, found by the GDELT news search.', ageDays: 3 },
   ],
 };
 
@@ -110,11 +125,22 @@ class MockProvider implements NewsProvider {
 
   async fetch(query: ProviderQuery): Promise<ParsedItem[]> {
     if (this.fails) throw new Error('[MOCK] simulated failure');
+    const items = this.items(this.seeds, query, (i) => `${i + 1}`);
+    if (this.layer === 2) {
+      for (const name of query.companies) {
+        const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+        items.push(...this.items(MOCK_WATCHLIST_SEARCH[name] ?? [], query, (i) => `watchlist-${slug}-${i + 1}`).map((item) => ({ ...item, queryDomain: undefined, queryCompany: name })));
+      }
+    }
+    return items;
+  }
+
+  private items(seeds: MockSeed[], query: ProviderQuery, path: (i: number) => string): ParsedItem[] {
     const now = this.now();
-    return this.seeds.map((seed, i) => {
+    return seeds.map((seed, i) => {
       const start = seed.eventInDays !== undefined ? isoDay(now + seed.eventInDays * DAY) : null;
       return {
-        url: `https://example.com/mock/${this.id}/${i + 1}`,
+        url: `https://example.com/mock/${this.id}/${path(i)}`,
         headline: seed.headline,
         excerpt: seed.excerpt,
         publishedAt: this.topic === 'career_fair' ? null : new Date(now - seed.ageDays * DAY - i * 3600 * 1000).toISOString(),

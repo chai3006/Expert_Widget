@@ -47,7 +47,7 @@ async function refreshWith(stores: AppStores, items: ParsedItem[], now = t0) {
 }
 
 const view = (stores: AppStores, now = t0) =>
-  buildView({ mock: false, config, employers: [], configError: null, stores, cvFolder: dir, messages: [], refreshing: false, now });
+  buildView({ mock: false, config, employers: [], watchlist: [], configError: null, stores, cvFolder: dir, messages: [], refreshing: false, now });
 
 // The same steps main.ts runs for the three feedback IPC calls.
 function thumbsDown(stores: AppStores, id: string, now = t0) {

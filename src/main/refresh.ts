@@ -1,6 +1,6 @@
 // One Refresh, in order: read the CV and recompute the domain mix, then run the news providers.
 // Layer 1 (feeds) and layer 2 (GDELT) run together; layer 3 (Google News) runs only for domains
-// the search in layer 2 could not cover. Searches are asked at most every SEARCH_MIN_GAP_MS (their
+// the search in layer 2 could not cover, and for each watchlist company. Searches are asked at most every SEARCH_MIN_GAP_MS (their
 // index changes no faster), so Refresh can be pressed freely. A failing step or provider never stops the others, caches
 // keep the last good data, and every provider's result is recorded as source health.
 
@@ -28,6 +28,8 @@ export interface RefreshDeps {
   cv: CvProvider;
   /** Enabled providers, in priority order. */
   providers: NewsProvider[];
+  /** Watchlist company names (watchlist.json). The searches look for each by name only. */
+  watchlist?: readonly string[];
   isOnline: () => boolean;
   /** Translates new German headlines and summaries to English on this PC; null to skip. */
   translator?: Translator | null;
@@ -38,6 +40,7 @@ export interface RefreshDeps {
 
 const MAX_ITEMS_PER_SOURCE = 60;
 const MAX_ITEMS_PER_SEARCH = 150;
+const MAX_ITEMS_PER_COMPANY = 50;
 export const NEEDS_ATTENTION_AFTER = 3;
 /** GDELT updates its index every 15 minutes and throttles callers that ask more often. */
 export const SEARCH_MIN_GAP_MS = 15 * 60_000;
@@ -60,21 +63,23 @@ export async function runRefresh(deps: RefreshDeps): Promise<StatusMessage[]> {
   }
   const weights = stores.profile.value.profile?.weights ?? [];
 
-  // 2. Which providers run. Search needs a domain mix to know what to search for.
-  const query = buildProviderQuery(config, weights.map((w) => w.domain));
+  // 2. Which providers run. Search needs a domain mix or a watchlist to know what to search for.
+  const query = buildProviderQuery(config, weights.map((w) => w.domain), deps.watchlist ?? []);
   const feeds = deps.providers.filter((p) => p.layer === 1 && sourceIsRelevant(p, weights));
   const cached = stores.feed.value.sources;
   const now = deps.now();
-  const allSearches = query.domains.length > 0 ? deps.providers.filter((p) => p.layer === 2) : [];
+  const hasSearch = query.domains.length > 0 || query.companies.length > 0;
+  const allSearches = hasSearch ? deps.providers.filter((p) => p.layer === 2) : [];
   const searches = allSearches.filter((p) => searchIsDue(cached[p.id], query, now));
-  const fallbacks = query.domains.length > 0 ? deps.providers.filter((p) => p.layer === 3) : [];
+  const fallbacks = hasSearch ? deps.providers.filter((p) => p.layer === 3) : [];
 
   if (feeds.length + searches.length + fallbacks.length > 0 && !deps.isOnline()) {
     messages.push(offlineMessage(previousUpdate, deps.now()));
     return messages;
   }
 
-  // 3. Layers 1 and 2 together, then layer 3 for the domains the search left empty.
+  // 3. Layers 1 and 2 together, then layer 3 for the domains the search left empty and the
+  //    watchlist companies.
   const outcomes = await runAll([...feeds, ...searches], query);
   // A search that was not due still covers its domains with the items it found last time.
   const reused: Outcome[] = allSearches
@@ -83,7 +88,7 @@ export async function runRefresh(deps: RefreshDeps): Promise<StatusMessage[]> {
   const uncovered = uncoveredDomains(query, [...outcomes.filter((o) => o.provider.layer === 2), ...reused]);
   const fallbackQuery = { ...query, domains: query.domains.filter((d) => uncovered.includes(d.domain)) };
   const dueFallbacks = fallbacks.filter((p) => searchIsDue(cached[p.id], fallbackQuery, now));
-  if (dueFallbacks.length > 0 && uncovered.length > 0) {
+  if (dueFallbacks.length > 0 && fallbackQuery.domains.length + fallbackQuery.companies.length > 0) {
     outcomes.push(...(await runAll(dueFallbacks, fallbackQuery)));
   }
 
@@ -97,10 +102,9 @@ export async function runRefresh(deps: RefreshDeps): Promise<StatusMessage[]> {
     const previous: SourceCache = cache[provider.id] ?? { fetchedAt: null, items: [], lastError: null, lastErrorAt: null };
     const before = health[provider.id];
     if ('items' in outcome) {
-      const limit = provider.layer === 1 ? MAX_ITEMS_PER_SOURCE : MAX_ITEMS_PER_SEARCH;
       cache[provider.id] = {
         fetchedAt,
-        items: toRawItems(outcome.items.slice(0, limit), provider, previous.items, fetchedAt, deps.mock),
+        items: toRawItems(capItems(outcome.items, provider.layer), provider, previous.items, fetchedAt, deps.mock),
         lastError: null,
         lastErrorAt: null,
         ...(provider.layer === 1 ? {} : { query: queryKey(provider.layer === 2 ? query : fallbackQuery) }),
@@ -149,6 +153,20 @@ export async function runRefresh(deps: RefreshDeps): Promise<StatusMessage[]> {
   return messages;
 }
 
+/** Feeds keep their first items; searches keep their first items per domain query and per company. */
+export function capItems(items: readonly ParsedItem[], layer: 1 | 2 | 3): ParsedItem[] {
+  if (layer === 1) return items.slice(0, MAX_ITEMS_PER_SOURCE);
+  const perCompany = new Map<string, number>();
+  const domainItems = items.filter((i) => i.queryCompany === undefined).slice(0, MAX_ITEMS_PER_SEARCH);
+  const companyItems = items.filter((i) => {
+    if (i.queryCompany === undefined) return false;
+    const n = (perCompany.get(i.queryCompany) ?? 0) + 1;
+    perCompany.set(i.queryCompany, n);
+    return n <= MAX_ITEMS_PER_COMPANY;
+  });
+  return [...domainItems, ...companyItems];
+}
+
 /** Runs providers side by side; each response is checked against the contract. */
 async function runAll(providers: NewsProvider[], query: ProviderQuery): Promise<Outcome[]> {
   const results = await Promise.allSettled(
@@ -181,7 +199,7 @@ function isRateLimited(error: string): boolean {
 }
 
 export function queryKey(query: ProviderQuery): string {
-  return JSON.stringify([query.domains, query.signalKeywords, query.maxAgeDays]);
+  return JSON.stringify([query.domains, query.companies, query.signalKeywords, query.maxAgeDays]);
 }
 
 /** Domains with no usable search result: all of them when the search failed or did not run. */

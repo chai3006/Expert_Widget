@@ -1,19 +1,29 @@
 // The user-editable files live next to the CV folder, by default in
-// %USERPROFILE%\Documents\ExpertWidget (config.json, employers.json, CV\).
+// %USERPROFILE%\Documents\ExpertWidget (config.json, employers.json, watchlist.json, CV\).
 // Missing files are created from the bundled defaults on first run.
 
 import { copyFileSync, existsSync, mkdirSync, readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
-import { expandEnvVars, parseJson, validateConfig, validateEmployers, type AppConfig, type EmployerSegment } from './config.js';
+import {
+  expandEnvVars,
+  parseJson,
+  validateConfig,
+  validateEmployers,
+  validateWatchlist,
+  type AppConfig,
+  type EmployerSegment,
+  type WatchlistEntry,
+} from './config.js';
 
 export interface UserFiles {
   home: string;
   configPath: string;
   employersPath: string;
+  watchlistPath: string;
 }
 
 export function userFiles(home: string): UserFiles {
-  return { home, configPath: join(home, 'config.json'), employersPath: join(home, 'employers.json') };
+  return { home, configPath: join(home, 'config.json'), employersPath: join(home, 'employers.json'), watchlistPath: join(home, 'watchlist.json') };
 }
 
 /** EXPERT_WIDGET_HOME overrides the location (useful for testing a second setup). */
@@ -22,13 +32,14 @@ export function resolveHome(env: Record<string, string | undefined>, homeDir: st
 }
 
 export type LoadedFiles =
-  | { ok: true; config: AppConfig; employers: EmployerSegment[]; cvFolder: string }
+  | { ok: true; config: AppConfig; employers: EmployerSegment[]; watchlist: WatchlistEntry[]; cvFolder: string }
   | { ok: false; error: string; cvFolder: string };
 
 export function ensureUserFiles(files: UserFiles, defaultsDir: string): void {
   mkdirSync(files.home, { recursive: true });
   if (!existsSync(files.configPath)) copyFileSync(join(defaultsDir, 'config.json'), files.configPath);
   if (!existsSync(files.employersPath)) copyFileSync(join(defaultsDir, 'employers.json'), files.employersPath);
+  if (!existsSync(files.watchlistPath)) copyFileSync(join(defaultsDir, 'watchlist.json'), files.watchlistPath);
 }
 
 export function loadUserFiles(files: UserFiles, env: Record<string, string | undefined>): LoadedFiles {
@@ -57,5 +68,12 @@ export function loadUserFiles(files: UserFiles, env: Record<string, string | und
   const employers = validateEmployers(employersJson.value);
   if (!employers.ok) return { ok: false, error: `${files.employersPath} has problems:\n\n${employers.errors.join('\n')}`, cvFolder };
 
-  return { ok: true, config: config.value, employers: employers.value, cvFolder };
+  const watchlistText = read(files.watchlistPath);
+  if (!watchlistText.ok) return { ok: false, error: watchlistText.error, cvFolder };
+  const watchlistJson = parseJson(watchlistText.text, 'watchlist.json');
+  if (!watchlistJson.ok) return { ok: false, error: `${files.watchlistPath}\n\n${watchlistJson.errors.join('\n')}`, cvFolder };
+  const watchlist = validateWatchlist(watchlistJson.value);
+  if (!watchlist.ok) return { ok: false, error: `${files.watchlistPath} has problems:\n\n${watchlist.errors.join('\n')}`, cvFolder };
+
+  return { ok: true, config: config.value, employers: employers.value, watchlist: watchlist.value, cvFolder };
 }

@@ -109,7 +109,7 @@ describe('translation in Refresh and the view', () => {
   const now = new Date(2026, 9, 10, 8).getTime();
   const refresh = (stores: AppStores, translator: Translator, items = [item]) =>
     runRefresh({ config, cvFolder: dir, stores, cv, providers: [feed(items)], isOnline: () => true, translator, now: () => now, mock: false });
-  const view = (stores: AppStores) => buildView({ mock: false, config, employers: [], configError: null, stores, cvFolder: dir, messages: [], refreshing: false, now });
+  const view = (stores: AppStores) => buildView({ mock: false, config, employers: [], watchlist: [], configError: null, stores, cvFolder: dir, messages: [], refreshing: false, now });
 
   it('stores the translation and shows it on the card next to the original', async () => {
     const stores = new AppStores(dir);

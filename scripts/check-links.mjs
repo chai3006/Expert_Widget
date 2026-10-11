@@ -1,8 +1,10 @@
-// Checks every careerUrl in employers.json: status code and redirect chain.
+// Checks every careerUrl in employers.json and every website in watchlist.json: status code and
+// redirect chain. Watchlist entries without a website are listed as skipped.
 //
-//   npm run check-links                     report only (defaults/employers.json)
-//   npm run check-links -- --write          also set lastVerified (today) for links answering 2xx
-//   npm run check-links -- --file <path>    check another employers.json, e.g. your edited copy
+//   npm run check-links                          report only (defaults/employers.json, defaults/watchlist.json)
+//   npm run check-links -- --write               also set lastVerified (today) for links answering 2xx
+//   npm run check-links -- --file <path>         check another employers.json, e.g. your edited copy
+//   npm run check-links -- --watchlist <path>    check another watchlist.json
 //
 // Requests go one at a time with a pause between them and a clear User-Agent.
 
@@ -13,8 +15,9 @@ import { fileURLToPath } from 'node:url';
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const args = process.argv.slice(2);
 const write = args.includes('--write');
-const fileArg = args.indexOf('--file');
-const file = fileArg >= 0 ? resolve(args[fileArg + 1]) : join(root, 'defaults', 'employers.json');
+const argPath = (flag, fallback) => (args.indexOf(flag) >= 0 ? resolve(args[args.indexOf(flag) + 1]) : join(root, 'defaults', fallback));
+const employersFile = argPath('--file', 'employers.json');
+const watchlistFile = argPath('--watchlist', 'watchlist.json');
 
 const USER_AGENT = 'ExpertWidget-LinkCheck/0.1 (personal desktop widget; checks career page links)';
 const PAUSE_MS = 800;
@@ -50,35 +53,54 @@ async function check(url) {
   return { ok: false, status: 'too many redirects', chain, finalUrl: current };
 }
 
-const data = JSON.parse(readFileSync(file, 'utf8').replace(/^\uFEFF/, ''));
+const readJson = (file) => JSON.parse(readFileSync(file, 'utf8').replace(/^﻿/, ''));
 const today = new Date().toISOString().slice(0, 10);
 const failed = [];
 let okCount = 0;
+let skipped = 0;
 
-console.log(`Checking career links in ${file}\n`);
-for (const segment of data.segments) {
-  console.log(`# ${segment.segment}`);
-  for (const company of segment.companies) {
-    const r = await check(company.careerUrl);
-    const mark = r.ok ? 'OK  ' : 'FAIL';
-    console.log(`  ${mark} ${String(r.status).padEnd(6)} ${company.name.padEnd(20)} ${company.careerUrl}`);
+/** Checks `entry[urlKey]` for each entry; sets lastVerified on success when --write is given. */
+async function checkAll(title, entries, urlKey) {
+  console.log(`# ${title}`);
+  for (const entry of entries) {
+    const url = entry[urlKey];
+    if (!url) {
+      console.log(`  SKIP        ${entry.name.padEnd(20)} (no ${urlKey} yet)`);
+      skipped++;
+      continue;
+    }
+    const r = await check(url);
+    console.log(`  ${r.ok ? 'OK  ' : 'FAIL'} ${String(r.status).padEnd(6)} ${entry.name.padEnd(20)} ${url}`);
     for (const hop of r.chain) console.log(`         ${hop}`);
     if (r.ok) {
       okCount++;
-      if (write) company.lastVerified = today;
+      if (write) entry.lastVerified = today;
     } else {
-      failed.push({ name: company.name, url: company.careerUrl, status: r.status });
+      failed.push({ name: entry.name, url, status: r.status });
     }
     await sleep(PAUSE_MS);
   }
 }
 
-console.log(`\n${okCount} OK, ${failed.length} failed.`);
-for (const f of failed) console.log(`  failed: ${f.name} (${f.status}) ${f.url}`);
-
-if (write) {
+function save(file, data) {
   const tmp = `${file}.tmp`;
   writeFileSync(tmp, `${JSON.stringify(data, null, 2)}\n`, 'utf8');
   renameSync(tmp, file);
-  console.log(`\nWrote lastVerified=${today} for ${okCount} links to ${file}`);
+}
+
+const employers = readJson(employersFile);
+console.log(`Checking career links in ${employersFile}\n`);
+for (const segment of employers.segments) await checkAll(segment.segment, segment.companies, 'careerUrl');
+
+const watchlist = readJson(watchlistFile);
+console.log(`\nChecking websites in ${watchlistFile}\n`);
+await checkAll('Watchlist', watchlist.companies, 'website');
+
+console.log(`\n${okCount} OK, ${failed.length} failed, ${skipped} skipped.`);
+for (const f of failed) console.log(`  failed: ${f.name} (${f.status}) ${f.url}`);
+
+if (write) {
+  save(employersFile, employers);
+  save(watchlistFile, watchlist);
+  console.log(`\nWrote lastVerified=${today} for ${okCount} links to ${employersFile} and ${watchlistFile}`);
 }

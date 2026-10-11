@@ -5,10 +5,12 @@ import { findCv, describeCvLookupProblem } from './cv/cvFiles.js';
 import { RuleBasedCvProfiler, type CvProfiler } from './cv/cvProfiler.js';
 import { CvReadError, extractCvText } from './cv/extract.js';
 import { ADAPTERS } from './news/adapters/index.js';
-import { gdeltUrl, googleNewsUrl, parseGdelt, parseGoogleNews } from './news/adapters/search.js';
+import { gdeltCompanyUrl, gdeltUrl, googleNewsCompanyUrl, googleNewsUrl, parseGdelt, parseGoogleNews } from './news/adapters/search.js';
 import type { PoliteFetcher } from './news/fetcher.js';
 import type { DomainQuery, NewsProvider, ProviderQuery } from './news/provider.js';
 import type { ParsedItem } from './news/types.js';
+import { WatchlistMatcher } from './news/watchlist.js';
+import type { DomainId } from '../shared/types.js';
 import type { CvProvider, CvResult } from './refresh.js';
 
 export class LocalCvProvider implements CvProvider {
@@ -66,7 +68,11 @@ export class FeedProvider implements NewsProvider {
   }
 }
 
-/** Layers 2 and 3: one search request per domain in the mix. Any failed request fails the provider. */
+/**
+ * Layers 2 and 3: one search request per domain in the mix, then one per watchlist company (by
+ * name only; only articles naming the company exactly are kept). Any failed request fails the
+ * provider.
+ */
 abstract class SearchProvider implements NewsProvider {
   readonly topic = 'hiring' as const;
   readonly domains = 'all' as const;
@@ -77,13 +83,19 @@ abstract class SearchProvider implements NewsProvider {
   constructor(protected readonly fetcher: PoliteFetcher) {}
 
   protected abstract url(q: DomainQuery, query: ProviderQuery): string;
-  protected abstract parse(body: string, q: DomainQuery): ParsedItem[];
+  protected abstract companyUrl(name: string, query: ProviderQuery): string;
+  protected abstract parse(body: string, domain?: DomainId): ParsedItem[];
 
   async fetch(query: ProviderQuery): Promise<ParsedItem[]> {
     const items: ParsedItem[] = [];
     for (const q of query.domains) {
       const body = await this.fetcher.getText(this.url(q, query));
-      items.push(...this.parse(body, q));
+      items.push(...this.parse(body, q.domain));
+    }
+    for (const name of query.companies) {
+      const body = await this.fetcher.getText(this.companyUrl(name, query));
+      const named = new WatchlistMatcher([name]);
+      items.push(...this.parse(body).filter((i) => named.match(i).length > 0).map((i) => ({ ...i, queryCompany: name })));
     }
     return items;
   }
@@ -105,8 +117,12 @@ export class GdeltProvider extends SearchProvider {
     return gdeltUrl(q, query.signalKeywords, query.maxAgeDays, this.maxRecords);
   }
 
-  protected parse(body: string, q: DomainQuery): ParsedItem[] {
-    return parseGdelt(body, q.domain);
+  protected companyUrl(name: string, query: ProviderQuery): string {
+    return gdeltCompanyUrl(name, query.maxAgeDays, this.maxRecords);
+  }
+
+  protected parse(body: string, domain?: DomainId): ParsedItem[] {
+    return parseGdelt(body, domain);
   }
 }
 
@@ -119,8 +135,12 @@ export class GoogleNewsProvider extends SearchProvider {
     return googleNewsUrl(q, query.signalKeywords, query.maxAgeDays);
   }
 
-  protected parse(body: string, q: DomainQuery): ParsedItem[] {
-    return parseGoogleNews(body, q.domain);
+  protected companyUrl(name: string, query: ProviderQuery): string {
+    return googleNewsCompanyUrl(name, query.maxAgeDays);
+  }
+
+  protected parse(body: string, domain?: DomainId): ParsedItem[] {
+    return parseGoogleNews(body, domain);
   }
 }
 

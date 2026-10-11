@@ -17,6 +17,8 @@ export interface ParsedItem {
   publisher?: string;
   /** Search providers: the domain whose keywords the query used; fallback when no keyword matches the headline. */
   queryDomain?: DomainId;
+  /** Search providers: the watchlist company whose name the query was. */
+  queryCompany?: string;
 }
 
 /** A parsed item as stored in the feed cache. */

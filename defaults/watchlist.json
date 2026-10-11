@@ -1,0 +1,25 @@
+{
+  "companies": [
+    {
+      "name": "CELUS",
+      "website": "https://www.celus.io/about",
+      "note": "",
+      "addedAt": "2026-10-11",
+      "lastVerified": ""
+    },
+    {
+      "name": "Valispace",
+      "website": "https://www.valispace.com",
+      "note": "",
+      "addedAt": "2026-10-11",
+      "lastVerified": ""
+    },
+    {
+      "name": "Hefex Labs",
+      "website": "",
+      "note": "Website to be added.",
+      "addedAt": "2026-10-11",
+      "lastVerified": ""
+    }
+  ]
+}

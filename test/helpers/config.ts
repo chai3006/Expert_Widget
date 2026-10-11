@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { validateConfig, validateEmployers, type AppConfig, type EmployerSegment } from '../../src/main/config.js';
+import { validateConfig, validateEmployers, validateWatchlist, type AppConfig, type EmployerSegment, type WatchlistEntry } from '../../src/main/config.js';
 
 export const ROOT = join(__dirname, '..', '..');
 export const FIXTURES = join(ROOT, 'test', 'fixtures');
@@ -17,6 +17,12 @@ export function defaultConfig(): AppConfig {
 
 export function defaultEmployers(): EmployerSegment[] {
   const result = validateEmployers(JSON.parse(readFileSync(join(ROOT, 'defaults', 'employers.json'), 'utf8')));
+  if (!result.ok) throw new Error(result.errors.join('\n'));
+  return result.value;
+}
+
+export function defaultWatchlist(): WatchlistEntry[] {
+  const result = validateWatchlist(JSON.parse(readFileSync(join(ROOT, 'defaults', 'watchlist.json'), 'utf8')));
   if (!result.ok) throw new Error(result.errors.join('\n'));
   return result.value;
 }

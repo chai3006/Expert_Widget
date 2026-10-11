@@ -2,7 +2,7 @@
 // everything goes through `window.expert` (see preload.ts).
 
 import { eventDateLabel, lastUpdatedLabel, shortDateLabel } from '../shared/format.js';
-import { orderCompanies, orderNews } from '../shared/ordering.js';
+import { orderCompanies, orderNews, watchlistKey } from '../shared/ordering.js';
 import {
   DOMAIN_LABELS,
   DOMAIN_SHORT_LABELS,
@@ -15,6 +15,7 @@ import {
   type ProviderHealthView,
   type Theme,
   type ViewModel,
+  type WatchlistChip,
 } from '../shared/types.js';
 
 declare global {
@@ -28,6 +29,8 @@ const root = document.getElementById('app') as HTMLElement;
 
 let view: ViewModel | null = null;
 let filter: NewsFilter = readStored('newsFilter', ['all', 'hiring', 'funded_startup', 'career_fair'], 'all');
+/** Watchlist key whose news the feed is narrowed to (the chip's news indicator), or null. */
+let companyFilter: string | null = null;
 const collapsed = new Set<string>();
 let healthOpen = false;
 /** The Domain mix card starts compact on every start. */
@@ -282,7 +285,7 @@ function renderBody(v: ViewModel): HTMLElement {
     return scroll;
   }
 
-  scroll.append(renderDomainMix(v), renderEmployers(v), renderNews(v));
+  scroll.append(renderDomainMix(v), renderEmployers(v), renderWatchlist(v), renderNews(v));
   return scroll;
 }
 
@@ -424,6 +427,69 @@ function renderChip(c: CompanyChip): HTMLElement {
   );
 }
 
+/** Companies from watchlist.json, whatever the domain mix. */
+function renderWatchlist(v: ViewModel): HTMLElement {
+  const section = h('section', { class: 'section', 'aria-labelledby': 'watchlist-title' }, h('h2', { class: 'section-title', id: 'watchlist-title' }, 'Watchlist'));
+  if (v.watchlist.length === 0) {
+    section.append(h('p', { class: 'note' }, 'Add companies to watchlist.json to keep an eye on them.'));
+    return section;
+  }
+  section.append(h('div', { class: 'card watch-card' }, h('div', { class: 'chips' }, ...v.watchlist.map((c) => renderWatchChip(c)))));
+  return section;
+}
+
+function renderWatchChip(c: WatchlistChip): HTMLElement {
+  const visited = c.visitedAt !== null;
+  let chip: HTMLElement;
+  if (c.website) {
+    const url = c.website;
+    const open = (e: Event) => {
+      e.preventDefault();
+      void api.openExternal(url);
+      markVisited(c.key);
+    };
+    chip = h(
+      'a',
+      {
+        class: visited ? 'chip visited' : 'chip',
+        href: url,
+        'data-focus-key': `watch:${c.key}`,
+        title: [`${c.name}: ${url}`, c.note].filter(Boolean).join('\n'),
+        onclick: open,
+        onauxclick: (e: Event) => {
+          if ((e as MouseEvent).button === 1) open(e);
+        },
+      },
+      c.name,
+      visited ? h('span', { class: 'visited-label' }, 'visited') : null,
+    );
+  } else {
+    // Not a link until the website is filled in; never guessed.
+    chip = h('span', { class: 'chip no-link', title: `${c.name}: website to be added in watchlist.json` }, c.name, h('span', { class: 'visited-label' }, 'no link'));
+  }
+  const active = companyFilter === c.key;
+  const label = c.newsCount === 1 ? '1 new news item' : `${c.newsCount} new news items`;
+  const indicator = h(
+    'button',
+    {
+      class: `watch-news${c.newsCount > 0 ? ' has-new' : ''}`,
+      type: 'button',
+      'aria-pressed': active ? 'true' : 'false',
+      'aria-label': `${label} about ${c.name}. ${active ? 'Press to show all news.' : 'Press to show the news about this company.'}`,
+      title: active ? 'Showing the news about this company (press to show all)' : `${label} about ${c.name}`,
+      'data-focus-key': `watch-news:${c.key}`,
+      onclick: () => {
+        companyFilter = active ? null : c.key;
+        if (companyFilter) filter = 'all';
+        render();
+        if (companyFilter) root.querySelector('#news-title')?.scrollIntoView({ block: 'start' });
+      },
+    },
+    h('span', { class: 'watch-news-pill' }, `${c.newsCount} news`),
+  );
+  return h('span', { class: 'watch-item' }, chip, indicator);
+}
+
 const FILTERS: Array<{ id: NewsFilter; label: string }> = [
   { id: 'all', label: 'All' },
   { id: 'hiring', label: 'Hiring' },
@@ -483,9 +549,33 @@ function renderNews(v: ViewModel): HTMLElement {
     renderSourceHealth(v),
   );
 
-  const cards = v.news.filter((n) => tagMatchesFilter(n.tag, filter));
+  const company = companyFilter ? v.watchlist.find((c) => c.key === companyFilter) : undefined;
+  if (company) {
+    section.append(
+      h(
+        'div',
+        { class: 'company-filter', role: 'status' },
+        h('span', {}, 'News about ', h('strong', {}, company.name)),
+        h(
+          'button',
+          {
+            class: 'undo-button',
+            type: 'button',
+            'data-focus-key': 'company-filter-clear',
+            onclick: () => {
+              companyFilter = null;
+              render();
+            },
+          },
+          'Show all news',
+        ),
+      ),
+    );
+  }
+  const cards = v.news.filter((n) => tagMatchesFilter(n.tag, filter) && (!company || n.watchlist.some((w) => watchlistKey(w) === company.key)));
   if (cards.length === 0) {
-    section.append(h('p', { class: 'note' }, v.news.length === 0 ? 'No news yet. Press Refresh to load.' : 'Nothing in this category right now.'));
+    const empty = company ? `No news about ${company.name} right now.` : v.news.length === 0 ? 'No news yet. Press Refresh to load.' : 'Nothing in this category right now.';
+    section.append(h('p', { class: 'note' }, empty));
     return section;
   }
   section.append(h('ul', { class: 'news-list' }, ...cards.map((n) => h('li', {}, renderNewsCard(n)))));
@@ -583,14 +673,25 @@ function renderNewsCard(n: NewsCard): HTMLElement {
           if ((e as MouseEvent).button === 1) open(e);
         },
       },
-      h('div', { class: 'band' }, h('span', {}, TAG_LABELS[n.tag]), h('span', { class: 'state' }, seen ? 'Seen' : 'New')),
+      h(
+        'div',
+        { class: 'band' },
+        h('span', {}, TAG_LABELS[n.tag], n.watchlist.length > 0 ? h('span', { class: 'watch-label', title: `Watchlist: ${n.watchlist.join(', ')}` }, 'Watchlist') : null),
+        h('span', { class: 'state' }, seen ? 'Seen' : 'New'),
+      ),
       h(
         'div',
         { class: 'news-body' },
         h('h3', { class: 'headline', ...textAttrs(n.headline, english ? n.translated?.headline : null) }, english ? (n.translated?.headline ?? n.headline) : n.headline),
         isFair ? h('p', { class: 'event-date' }, eventDateLabel(n.eventDate, n.eventEndDate)) : null,
         n.summary ? h('p', { class: 'summary', ...textAttrs(n.summary, english ? n.translated?.summary : null) }, english ? (n.translated?.summary ?? n.summary) : n.summary) : null,
-        h('div', { class: 'news-footer' }, h('span', {}, `${n.sourceName} · ${n.domainLabel}`), isFair ? null : h('span', {}, shortDateLabel(n.date, Date.now()))),
+        h(
+          'div',
+          { class: 'news-footer' },
+          // Watchlist cards name the company instead of the domain.
+          h('span', {}, `${n.sourceName} · ${n.watchlist.length > 0 ? n.watchlist.join(', ') : n.domainLabel}`),
+          isFair ? null : h('span', {}, shortDateLabel(n.date, Date.now())),
+        ),
       ),
     ),
     h(
@@ -674,6 +775,7 @@ function markVisited(key: string): void {
         companies: orderCompanies(s.companies.map((c) => (c.key === key ? { ...c, visitedAt: now } : c))),
       })),
     })),
+    watchlist: orderCompanies(view.watchlist.map((c) => (c.key === key ? { ...c, visitedAt: now } : c))),
   };
   render();
   void api.markVisited(key);
@@ -683,7 +785,7 @@ function markSeen(id: string): void {
   if (!view) return;
   const now = Date.now();
   const news = orderNews(view.news.map((n) => (n.id === id && n.seenAt === null ? { ...n, seenAt: now } : n)));
-  view = { ...view, news, unseenCount: news.filter((n) => n.seenAt === null).length };
+  view = withNews(view, news);
   render();
   void api.markSeen(id);
 }
@@ -694,7 +796,7 @@ function removeNews(id: string): void {
   const index = view.news.findIndex((n) => n.id === id);
   const news = view.news.filter((n) => n.id !== id);
   const next = news[Math.min(index, news.length - 1)];
-  view = { ...view, news, unseenCount: news.filter((n) => n.seenAt === null).length };
+  view = withNews(view, news);
   clearUndo();
   undo = { id, timer: window.setTimeout(() => {
     undo = null;
@@ -703,6 +805,13 @@ function removeNews(id: string): void {
   render();
   root.querySelector<HTMLElement>(next ? `[data-focus-key="${CSS.escape(`news:${next.id}`)}"]` : '[data-focus-key="undo"]')?.focus();
   void api.removeNews(id);
+}
+
+/** The view with a changed news list, and the counts that depend on it brought up to date. */
+function withNews(v: ViewModel, news: NewsCard[]): ViewModel {
+  const unseen = news.filter((n) => n.seenAt === null);
+  const watchlist = v.watchlist.map((c) => ({ ...c, newsCount: unseen.filter((n) => n.watchlist.some((w) => watchlistKey(w) === c.key)).length }));
+  return { ...v, news, watchlist, unseenCount: unseen.length };
 }
 
 function clearUndo(): void {
