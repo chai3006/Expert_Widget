@@ -7,6 +7,11 @@ as a small round button and opens into a panel docked to the right edge.
 
 It changes only when you press **Refresh**: no refresh at start-up, no timer.
 
+**New here?** Open these two pages in your browser (double-click them after cloning):
+
+- [`docs/installation.html`](docs/installation.html): installing step by step, with the installer or from the code
+- [`docs/how-it-works.html`](docs/how-it-works.html): what the widget does at start-up and on Refresh
+
 ## Requirements
 
 - Windows 10 or 11

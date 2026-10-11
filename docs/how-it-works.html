@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How Expert Widget Works</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one narrow vertical flow per phase; lane colour says where a step runs (this PC vs internet). */
+:root {
+  --bg: #f3f6f6;
+  --surface: #ffffff;
+  --ink: #142023;
+  --muted: #56676b;
+  --line: #c9d5d6;
+  --pc: #0f7f7a;          /* teal, the widget's own E */
+  --pc-soft: #e1f1ef;
+  --net: #b4650c;         /* internet */
+  --net-soft: #fbeedd;
+  --you: #4a4fb8;         /* things you do */
+  --you-soft: #e7e8f8;
+  --stop: #a3343a;
+  --stop-soft: #f8e4e5;
+  --display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body: "Instrument Sans", "Segoe UI", system-ui, sans-serif;
+  --mono: "JetBrains Mono", Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1719; --surface: #172225; --ink: #e3ecec; --muted: #94a7aa; --line: #2c3c40;
+    --pc: #4cc2b9; --pc-soft: #15302f; --net: #eba152; --net-soft: #33261a;
+    --you: #9aa0f2; --you-soft: #22243f; --stop: #ec8389; --stop-soft: #3a1e21;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1719; --surface: #172225; --ink: #e3ecec; --muted: #94a7aa; --line: #2c3c40;
+  --pc: #4cc2b9; --pc-soft: #15302f; --net: #eba152; --net-soft: #33261a;
+  --you: #9aa0f2; --you-soft: #22243f; --stop: #ec8389; --stop-soft: #3a1e21;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { color-scheme: light dark; }
+body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font: 15px/1.55 var(--body); padding: 0 16px; }
+.wrap { max-width: 760px; margin: 0 auto; padding-block: 40px 64px; }
+h1, h2 { font-family: var(--display); text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(30px, 6vw, 44px); font-weight: 800; letter-spacing: -0.02em; line-height: 1.05; }
+h2 { font-size: 24px; font-weight: 800; letter-spacing: -0.01em; }
+.lede { color: var(--muted); max-width: 60ch; margin: 12px 0 0; font-size: 16px; }
+.logo { display: inline-grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; background: var(--pc); color: var(--bg); font: 800 18px var(--display); vertical-align: 6px; margin-right: 10px; }
+
+.legend { display: flex; flex-wrap: wrap; gap: 8px 18px; margin: 24px 0 0; padding: 0; list-style: none; font-size: 13px; color: var(--muted); }
+.legend li { display: flex; align-items: center; gap: 8px; }
+.sw { width: 14px; height: 14px; border-radius: 4px; border: 2px solid; }
+.sw.pc { border-color: var(--pc); background: var(--pc-soft); }
+.sw.net { border-color: var(--net); background: var(--net-soft); }
+.sw.you { border-color: var(--you); background: var(--you-soft); }
+.sw.dec { border-color: var(--muted); background: var(--surface); transform: rotate(45deg) scale(.8); border-radius: 2px; }
+
+section { margin-top: 48px; }
+.phase-head { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; }
+.phase-head p { margin: 0; color: var(--muted); font-size: 14px; }
+
+/* the flow */
+.flow { display: flex; flex-direction: column; align-items: stretch; }
+.arrow { align-self: center; width: 2px; height: 26px; background: var(--line); position: relative; }
+.arrow::after { content: ""; position: absolute; left: 50%; bottom: -1px; transform: translateX(-50%); border: 6px solid transparent; border-top: 7px solid var(--line); border-bottom: 0; }
+.arrow[data-label]::before { content: attr(data-label); position: absolute; left: 12px; top: 3px; font: 500 11px var(--mono); color: var(--muted); white-space: nowrap; }
+
+.node { background: var(--surface); border: 2px solid var(--line); border-radius: 12px; padding: 14px 16px; min-width: 0; }
+.node.pc { border-color: var(--pc); background: var(--pc-soft); }
+.node.net { border-color: var(--net); background: var(--net-soft); }
+.node.you { border-color: var(--you); background: var(--you-soft); border-radius: 999px; text-align: center; padding: 12px 22px; align-self: center; }
+.node.stop { border-color: var(--stop); background: var(--stop-soft); }
+.node .t { font-weight: 600; display: block; }
+.node .d { color: var(--muted); font-size: 14px; display: block; margin-top: 2px; }
+.node .d b { color: var(--ink); font-weight: 600; }
+.where { float: right; margin-left: 10px; font: 500 10px var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.node.pc .where { color: var(--pc); }
+.node.net .where { color: var(--net); }
+code, .file { font: 13px var(--mono); background: color-mix(in srgb, var(--ink) 7%, transparent); padding: 1px 5px; border-radius: 4px; overflow-wrap: anywhere; }
+
+/* decisions: a diamond tag on top, branches side by side */
+.decision { border: 2px dashed var(--muted); border-radius: 12px; padding: 14px 16px; background: var(--surface); }
+.decision > .q { display: flex; align-items: center; gap: 10px; font-weight: 600; }
+.decision > .q::before { content: ""; flex: none; width: 12px; height: 12px; border: 2px solid var(--muted); transform: rotate(45deg); border-radius: 2px; }
+.branches { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+.branch { border-radius: 10px; padding: 10px 12px; font-size: 14px; border: 1.5px solid var(--line); min-width: 0; }
+.branch .lab { display: inline-block; font: 600 11px var(--mono); letter-spacing: .06em; text-transform: uppercase; margin-bottom: 2px; }
+.branch.go { border-color: var(--pc); }
+.branch.go .lab { color: var(--pc); }
+.branch.alt { border-color: var(--stop); background: var(--stop-soft); }
+.branch.alt .lab { color: var(--stop); }
+.branch.net { border-color: var(--net); background: var(--net-soft); }
+.branch.net .lab { color: var(--net); }
+.branch.plain .lab { color: var(--muted); }
+
+/* parallel lanes */
+.parallel { border: 2px solid var(--line); border-radius: 14px; padding: 12px; background: var(--surface); }
+.parallel > .cap { font: 500 11px var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 0 4px 10px; }
+.lanes { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.lanes .node { height: 100%; }
+
+.step-no { display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--ink); color: var(--bg); font: 600 12px var(--mono); margin-right: 8px; vertical-align: 1px; }
+
+/* screen output */
+.screen { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
+.screen div { background: var(--surface); border: 1.5px solid var(--pc); border-radius: 8px; padding: 8px 10px; font-size: 13px; min-width: 0; }
+.screen b { display: block; font-size: 13px; }
+.screen span { color: var(--muted); }
+
+/* files */
+.files { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 18px; }
+.files .box { background: var(--surface); border: 1.5px solid var(--line); border-radius: 12px; padding: 16px; min-width: 0; }
+.files h3 { margin: 0 0 4px; font: 600 15px var(--body); }
+.files .path { font: 12px var(--mono); color: var(--pc); overflow-wrap: anywhere; }
+.files ul { margin: 10px 0 0; padding-left: 18px; font-size: 14px; }
+.files li { margin: 3px 0; }
+.files li span { color: var(--muted); }
+
+.note { margin-top: 14px; font-size: 14px; color: var(--muted); }
+
+@media (max-width: 560px) {
+  .branches, .lanes, .files { grid-template-columns: 1fr; }
+  .screen { grid-template-columns: 1fr; }
+  .where { float: none; display: block; margin: 0 0 4px; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1><span class="logo">E</span>How Expert Widget works</h1>
+    <p class="lede">The widget does nothing on its own. It shows what it saved last time, and only goes out to fetch new data when you press <b>Refresh</b>. Your CV is read on this PC and never leaves it.</p>
+    <ul class="legend" aria-label="Legend">
+      <li><span class="sw you"></span>You do this</li>
+      <li><span class="sw pc"></span>Happens on your PC</li>
+      <li><span class="sw net"></span>Goes to the internet</li>
+      <li><span class="sw dec"></span>The widget decides</li>
+    </ul>
+  </header>
+
+  <!-- ============ START-UP ============ -->
+  <section aria-labelledby="h-start">
+    <div class="phase-head"><h2 id="h-start">1. When it starts</h2><p>No internet needed.</p></div>
+    <div class="flow">
+      <div class="node you"><span class="t">You start Expert Widget</span><span class="d">or Windows starts it for you</span></div>
+      <div class="arrow"></div>
+      <div class="decision">
+        <div class="q">Is this the very first start?</div>
+        <div class="branches">
+          <div class="branch go"><span class="lab">Yes</span><br>Creates <span class="file">Documents\ExpertWidget\</span> with an empty <span class="file">CV\</span> folder, <span class="file">config.json</span> and <span class="file">employers.json</span>.</div>
+          <div class="branch plain"><span class="lab">No</span><br>Uses the files that are already there.</div>
+        </div>
+      </div>
+      <div class="arrow"></div>
+      <div class="node pc"><span class="where">this PC</span><span class="t">Shows the round E button</span><span class="d">Where you left it, with a badge counting news you have not opened yet. Double-click to open the panel.</span></div>
+      <div class="arrow"></div>
+      <div class="node pc"><span class="where">this PC</span><span class="t">Shows what it saved last time</span><span class="d">Employers and news from the last Refresh. <b>Nothing is fetched</b> until you press Refresh.</span></div>
+    </div>
+  </section>
+
+  <!-- ============ REFRESH ============ -->
+  <section aria-labelledby="h-refresh">
+    <div class="phase-head"><h2 id="h-refresh">2. When you press Refresh</h2><p>Takes about 5 to 30 seconds.</p></div>
+    <div class="flow">
+      <div class="node you"><span class="t">You press Refresh</span><span class="d">in the panel, or "Refresh now" in the tray menu</span></div>
+      <div class="arrow"></div>
+
+      <div class="node pc"><span class="where">this PC</span><span class="t"><span class="step-no">1</span>Read your CV</span><span class="d">Looks in <span class="file">Documents\ExpertWidget\CV\</span> for one PDF, Word or text file.</span></div>
+      <div class="arrow"></div>
+      <div class="decision">
+        <div class="q">Exactly one CV, and could it be read?</div>
+        <div class="branches">
+          <div class="branch go"><span class="lab">Yes</span><br>Counts the keywords from <span class="file">config.json</span> in the CV and works out your <b>domain mix</b>, e.g. Automotive 60 %, Energy storage 40 %. Up to 4 domains. The CV text is then thrown away.</div>
+          <div class="branch alt"><span class="lab">No</span><br>Keeps the domain mix from last time and tells you why ("No CV found", "more than one CV", "scanned PDF").</div>
+        </div>
+      </div>
+      <div class="arrow"></div>
+
+      <div class="decision">
+        <div class="q">Is the PC online?</div>
+        <div class="branches">
+          <div class="branch go"><span class="lab">Yes</span><br>Carry on to step 2.</div>
+          <div class="branch alt"><span class="lab">No</span><br>Stops here. Shows "Offline, showing data from …" and keeps the saved news.</div>
+        </div>
+      </div>
+      <div class="arrow"></div>
+
+      <div class="parallel">
+        <p class="cap"><span class="step-no">2</span>Fetch news, both at the same time</p>
+        <div class="lanes">
+          <div class="node net"><span class="where">internet</span><span class="t">News sites</span><span class="d">ingenieur.de, startbase, Munich Startup, messen.de, produktion.de and others from <span class="file">config.json</span>. <b>Every Refresh.</b> Only sites that fit your domains.</span></div>
+          <div class="node net"><span class="where">internet</span><span class="t">GDELT news search</span><span class="d">One search per domain in your mix, using only keywords from <span class="file">config.json</span>, never your CV. <b>At most every 15 minutes.</b> In between, its last results are reused.</span></div>
+        </div>
+      </div>
+      <div class="arrow"></div>
+
+      <div class="decision">
+        <div class="q">Did GDELT find something for every domain?</div>
+        <div class="branches">
+          <div class="branch go"><span class="lab">Yes</span><br>Carry on.</div>
+          <div class="branch net"><span class="lab">No</span><br>If the Google News fallback is switched on (it is <b>off</b> by default), search Google News for the missing domains only.</div>
+        </div>
+      </div>
+      <div class="arrow"></div>
+
+      <div class="decision">
+        <div class="q">Did every source answer properly?</div>
+        <div class="branches">
+          <div class="branch go"><span class="lab">Yes</span><br>Saves the new items.</div>
+          <div class="branch alt"><span class="lab">No</span><br>Keeps that source's old items and shows "One source could not be loaded". After 3 failed Refreshes in a row it is marked <i>needs attention</i>.</div>
+        </div>
+      </div>
+      <div class="arrow"></div>
+
+      <div class="node pc"><span class="where">this PC</span><span class="t"><span class="step-no">3</span>Translate to English</span><span class="d">New German headlines and summaries are translated by a small model on this PC. No online service.</span></div>
+      <div class="arrow"></div>
+
+      <div class="node pc"><span class="where">this PC</span><span class="t"><span class="step-no">4</span>Sort out what to show</span>
+        <span class="d"><b>Employers:</b> from <span class="file">employers.json</span>, only the segments for your domains, strongest domain first. Companies you already visited move to the end.</span>
+        <span class="d"><b>News:</b> duplicates removed; each item gets a tag (job cuts, hiring, funded startup, career fair) and a domain. Items outside your domains, older than 7 days, or thumbed down are dropped. Thumbed-up items always stay.</span>
+      </div>
+      <div class="arrow"></div>
+
+      <div class="node pc"><span class="where">this PC</span><span class="t"><span class="step-no">5</span>Update the panel</span>
+        <div class="screen">
+          <div><b>Domain mix</b><span>your mix and "Updated today, 07:12"</span></div>
+          <div><b>Employers</b><span>career-page links</span></div>
+          <div><b>News feed</b><span>filters, EN switch, source status</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ USING IT ============ -->
+  <section aria-labelledby="h-use">
+    <div class="phase-head"><h2 id="h-use">3. What you do with it</h2><p>All remembered on this PC.</p></div>
+    <div class="flow">
+      <div class="lanes">
+        <div class="node you" style="border-radius:12px;text-align:left;align-self:stretch"><span class="t">Click a company</span><span class="d">Opens its career page. Marked visited and moves to the end.</span></div>
+        <div class="node you" style="border-radius:12px;text-align:left;align-self:stretch"><span class="t">Click a news card</span><span class="d">Opens the article. Marked Seen and sinks to the bottom.</span></div>
+        <div class="node you" style="border-radius:12px;text-align:left;align-self:stretch"><span class="t">Thumbs down</span><span class="d">Removes the article for good, also after Refresh.</span></div>
+        <div class="node you" style="border-radius:12px;text-align:left;align-self:stretch"><span class="t">Thumbs up</span><span class="d">Keeps the card, even after it gets old.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FILES ============ -->
+  <section aria-labelledby="h-files">
+    <div class="phase-head"><h2 id="h-files">Where things live</h2></div>
+    <div class="files">
+      <div class="box">
+        <h3>Your files: you edit these</h3>
+        <div class="path">Documents\ExpertWidget\</div>
+        <ul>
+          <li><span class="file">CV\</span> <span>exactly one CV</span></li>
+          <li><span class="file">config.json</span> <span>keywords, news sites, settings</span></li>
+          <li><span class="file">employers.json</span> <span>companies and career links</span></li>
+        </ul>
+      </div>
+      <div class="box">
+        <h3>Widget memory: it keeps these itself</h3>
+        <div class="path">%APPDATA%\Expert Widget\</div>
+        <ul>
+          <li><span class="file">profile.json</span> <span>your domain mix (not the CV)</span></li>
+          <li><span class="file">feed-cache.json</span> <span>saved news</span></li>
+          <li><span class="file">interactions.json</span> <span>visited, seen, thumbs</span></li>
+          <li><span class="file">health.json</span> <span>which sources work</span></li>
+          <li><span class="file">ui.json</span> <span>button position, theme</span></li>
+        </ul>
+      </div>
+    </div>
+    <p class="note">Edit a file in <span class="file">Documents\ExpertWidget\</span>, save it, and press Refresh to see the change.</p>
+  </section>
+</div>
+</body>
+</html>
