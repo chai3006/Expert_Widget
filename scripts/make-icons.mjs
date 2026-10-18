@@ -87,7 +87,7 @@ function png(size, raw) {
 }
 
 const outputs = {
-  'build/icon.png': 256,
+  'build/icon.png': 512, // the macOS build needs at least 512x512
   'assets/icon.png': 256,
   'assets/tray.png': 16,
   'assets/tray@2x.png': 32,

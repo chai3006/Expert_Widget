@@ -1,11 +1,11 @@
 // The user-editable files live next to the CV folder, by default in
-// %USERPROFILE%\Documents\ExpertWidget (config.json, employers.json, watchlist.json, CV\).
+// Documents/ExpertWidget in the home folder (config.json, employers.json, watchlist.json, CV\).
 // Missing files are created from the bundled defaults on first run.
 
 import { copyFileSync, existsSync, mkdirSync, readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import {
-  expandEnvVars,
+  expandPath,
   parseJson,
   validateConfig,
   validateEmployers,
@@ -42,7 +42,12 @@ export function ensureUserFiles(files: UserFiles, defaultsDir: string): void {
   if (!existsSync(files.watchlistPath)) copyFileSync(join(defaultsDir, 'watchlist.json'), files.watchlistPath);
 }
 
-export function loadUserFiles(files: UserFiles, env: Record<string, string | undefined>): LoadedFiles {
+export function loadUserFiles(
+  files: UserFiles,
+  env: Record<string, string | undefined>,
+  homeDir: string,
+  platform: NodeJS.Platform = process.platform,
+): LoadedFiles {
   const fallbackCv = join(files.home, 'CV');
   const read = (path: string) => {
     try {
@@ -59,7 +64,7 @@ export function loadUserFiles(files: UserFiles, env: Record<string, string | und
   const config = validateConfig(configJson.value);
   if (!config.ok) return { ok: false, error: `${files.configPath} has problems:\n\n${config.errors.join('\n')}`, cvFolder: fallbackCv };
 
-  const cvFolder = resolve(expandEnvVars(config.value.cvFolder, env));
+  const cvFolder = resolve(expandPath(config.value.cvFolder, env, homeDir, platform));
 
   const employersText = read(files.employersPath);
   if (!employersText.ok) return { ok: false, error: employersText.error, cvFolder };

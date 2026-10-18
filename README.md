@@ -1,6 +1,6 @@
 # Expert Widget
 
-A small standalone Windows desktop widget for personal use. It reads your CV from a local folder,
+A small standalone desktop widget for Windows, macOS and Linux, for personal use. It reads your CV from a local folder,
 works out your domain mix, and shows matching engineering employers in Germany (with career-page
 links) plus a news feed of hiring signals, funded startups and career fairs. It sits on the screen
 as a small round button and opens into a panel docked to the right edge.
@@ -14,8 +14,12 @@ It changes only when you press **Refresh**: no refresh at start-up, no timer.
 
 ## Requirements
 
-- Windows 10 or 11
+- Windows 10 or 11, a recent macOS, or a Linux desktop with a tray (GNOME needs the
+  AppIndicator extension, which Ubuntu ships)
 - Node.js 20 or newer (developed with Node 24.19) and npm
+
+Windows is where the widget is developed and tested. macOS and Linux are supported in the code and
+the build config but have not been tried on a real machine yet; see "macOS and Linux" below.
 
 ## Setup
 
@@ -32,7 +36,8 @@ npm run dev         # real data; opens DevTools in a separate window
 | `npm start` | Compile and start with real data |
 | `npm test` | Unit tests (no network: sources are tested against saved pages) |
 | `npm run typecheck` | Type-check main, renderer and tests |
-| `npm run build` | Build the NSIS installer into `release/` |
+| `npm run build` | Build the installer for the system you are on into `release/` |
+| `npm run build:win` / `build:mac` / `build:linux` | Build for one system: NSIS installer (Windows), `.dmg` for Apple silicon and Intel (macOS), AppImage and `.deb` (Linux). Build each on its own system, see "macOS and Linux" |
 | `npm run check-links` | Check every career URL in `defaults/employers.json` and every website in `defaults/watchlist.json` (add `-- --write` to record `lastVerified`, `-- --file <path>` / `-- --watchlist <path>` for other files) |
 | `npm run check-sources` | Call every news provider once with a test query and print status, item count and a sample headline (`-- --config <path>`, `-- --domains a,b`) |
 | `npm run icons` | Regenerate the app and tray icons |
@@ -54,7 +59,8 @@ let it finish once.
 - The state (collapsed or expanded), the button position and its screen are remembered. If that
   screen is gone at the next start, the button comes back on the main screen. Refresh never changes
   the state.
-- Tray menu (right-click): Show/Hide, Expand/Collapse, Refresh now, Start with Windows, Quit.
+- Tray menu (right-click): Show/Hide, Expand/Collapse, Refresh now, Start with Windows (Open at
+  Login on macOS, Start at Login on Linux), Quit.
   Left-clicking the tray icon shows or hides the widget. Only one instance runs at a time. See
   "I can't find the widget" below.
 - **Refresh** reads the CV, recomputes the domain mix, updates employers, fetches the news sources
@@ -94,18 +100,41 @@ closing it from the taskbar only hide it.
   small **^** arrow (hidden icons). **Left-click** the icon to show or hide the widget;
   **right-click** for the menu (Show/Hide, Expand/Collapse, Refresh now, Start with Windows, Quit).
   Tip: drag the icon from the hidden-icons area onto the taskbar to keep it visible.
-- **Hotkey:** **Ctrl+Alt+E** shows or hides the widget from anywhere. Change it with `"hotkey"` in
-  `config.json` (for example `"Ctrl+Shift+X"`, or `""` for none). If another program already uses
-  it, the tray menu says so.
+- **Hotkey:** **Ctrl+Alt+E** (**Cmd+Option+E** on a Mac) shows or hides the widget from anywhere.
+  Change it with `"hotkey"` in `config.json` (for example `"Ctrl+Shift+X"`, or `""` for none). If
+  another program already uses it, the tray menu says so.
 - **Start menu / desktop:** start **Expert** again. If it is already running, no second copy opens;
   the running widget comes to the front, expanded.
 - **Start with Windows:** on by default after installation (toggle it in the tray menu). After a
   restart the widget appears as the small round button; nothing is refreshed until you press
   Refresh.
 
+## macOS and Linux
+
+The tray and start-at-login behave as each system expects:
+
+- **macOS:** the **E** sits in the menu bar at the top right, not in the Dock. Click it to show or
+  hide the widget, right-click (or Ctrl-click) for the menu. Opening the app again from Launchpad
+  or Finder brings the widget to the front, expanded. **Open at Login** uses the system's login
+  items. macOS cannot tell the widget it was started at login, so it then opens as it was left.
+- **Linux:** many desktops only open the tray menu on a click, so **Show / Hide** is its first
+  entry. **Start at Login** writes `~/.config/autostart/expert-widget.desktop`. The widget runs
+  under X11 (XWayland on Wayland desktops) because Wayland does not let it place its button or dock
+  its panel. The installed app does this by itself; when running from the code on Wayland, start it
+  with `npx electron . --ozone-platform=x11`.
+
+**Build each installer on its own system** (or in CI with one runner per system). PDF reading
+uses a native module, and `npm install` only fetches it for the system it runs on, so a Linux build
+made on Windows could not read PDF CVs.
+
+The app is not code-signed. On macOS, the first start of the `.dmg` app is blocked: open
+**System Settings › Privacy & Security** and choose **Open Anyway**. Windows SmartScreen may
+likewise ask you to confirm (**More info › Run anyway**).
+
 ## Your files
 
-On first start the widget creates `%USERPROFILE%\Documents\ExpertWidget\`:
+On first start the widget creates `Documents/ExpertWidget` in your home folder
+(`%USERPROFILE%\Documents\ExpertWidget\` on Windows, `~/Documents/ExpertWidget/` on macOS and Linux):
 
 ```
 Documents\ExpertWidget\
@@ -133,9 +162,9 @@ is shown.
 
 | Key | Meaning |
 |---|---|
-| `cvFolder` | CV folder. `%VARIABLES%` are expanded. Default `%USERPROFILE%\Documents\ExpertWidget\CV` |
+| `cvFolder` | CV folder. Default `~/Documents/ExpertWidget/CV` (`~` is your home folder, on every system). `%VARIABLES%` are expanded everywhere, `$VARIABLES` on macOS and Linux. A Windows path with `%USERPROFILE%` and backslashes still works on a Mac or Linux PC. |
 | `newsMaxAgeDays` | News older than this is hidden (default 7). Career fairs are hidden after their event date instead. |
-| `hotkey` | Show/hide hotkey from anywhere, default `"Ctrl+Alt+E"`; `""` for none |
+| `hotkey` | Show/hide hotkey from anywhere, default `"CommandOrControl+Alt+E"` (Ctrl on Windows and Linux, Cmd on macOS); `""` for none. Older configs with `"Ctrl+Alt+E"` keep working. |
 | `maxItemsPerTag` | Most cards per group (hiring signals, funded startups, career fairs). Default 12. |
 | `sources` | News sources (layer 1), see below |
 | `search.gdelt` | `{ "enabled": true, "maxRecords": 75 }`: GDELT news search (layer 2) |
@@ -273,7 +302,8 @@ source and link are stored. Full article text is never stored.
 
 ## Local state
 
-Stored in `%APPDATA%\Expert Widget\` (Electron's `userData`) as plain JSON, written via temp file
+Stored in Electron's `userData` folder (`%APPDATA%\Expert Widget\` on Windows,
+`~/Library/Application Support/Expert Widget/` on macOS, `~/.config/Expert Widget/` on Linux) as plain JSON, written via temp file
 and rename:
 
 | File | Contents |

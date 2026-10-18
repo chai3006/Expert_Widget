@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { domainOrder, expandEnvVars, parseJson, validateConfig, validateEmployers } from '../src/main/config.js';
+import { domainOrder, expandEnvVars, expandPath, parseJson, validateConfig, validateEmployers } from '../src/main/config.js';
 import { defaultConfigJson, defaultEmployers } from './helpers/config.js';
 
 describe('config validation', () => {
@@ -53,6 +53,22 @@ describe('config validation', () => {
   it('expands %USERPROFILE% case-insensitively and leaves unknown variables alone', () => {
     expect(expandEnvVars('%userprofile%\\Documents\\ExpertWidget\\CV', { USERPROFILE: 'C:\\Users\\me' })).toBe('C:\\Users\\me\\Documents\\ExpertWidget\\CV');
     expect(expandEnvVars('%NOPE%\\x', {})).toBe('%NOPE%\\x');
+  });
+
+  it('turns cvFolder into a path on Windows, macOS and Linux', () => {
+    // The bundled default works everywhere.
+    expect(expandPath('~/Documents/ExpertWidget/CV', {}, 'C:\\Users\\me', 'win32')).toBe('C:\\Users\\me/Documents/ExpertWidget/CV');
+    expect(expandPath('~/Documents/ExpertWidget/CV', {}, '/Users/me', 'darwin')).toBe('/Users/me/Documents/ExpertWidget/CV');
+    expect(expandPath('~', {}, '/home/me', 'linux')).toBe('/home/me');
+    // $VAR and ${VAR} outside Windows; unknown ones are left alone.
+    expect(expandPath('$HOME/cv', { HOME: '/home/me' }, '/home/me', 'linux')).toBe('/home/me/cv');
+    expect(expandPath('${XDG_DOCUMENTS_DIR}/cv', { XDG_DOCUMENTS_DIR: '/data/docs' }, '/home/me', 'linux')).toBe('/data/docs/cv');
+    expect(expandPath('$NOPE/cv', {}, '/home/me', 'linux')).toBe('$NOPE/cv');
+    // A config.json from a Windows PC keeps working on a Mac.
+    expect(expandPath('%USERPROFILE%\\Documents\\ExpertWidget\\CV', {}, '/Users/me', 'darwin')).toBe('/Users/me/Documents/ExpertWidget/CV');
+    // Windows paths are left as they are on Windows.
+    expect(expandPath('%USERPROFILE%\\CV', { USERPROFILE: 'C:\\Users\\me' }, 'C:\\Users\\me', 'win32')).toBe('C:\\Users\\me\\CV');
+    expect(expandPath('D:\\CV $x', {}, 'C:\\Users\\me', 'win32')).toBe('D:\\CV $x');
   });
 });
 

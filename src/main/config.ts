@@ -27,7 +27,7 @@ export interface AppConfig {
   cvFolder: string;
   newsMaxAgeDays: number;
   maxItemsPerTag: number;
-  /** Global show/hide hotkey, e.g. "Ctrl+Alt+E"; "" switches it off. */
+  /** Global show/hide hotkey, e.g. "CommandOrControl+Alt+E"; "" switches it off. */
   hotkey: string;
   sources: SourceConfig[];
   /** Search providers (layers 2 and 3). */
@@ -67,7 +67,8 @@ export interface WatchlistEntry {
   lastVerified: string;
 }
 
-export const DEFAULT_HOTKEY = 'Ctrl+Alt+E';
+// CommandOrControl is Ctrl on Windows and Linux and Cmd on macOS.
+export const DEFAULT_HOTKEY = 'CommandOrControl+Alt+E';
 
 export type Validated<T> = { ok: true; value: T } | { ok: false; errors: string[] };
 
@@ -129,7 +130,7 @@ export function validateConfig(raw: unknown): Validated<AppConfig> {
 
   const hotkey = raw.hotkey ?? DEFAULT_HOTKEY;
   if (typeof hotkey !== 'string' || (hotkey.trim() !== '' && !isValidHotkey(hotkey.trim()))) {
-    errors.push('hotkey: must be a key combination like "Ctrl+Alt+E" (modifiers Ctrl, Alt, Shift, then one key), or "" for none');
+    errors.push('hotkey: must be a key combination like "CommandOrControl+Alt+E" (modifiers CommandOrControl, Ctrl, Alt, Shift, Cmd, then one key), or "" for none');
   }
 
   const sources: SourceConfig[] = [];
@@ -350,6 +351,24 @@ export function validateWatchlist(raw: unknown): Validated<WatchlistEntry[]> {
     }
   });
   return errors.length > 0 ? { ok: false, errors } : { ok: true, value: entries };
+}
+
+/**
+ * Turns the cvFolder setting into a path for this computer. Understands "~" (the home folder),
+ * $VAR / ${VAR} (macOS and Linux style) and %VAR% (Windows style). %USERPROFILE% falls back to
+ * the home folder where it is not set, and backslashes become slashes outside Windows, so a
+ * config.json written on Windows still works on a Mac or Linux PC.
+ */
+export function expandPath(path: string, env: Record<string, string | undefined>, homeDir: string, platform: NodeJS.Platform): string {
+  let out = expandEnvVars(path, { USERPROFILE: homeDir, ...env });
+  if (platform !== 'win32') {
+    out = out
+      .replace(/\$\{([A-Za-z_][A-Za-z0-9_]*)\}|\$([A-Za-z_][A-Za-z0-9_]*)/g, (match, braced?: string, bare?: string) => env[braced ?? bare ?? ''] ?? match)
+      .replace(/\\/g, '/');
+  }
+  if (out === '~') return homeDir;
+  if (out.startsWith('~/') || out.startsWith('~\\')) return homeDir + out.slice(1);
+  return out;
 }
 
 /** Expands %VAR% references (Windows style) using the given environment. */

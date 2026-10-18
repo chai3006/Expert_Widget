@@ -162,6 +162,7 @@ section { margin-top: 44px; }
   <header>
     <h1><span class="logo">E</span>Installing Expert Widget</h1>
     <p class="lede">There are two ways to get the widget onto a Windows PC. Pick one, follow its column, and both end in the same place: the round <b>E</b> button on your screen, waiting for your CV.</p>
+    <p class="lede">On a Mac or Linux PC, Way B works the same way (use Terminal instead of PowerShell). The installer is a <span class="file">.dmg</span> on macOS and an AppImage or <span class="file">.deb</span> on Linux; the section “macOS and Linux” in <a href="../README.md">README.md</a> covers what is different there.</p>
     <ul class="legend" aria-label="Legend">
       <li><span class="sw you"></span>You do this</li>
       <li><span class="sw pc"></span>Happens on your PC</li>
@@ -316,7 +317,7 @@ cd Expert_Widget</pre><button type="button">Copy</button></div>
           <tr><td>"No CV found" or "more than one CV"</td><td>Put exactly one file into <span class="file">Documents\ExpertWidget\CV\</span> and press Refresh.</td></tr>
           <tr><td>"Could not read" your CV</td><td>Close it in Word if it is open. If it is a scanned PDF, save a text-based PDF or a .docx instead.</td></tr>
           <tr><td>"One source could not be loaded"</td><td>Nothing to do. That one news site was busy or unreachable; the others still load, and it is tried again next time.</td></tr>
-          <tr><td>The widget disappeared</td><td>It is still running. Press <b>Ctrl+Alt+E</b>, or click the teal E in the tray.</td></tr>
+          <tr><td>The widget disappeared</td><td>It is still running. Press <b>Ctrl+Alt+E</b> (<b>Cmd+Option+E</b> on a Mac), or click the teal E in the tray.</td></tr>
           <tr><td>News stays in German</td><td>The translation model did not download. Run <span class="file">npm run compile</span> (Way B) or reinstall (Way A).</td></tr>
         </tbody>
       </table>

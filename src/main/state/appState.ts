@@ -59,7 +59,7 @@ export interface UiState {
   theme: Theme;
   mode: WindowMode;
   button: ButtonPosition | null;
-  /** "Start with Windows" was switched on once by default (installed app only). */
+  /** Start at login was switched on once by default (installed app only). */
   autostartDefaultApplied: boolean;
 }
 

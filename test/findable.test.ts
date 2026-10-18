@@ -1,11 +1,14 @@
-import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { isLinuxAutostartOn, linuxAutostartPath, quoteExecArg, setLinuxAutostart } from '../src/main/autostart.js';
 import { validateConfig } from '../src/main/config.js';
 import { AppStores } from '../src/main/state/appState.js';
 import {
   AUTOSTART_FLAG,
+  autostartLabel,
+  hotkeyLabel,
   hotkeyMenuNote,
   isValidHotkey,
   onCloseRequest,
@@ -37,6 +40,37 @@ describe('hide on close', () => {
 describe('single instance', () => {
   it('a second start brings the running widget to the front, expanded', () => {
     expect(secondInstanceAction()).toEqual({ show: true, mode: 'expanded' });
+  });
+});
+
+describe('start at login', () => {
+  it('uses each system\'s own name in the tray menu', () => {
+    expect(autostartLabel('win32')).toBe('Start with Windows');
+    expect(autostartLabel('darwin')).toBe('Open at Login');
+    expect(autostartLabel('linux')).toBe('Start at Login');
+  });
+
+  it('on Linux, writes and removes an XDG autostart entry', () => {
+    const path = linuxAutostartPath({ XDG_CONFIG_HOME: join(dir, 'cfg') }, '/home/me');
+    expect(path).toBe(join(dir, 'cfg', 'autostart', 'expert-widget.desktop'));
+    expect(linuxAutostartPath({}, '/home/me')).toBe(join('/home/me', '.config', 'autostart', 'expert-widget.desktop'));
+
+    expect(isLinuxAutostartOn(path)).toBe(false);
+    setLinuxAutostart(path, true, ['/opt/Expert Widget/expert-widget', '--ozone-platform=x11', AUTOSTART_FLAG]);
+    expect(isLinuxAutostartOn(path)).toBe(true);
+    const entry = readFileSync(path, 'utf8');
+    expect(entry).toContain('[Desktop Entry]');
+    expect(entry).toContain('Exec="/opt/Expert Widget/expert-widget" --ozone-platform=x11 --autostart\n');
+    setLinuxAutostart(path, false, []);
+    expect(isLinuxAutostartOn(path)).toBe(false);
+    setLinuxAutostart(path, false, []); // already off: no error
+  });
+
+  it('quotes Exec arguments as the desktop entry spec asks', () => {
+    expect(quoteExecArg('/usr/bin/app')).toBe('/usr/bin/app');
+    expect(quoteExecArg('/a b/c')).toBe('"/a b/c"');
+    expect(quoteExecArg('/a "b"/$c')).toBe('"/a \\"b\\"/\\$c"');
+    expect(quoteExecArg('100%')).toBe('100%%');
   });
 });
 
@@ -83,9 +117,9 @@ describe('global hotkey', () => {
     expect(isValidHotkey('Ctrl+Alt+Enterprise')).toBe(false);
   });
 
-  it('is Ctrl+Alt+E by default, configurable, and "" switches it off', () => {
+  it('is CommandOrControl+Alt+E by default, configurable, and "" switches it off', () => {
     const raw = defaultConfigJson();
-    expect(raw.hotkey).toBe('Ctrl+Alt+E');
+    expect(raw.hotkey).toBe('CommandOrControl+Alt+E');
     const ok = validateConfig({ ...raw, hotkey: 'Ctrl+Shift+X' });
     expect(ok.ok && ok.value.hotkey).toBe('Ctrl+Shift+X');
     const off = validateConfig({ ...raw, hotkey: '' });
@@ -93,12 +127,20 @@ describe('global hotkey', () => {
     const missing = { ...raw };
     delete missing.hotkey;
     const fallback = validateConfig(missing);
-    expect(fallback.ok && fallback.value.hotkey).toBe('Ctrl+Alt+E');
+    expect(fallback.ok && fallback.value.hotkey).toBe('CommandOrControl+Alt+E');
   });
 
   it('reports a malformed hotkey in config.json with its path', () => {
     const bad = validateConfig({ ...defaultConfigJson(), hotkey: 'Strg+E' });
-    expect(!bad.ok && bad.errors[0]).toMatch(/^hotkey: must be a key combination like "Ctrl\+Alt\+E"/);
+    expect(!bad.ok && bad.errors[0]).toMatch(/^hotkey: must be a key combination like "CommandOrControl\+Alt\+E"/);
+  });
+
+  it('is shown in each system\'s own words', () => {
+    expect(hotkeyLabel('CommandOrControl+Alt+E', 'win32')).toBe('Ctrl+Alt+E');
+    expect(hotkeyLabel('CommandOrControl+Alt+E', 'linux')).toBe('Ctrl+Alt+E');
+    expect(hotkeyLabel('CommandOrControl+Alt+E', 'darwin')).toBe('Cmd+Option+E');
+    expect(hotkeyLabel('Ctrl+Shift+F12', 'darwin')).toBe('Ctrl+Shift+F12');
+    expect(hotkeyLabel('cmdorctrl+alt+space', 'win32')).toBe('Ctrl+Alt+space');
   });
 
   it('a hotkey taken by another program becomes a note in the tray menu, not an error', () => {

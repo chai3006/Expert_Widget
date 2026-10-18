@@ -2,7 +2,7 @@
   "name": "expert-widget",
   "productName": "Expert Widget",
   "version": "0.1.0",
-  "description": "Windows desktop widget: CV-driven employer list and engineering hiring news for Germany",
+  "description": "Desktop widget for Windows, macOS and Linux: CV-driven employer list and engineering hiring news for Germany",
   "private": true,
   "main": "dist/main/main.js",
   "author": "Venkata Chirravuri",
@@ -12,7 +12,10 @@
     "dev": "npm run compile && electron . --dev",
     "dev:mock": "npm run compile && electron . --mock --dev",
     "start": "npm run compile && electron .",
-    "build": "npm run compile && electron-builder --win nsis",
+    "build": "npm run compile && electron-builder",
+    "build:win": "npm run compile && electron-builder --win",
+    "build:mac": "npm run compile && electron-builder --mac",
+    "build:linux": "npm run compile && electron-builder --linux",
     "test": "vitest run",
     "typecheck": "tsc -p tsconfig.main.json --noEmit && tsc -p tsconfig.renderer.json --noEmit && tsc -p tsconfig.test.json --noEmit",
     "check-links": "node scripts/check-links.mjs",
@@ -52,6 +55,34 @@
       "createDesktopShortcut": "always",
       "createStartMenuShortcut": true,
       "include": "build/installer.nsh"
+    },
+    "mac": {
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "arm64",
+            "x64"
+          ]
+        }
+      ],
+      "icon": "build/icon.png",
+      "category": "public.app-category.productivity",
+      "extendInfo": {
+        "LSUIElement": true
+      }
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "icon": "build/icon.png",
+      "category": "Office",
+      "maintainer": "Venkata Chirravuri",
+      "executableArgs": [
+        "--ozone-platform=x11"
+      ]
     }
   },
   "dependencies": {

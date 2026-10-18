@@ -7,6 +7,7 @@ import { homedir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import type { StatusMessage, ViewModel, WindowMode } from '../shared/types.js';
+import { isLinuxAutostartOn, linuxAutostartPath, setLinuxAutostart } from './autostart.js';
 import { DEFAULT_HOTKEY, isHttpUrl } from './config.js';
 import { MockCvProvider, mockProviders } from './mock/mockData.js';
 import { canonicalUrl, itemId } from './news/dedupe.js';
@@ -19,6 +20,8 @@ import { ensureUserFiles, loadUserFiles, resolveHome, userFiles, type LoadedFile
 import { buildView, companyKey } from './view.js';
 import {
   AUTOSTART_FLAG,
+  autostartLabel,
+  hotkeyLabel,
   hotkeyMenuNote,
   onCloseRequest,
   secondInstanceAction,
@@ -31,6 +34,8 @@ import { BUTTON_WINDOW, clampInto, panelBounds, restoreButtonPosition, type Rect
 
 const MOCK = process.argv.includes('--mock');
 const DEV = process.argv.includes('--dev');
+const MAC = process.platform === 'darwin';
+const LINUX = process.platform === 'linux';
 const SEEN_RETENTION_MS = 120 * 24 * 60 * 60 * 1000;
 
 let win: BrowserWindow | null = null;
@@ -56,7 +61,7 @@ function loadFiles(): LoadedFiles {
       return { ok: false, error: `Cannot create ${files_().home}: ${err instanceof Error ? err.message : String(err)}`, cvFolder: join(files_().home, 'CV') };
     }
   }
-  const loaded = loadUserFiles(files_(), process.env);
+  const loaded = loadUserFiles(files_(), process.env, homedir());
   if (!MOCK) {
     try {
       mkdirSync(loaded.cvFolder, { recursive: true });
@@ -236,7 +241,7 @@ function setMode(mode: WindowMode): void {
     pushView();
     setTimeout(() => win?.setBounds(boundsFor('collapsed')), 30);
   }
-  tray?.setContextMenu(buildTrayMenu());
+  updateTrayMenu();
 }
 
 /** Screens added, removed or rearranged: bring the button back onto a screen and redock. */
@@ -381,27 +386,63 @@ function registerHotkey(): void {
     }
     hotkey = ok ? { status: 'active', hotkey: wanted } : { status: 'taken', hotkey: wanted };
   }
-  tray?.setContextMenu(buildTrayMenu());
+  updateTrayMenu();
 }
 
-// ---- Tray ---------------------------------------------------------------------------------
+// ---- Start at login -----------------------------------------------------------------------
 
 function loginItemArgs(): string[] {
-  // In development the executable is electron.exe, which needs the app folder as argument.
+  // In development the executable is electron(.exe), which needs the app folder as argument.
   // The flag tells a start at login apart from a start from the Start menu.
   return app.isPackaged ? [AUTOSTART_FLAG] : [appRoot(), AUTOSTART_FLAG];
 }
 
-function setStartWithWindows(on: boolean): void {
+/** Linux: the AppImage file itself, not the temporary folder it runs from. */
+const linuxExecutable = () => process.env.APPIMAGE ?? process.execPath;
+/**
+ * Linux: run under X11 (XWayland on Wayland desktops). Wayland does not let a window place itself,
+ * and the widget must put its button where it was left and dock the panel to the right edge.
+ * Same switch as linux.executableArgs in package.json, which the menu entry uses.
+ */
+const LINUX_SWITCHES = ['--ozone-platform=x11'];
+
+function isStartAtLogin(): boolean {
+  if (LINUX) return isLinuxAutostartOn(linuxAutostartPath(process.env, homedir()));
+  return app.getLoginItemSettings({ args: loginItemArgs() }).openAtLogin;
+}
+
+function setStartAtLogin(on: boolean): void {
+  if (LINUX) {
+    try {
+      setLinuxAutostart(linuxAutostartPath(process.env, homedir()), on, [linuxExecutable(), ...LINUX_SWITCHES, ...loginItemArgs()]);
+    } catch (err) {
+      console.warn(`[autostart] not changed: ${err instanceof Error ? err.message : String(err)}`);
+    }
+    return;
+  }
+  // path and args are used on Windows only; macOS login items take neither.
   app.setLoginItemSettings({ openAtLogin: on, path: process.execPath, args: loginItemArgs() });
 }
 
+// ---- Tray ---------------------------------------------------------------------------------
+
+/**
+ * Windows and Linux keep the menu attached to the icon. On macOS a menu attached to the icon
+ * would also open on left-click, so there it is built fresh on each right-click instead.
+ */
+function updateTrayMenu(): void {
+  if (!MAC) tray?.setContextMenu(buildTrayMenu());
+}
+
 function buildTrayMenu(): Menu {
-  const startWithWindows = app.getLoginItemSettings({ args: loginItemArgs() }).openAtLogin;
+  const startAtLogin = isStartAtLogin();
   const expanded = stores.ui.value.mode === 'expanded';
   const note = hotkeyMenuNote(hotkey);
+  const keys = hotkey.status === 'active' ? hotkeyLabel(hotkey.hotkey, process.platform) : '';
+  // A tab right-aligns the hotkey in Windows menus; elsewhere it would show as a gap.
+  const showHide = !keys ? 'Show / Hide' : process.platform === 'win32' ? `Show / Hide\t${keys}` : `Show / Hide (${keys})`;
   return Menu.buildFromTemplate([
-    { label: hotkey.status === 'active' ? `Show / Hide\t${hotkey.hotkey}` : 'Show / Hide', click: toggleWindow },
+    { label: showHide, click: toggleWindow },
     {
       label: expanded ? 'Collapse' : 'Expand',
       click: () => {
@@ -411,12 +452,12 @@ function buildTrayMenu(): Menu {
     },
     { label: 'Refresh now', click: () => void refresh() },
     {
-      label: 'Start with Windows',
+      label: autostartLabel(process.platform),
       type: 'checkbox',
-      checked: startWithWindows,
+      checked: startAtLogin,
       click: (item) => {
-        setStartWithWindows(item.checked);
-        tray?.setContextMenu(buildTrayMenu());
+        setStartAtLogin(item.checked);
+        updateTrayMenu();
       },
     },
     ...(note ? [{ type: 'separator' as const }, { label: note, enabled: false }] : []),
@@ -430,9 +471,11 @@ function createTray(): void {
   tray = new Tray(image);
   tray.setToolTip(MOCK ? 'Expert Widget (mock data)' : 'Expert Widget');
   // Right-click opens the menu (Windows shows a context menu only on right-click);
-  // left-click shows or hides the widget.
-  tray.setContextMenu(buildTrayMenu());
+  // left-click shows or hides the widget. Many Linux desktops only ever open the menu, which is
+  // why Show / Hide is its first entry.
+  updateTrayMenu();
   tray.on('click', toggleWindow);
+  if (MAC) tray.on('right-click', () => tray?.popUpContextMenu(buildTrayMenu()));
 }
 
 // ---- IPC ----------------------------------------------------------------------------------
@@ -531,12 +574,20 @@ if (!app.requestSingleInstanceLock()) {
   app.quit();
 } else {
   // A second start (Start menu, desktop icon) brings this widget to the front, expanded.
-  app.on('second-instance', () => {
+  const bringToFront = () => {
     const action = secondInstanceAction();
     if (!win) return;
     setMode(action.mode);
     showWindow();
-  });
+  };
+  app.on('second-instance', bringToFront);
+  // macOS does not start a second copy at all: opening the app again only sends "activate". The
+  // first launch sends one too, so listening starts only once the widget is on screen.
+  if (MAC) {
+    app.once('browser-window-created', (_event, w) => {
+      w.once('show', () => setTimeout(() => app.on('activate', bringToFront), 1000));
+    });
+  }
   app.on('will-quit', () => globalShortcut.unregisterAll());
   app.on('before-quit', () => {
     quitting = true;
@@ -550,12 +601,12 @@ if (!app.requestSingleInstanceLock()) {
     stores = new AppStores(MOCK ? join(app.getPath('userData'), 'mock-state') : app.getPath('userData'));
     pruneSeen();
     files = loadFiles();
-    // After a start at Windows login the widget is the small button (no refresh either way).
+    // After a start at login the widget is the small button (no refresh either way).
     const mode = startupMode(process.argv, stores.ui.value.mode);
     if (mode !== stores.ui.value.mode) stores.ui.update((ui) => ({ ...ui, mode }));
-    // "Start with Windows" is on by default: switched on once, the first time the installed app runs.
+    // Start at login is on by default: switched on once, the first time the installed app runs.
     if (shouldApplyAutostartDefault(app.isPackaged && !MOCK, stores.ui.value.autostartDefaultApplied)) {
-      setStartWithWindows(true);
+      setStartAtLogin(true);
       stores.ui.update((ui) => ({ ...ui, autostartDefaultApplied: true }));
     }
     registerIpc();
