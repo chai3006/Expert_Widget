@@ -6,19 +6,18 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { pathToFileURL } from 'node:url';
-import type { StatusMessage, ViewModel, WindowMode } from '../../../packages/core/src/shared/types.js';
+import type { ViewModel, WindowMode } from '../../../packages/core/src/shared/types.js';
 import { isLinuxAutostartOn, linuxAutostartPath, setLinuxAutostart } from './autostart.js';
 import { DEFAULT_HOTKEY, isHttpUrl } from '../../../packages/core/src/config.js';
 import { MockCvProvider, mockProviders } from '../../../packages/core/src/mock/mockData.js';
-import { canonicalUrl, itemId } from '../../../packages/core/src/news/dedupe.js';
 import { PoliteFetcher } from '../../../packages/node/src/fetcher.js';
 import { HOST_INTERVALS_MS, buildProviders } from '../../../packages/core/src/news/providers.js';
 import { LocalCvProvider } from '../../../packages/node/src/cv/folderCvSource.js';
-import { runRefresh, translateNew } from '../../../packages/core/src/refresh.js';
+import { ExpertEngine } from '../../../packages/core/src/engine.js';
+import { translateNew } from '../../../packages/core/src/refresh.js';
 import { BergamotTranslator, TRANSLATOR_WORKER, unpacked } from '../../../packages/node/src/translate/translator.js';
 import { FileStores } from '../../../packages/node/src/state/fileStores.js';
 import { ensureUserFiles, loadUserFiles, resolveHome, userFiles, type LoadedFiles } from '../../../packages/node/src/userFiles.js';
-import { buildView, companyKey } from '../../../packages/core/src/view.js';
 import {
   AUTOSTART_FLAG,
   autostartLabel,
@@ -43,10 +42,7 @@ let win: BrowserWindow | null = null;
 let tray: Tray | null = null;
 let quitting = false;
 let stores: FileStores;
-let files: LoadedFiles;
-let messages: StatusMessage[] = [];
-let refreshing: Promise<ViewModel> | null = null;
-let isRefreshing = false;
+let engine: ExpertEngine;
 
 const appRoot = () => app.getAppPath();
 const defaultsDir = () => join(appRoot(), 'defaults');
@@ -74,22 +70,7 @@ function loadFiles(): LoadedFiles {
 }
 
 function currentView(): ViewModel {
-  const recovered = stores.recoveredFiles();
-  const notes: StatusMessage[] = recovered.length
-    ? [{ level: 'info', text: `A damaged state file was set aside and started fresh: ${recovered.join(', ')}` }]
-    : [];
-  return buildView({
-    mock: MOCK,
-    config: files.ok ? files.config : null,
-    employers: files.ok ? files.employers : [],
-    watchlist: files.ok ? files.watchlist : [],
-    configError: files.ok ? null : files.error,
-    stores,
-    cvFolder: files.cvFolder,
-    messages: [...notes, ...messages],
-    refreshing: isRefreshing,
-    now: Date.now(),
-  });
+  return engine.view();
 }
 
 function pushView(): void {
@@ -131,49 +112,36 @@ async function translateCached(): Promise<void> {
 }
 
 function refresh(): Promise<ViewModel> {
-  if (refreshing) return refreshing;
-  isRefreshing = true;
-  pushView();
-  refreshing = (async () => {
-    files = loadFiles(); // pick up edits to config.json and employers.json
-    registerHotkey();
-    if (!files.ok) {
-      messages = [];
-    } else {
-      try {
-        const fetcher = new PoliteFetcher({
-          userAgent: `ExpertWidget/${app.getVersion()} (personal desktop widget; manual refresh only)`,
-          cacheDir: stores.httpCacheDir,
-          fetchImpl: (url, init) => net.fetch(url, init),
-          hostIntervalsMs: HOST_INTERVALS_MS,
-        });
-        messages = await runRefresh({
-          config: files.config,
-          cvFolder: files.cvFolder,
-          stores,
-          cv: MOCK ? new MockCvProvider() : new LocalCvProvider(),
-          providers: MOCK ? mockProviders(files.config) : buildProviders(files.config, fetcher),
-          watchlist: files.watchlist.map((w) => w.name),
-          isOnline: () => MOCK || net.isOnline(),
-          translator: createTranslator(),
-          now: Date.now,
-          mock: MOCK,
-        });
-      } catch (err) {
-        messages = [{ level: 'error', text: `Refresh failed: ${err instanceof Error ? err.message : String(err)}` }];
-      }
-    }
-  })()
-    .finally(() => {
-      isRefreshing = false;
-      refreshing = null;
-    })
-    .then(() => {
-      const view = currentView();
-      pushView();
-      return view;
-    });
-  return refreshing;
+  return engine.refresh().then(() => {
+    registerHotkey(); // config.json may have a new hotkey
+    pushView();
+    return currentView();
+  });
+}
+
+function createEngine(): ExpertEngine {
+  return new ExpertEngine({
+    loadInputs: loadFiles, // read again on every Refresh, so edits to the JSON files apply
+    stores,
+    cv: MOCK ? new MockCvProvider() : new LocalCvProvider(),
+    providers: (config) =>
+      MOCK
+        ? mockProviders(config)
+        : buildProviders(
+            config,
+            new PoliteFetcher({
+              userAgent: `ExpertWidget/${app.getVersion()} (personal desktop widget; manual refresh only)`,
+              cacheDir: stores.httpCacheDir,
+              fetchImpl: (url, init) => net.fetch(url, init),
+              hostIntervalsMs: HOST_INTERVALS_MS,
+            }),
+          ),
+    isOnline: () => MOCK || net.isOnline(),
+    translator: createTranslator,
+    now: Date.now,
+    mock: MOCK,
+    onChange: pushView,
+  });
 }
 
 /**
@@ -372,7 +340,8 @@ let hotkey: HotkeyState = { status: 'off' };
 
 /** (Re-)registers the show/hide hotkey from config.json; a taken hotkey only adds a tray note. */
 function registerHotkey(): void {
-  const wanted = files.ok ? files.config.hotkey : DEFAULT_HOTKEY;
+  const inputs = engine.current;
+  const wanted = inputs.ok ? inputs.config.hotkey : DEFAULT_HOTKEY;
   // Unchanged and working: nothing to do. A taken hotkey is tried again on every Refresh.
   if (hotkey.status === 'active' && hotkey.hotkey === wanted) return;
   globalShortcut.unregisterAll();
@@ -505,44 +474,20 @@ function registerIpc(): void {
   handle('view:get', () => currentView());
   handle('view:refresh', () => refresh());
   handle('interact:visited', (key) => {
-    if (!isShortString(key)) return;
-    // Clicking again moves the company to the very end again.
-    stores.interactions.update((s) => ({ ...s, visited: { ...s.visited, [companyKey(key)]: Date.now() } }));
+    if (isShortString(key)) engine.feedback({ action: 'visited', target: key });
   });
   handle('interact:seen', (id) => {
-    if (!isShortString(id)) return;
-    stores.interactions.update((s) => (s.seen[id] ? s : { ...s, seen: { ...s.seen, [id]: Date.now() } }));
+    if (isShortString(id)) engine.feedback({ action: 'seen', target: id });
   });
   handle('feedback:remove', (id) => {
-    if (!isShortString(id)) return;
-    const card = currentView().data.news.find((n) => n.id === id);
-    if (!card) return;
-    stores.interactions.update((s) => {
-      const { [id]: _dropped, ...useful } = s.useful;
-      return { ...s, useful, removed: { ...s.removed, [canonicalUrl(card.url)]: Date.now() } };
-    });
+    if (isShortString(id)) engine.feedback({ action: 'not-useful', target: id });
   });
   handle('feedback:undo-remove', (id) => {
-    if (isShortString(id)) {
-      stores.interactions.update((s) => ({ ...s, removed: Object.fromEntries(Object.entries(s.removed).filter(([url]) => itemId(url) !== id)) }));
-    }
+    if (isShortString(id)) engine.feedback({ action: 'undo-not-useful', target: id });
     return currentView();
   });
   handle('feedback:useful', (id) => {
-    if (!isShortString(id)) return currentView();
-    if (stores.interactions.value.useful[id]) {
-      stores.interactions.update((s) => {
-        const { [id]: _dropped, ...useful } = s.useful;
-        return { ...s, useful };
-      });
-    } else {
-      // The card is taken from the main process's own view, never from the renderer.
-      const card = currentView().data.news.find((n) => n.id === id);
-      if (card) {
-        const { seenAt: _seenAt, useful: _useful, ...entry } = card;
-        stores.interactions.update((s) => ({ ...s, useful: { ...s.useful, [id]: { ...entry, markedAt: Date.now() } } }));
-      }
-    }
+    if (isShortString(id)) engine.feedback({ action: 'useful', target: id });
     return currentView();
   });
   handle('shell:open', (url) => openExternalSafe(url));
@@ -601,7 +546,7 @@ if (!app.requestSingleInstanceLock()) {
     app.setAppUserModelId('de.expertwidget.app');
     stores = new FileStores(MOCK ? join(app.getPath('userData'), 'mock-state') : app.getPath('userData'));
     pruneSeen();
-    files = loadFiles();
+    engine = createEngine();
     // After a start at login the widget is the small button (no refresh either way).
     const mode = startupMode(process.argv, stores.ui.value.mode);
     if (mode !== stores.ui.value.mode) stores.ui.update((ui) => ({ ...ui, mode }));

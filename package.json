@@ -20,7 +20,8 @@
     "typecheck": "tsc -p tsconfig.core.json && tsc -p tsconfig.main.json --noEmit && tsc -p tsconfig.renderer.json --noEmit && tsc -p tsconfig.test.json --noEmit",
     "check-links": "node scripts/check-links.mjs",
     "check-sources": "npm run compile && node scripts/check-sources.mjs",
-    "icons": "node scripts/make-icons.mjs"
+    "icons": "node scripts/make-icons.mjs",
+    "cli": "node dist/packages/cli/src/cli.js"
   },
   "build": {
     "appId": "de.expertwidget.app",
@@ -101,5 +102,8 @@
     "electron-builder": "^26.15.3",
     "typescript": "^5.9.3",
     "vitest": "^5.0.3"
+  },
+  "bin": {
+    "expert-cli": "dist/packages/cli/src/cli.js"
   }
 }
