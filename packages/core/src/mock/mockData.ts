@@ -138,7 +138,7 @@ class MockProvider implements NewsProvider {
     if (this.layer === 2) {
       for (const name of query.companies) {
         const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-        items.push(...this.items(MOCK_WATCHLIST_SEARCH[name] ?? [], query, (i) => `watchlist-${slug}-${i + 1}`).map((item) => ({ ...item, queryDomain: undefined, queryCompany: name })));
+        items.push(...this.items(MOCK_WATCHLIST_SEARCH[name] ?? [], query, (i) => `watchlist-${slug}-${i + 1}`).map((item) => ({ ...item, queryCompany: name })));
       }
     }
     return items;
@@ -155,7 +155,7 @@ class MockProvider implements NewsProvider {
         publishedAt: this.topic === 'career_fair' ? null : new Date(now - seed.ageDays * DAY - i * 3600 * 1000).toISOString(),
         eventDate: seed.tbc ? null : start,
         eventEndDate: start && seed.eventDays ? isoDay(now + (seed.eventInDays! + seed.eventDays - 1) * DAY) : start,
-        ...(this.layer > 1 ? { publisher: 'example.com', queryDomain: query.domains[0]?.domain } : {}),
+        ...(this.layer > 1 ? { publisher: 'example.com', queryTopic: query.topics[0]?.topic } : {}),
       };
     });
   }

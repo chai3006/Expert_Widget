@@ -108,6 +108,11 @@ export class TermMatcher {
     return this.terms.length;
   }
 
+  /** Total occurrences of all terms in already folded text. */
+  countFolded(folded: string): number {
+    return this.hits(folded).reduce((a, h) => a + h.count, 0);
+  }
+
   /** Every term found in already folded text, with how often it occurs. */
   hits(folded: string): TermHit[] {
     const out: TermHit[] = [];

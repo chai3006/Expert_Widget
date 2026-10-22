@@ -3,10 +3,9 @@
 //
 //   npm run check-sources                                   all providers in defaults/config.json
 //   npm run check-sources -- --config <path>                another config.json, e.g. your edited copy
-//   npm run check-sources -- --domains automotive-emobility,energy-storage
 //
 // Disabled sources and search providers are checked too, so you can see whether turning them on
-// would work. The test query uses only config keyword lists (no CV). Same polite fetcher as the
+// would work. The test query is the fixed broad topics of data/news.json (no CV). Same polite fetcher as the
 // app: User-Agent, robots.txt, per-host gaps (5.5 s for GDELT), no cache between runs.
 
 import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
@@ -23,6 +22,7 @@ const nodePkg = (p) => require(join(root, 'dist', 'packages', 'node', 'src', p))
 const { validateConfig, parseJson } = core('config.js');
 const { FeedProvider, GdeltProvider, GoogleNewsProvider, HOST_INTERVALS_MS } = core('news/providers.js');
 const { PoliteFetcher } = nodePkg('fetcher.js');
+const { loadAppData } = nodePkg('appData.js');
 const { buildProviderQuery } = core('news/adapters/search.js');
 const { checkContract } = core('news/provider.js');
 
@@ -33,13 +33,17 @@ const arg = (name) => {
 };
 const configPath = resolve(arg('--config') ?? join(root, 'defaults', 'config.json'));
 const parsed = parseJson(readFileSync(configPath, 'utf8'), configPath);
-const validated = parsed.ok ? validateConfig(parsed.value) : parsed;
+const data = loadAppData(join(root, 'data'));
+if (!data.ok) {
+  console.error(data.errors.join('\n'));
+  process.exit(2);
+}
+const validated = parsed.ok ? validateConfig(parsed.value, data.value) : parsed;
 if (!validated.ok) {
   console.error(validated.errors.join('\n'));
   process.exit(2);
 }
 const config = validated.value;
-const domains = (arg('--domains') ?? 'automotive-emobility').split(',').map((d) => d.trim());
 const version = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8')).version;
 
 const cacheDir = mkdtempSync(join(tmpdir(), 'expert-check-sources-'));
@@ -55,8 +59,8 @@ const providers = [
   { provider: new GdeltProvider(fetcher, config.search.gdelt.maxRecords), enabled: config.search.gdelt.enabled },
   { provider: new GoogleNewsProvider(fetcher), enabled: config.search.googleNews.enabled },
 ];
-const query = buildProviderQuery(config, domains);
-console.log(`Test query: domains ${domains.join(', ')}; ${query.signalKeywords.length} signal keywords; last ${query.maxAgeDays} days\n`);
+const query = buildProviderQuery(config);
+console.log(`Test query: ${query.topics.length} broad topics; ${query.signalKeywords.length} signal keywords; last ${query.maxAgeDays} days\n`);
 
 const rows = [];
 for (const { provider, enabled } of providers) {

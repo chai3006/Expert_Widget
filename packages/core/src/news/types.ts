@@ -15,8 +15,8 @@ export interface ParsedItem {
   tagHint?: NewsTag;
   /** Search providers: the publisher's site (e.g. "spiegel.de"), shown as the card's source. */
   publisher?: string;
-  /** Search providers: the domain whose keywords the query used; fallback when no keyword matches the headline. */
-  queryDomain?: DomainId;
+  /** Search providers: the broad topic (data/news.json) whose query found the item. */
+  queryTopic?: string;
   /** Search providers: the watchlist company whose name the query was. */
   queryCompany?: string;
 }

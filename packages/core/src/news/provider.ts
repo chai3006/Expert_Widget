@@ -8,18 +8,18 @@ import type { SourceTopic } from '../config.js';
 import type { DomainId } from '../shared/types.js';
 import type { ParsedItem } from './types.js';
 
-export interface DomainQuery {
-  domain: DomainId;
-  /** Words from config.json's keyword list for this domain. Never anything from the CV. */
+/** One fixed broad search (data/news.json), the same for every user. Never anything from the CV. */
+export interface TopicQuery {
+  topic: string;
   keywords: string[];
 }
 
 /** What a search provider looks for. Feed providers ignore it. */
 export interface ProviderQuery {
-  domains: DomainQuery[];
+  topics: TopicQuery[];
   /** Watchlist company names, each searched on its own by name only. */
   companies: string[];
-  /** Hiring and funding words from config.json (growth, cuts, funded). */
+  /** Hiring and funding words from data/news.json (growth, cuts, funded). */
   signalKeywords: string[];
   maxAgeDays: number;
 }

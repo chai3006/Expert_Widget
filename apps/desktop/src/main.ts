@@ -58,7 +58,7 @@ function loadFiles(): LoadedFiles {
       return { ok: false, error: `Cannot create ${files_().home}: ${err instanceof Error ? err.message : String(err)}`, cvFolder: join(files_().home, 'CV') };
     }
   }
-  const inputs = loadInputs(files_(), join(appRoot(), 'data', 'domains'), process.env, homedir());
+  const inputs = loadInputs(files_(), join(appRoot(), 'data'), process.env, homedir());
   // A folder chosen with "Choose another folder" wins over config.json.
   const chosen = stores.ui.value.cvFolder;
   const loaded = chosen && !MOCK ? { ...inputs, cvFolder: chosen } : inputs;

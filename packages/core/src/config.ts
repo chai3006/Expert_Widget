@@ -1,7 +1,12 @@
 // Loading and validation of config.json, employers.json and watchlist.json. Validation collects every problem with
 // its exact JSON path so the error screen can tell the user precisely what to fix.
+//
+// The lists that grow with the app (domains, news sources, signal words, the fixed search topics)
+// live in data/ and come in as AppData. config.json only adds to them: extra keywords, a built-in
+// source switched on or off, or a source of the user's own.
 
 import type { DomainRegistry } from './domains.js';
+import type { AppData, SearchTopic } from './newsData.js';
 import type { DomainId } from './shared/types.js';
 import { isValidHotkey } from './hotkey.js';
 
@@ -12,7 +17,7 @@ export const ADAPTER_IDS = ['rss', 'ingenieur-recruiting-tag', 'messen-de', 'eur
 export type AdapterId = (typeof ADAPTER_IDS)[number];
 
 export type ScoredTag = 'hiring_growth' | 'hiring_cuts' | 'funded_startup';
-const SCORED_TAGS: ScoredTag[] = ['hiring_cuts', 'hiring_growth', 'funded_startup'];
+export const SCORED_TAGS: ScoredTag[] = ['hiring_cuts', 'hiring_growth', 'funded_startup'];
 
 export interface SourceConfig {
   id: string;
@@ -50,6 +55,10 @@ export interface AppConfig {
   search: {
     gdelt: { enabled: boolean; maxRecords: number };
     googleNews: { enabled: boolean };
+    /** Also search for the watchlist companies by name (the only user-chosen search words). */
+    watchlist: boolean;
+    /** The fixed broad queries (data/news.json), the same for every user. */
+    topics: SearchTopic[];
   };
   keywords: {
     /**
@@ -119,7 +128,7 @@ export function parseJson(text: string, fileName: string): Validated<unknown> {
   }
 }
 
-function stringList(value: unknown, path: string, errors: string[]): string[] {
+export function stringList(value: unknown, path: string, errors: string[]): string[] {
   if (!Array.isArray(value)) {
     errors.push(`${path}: must be a list of strings`);
     return [];
@@ -132,8 +141,44 @@ function stringList(value: unknown, path: string, errors: string[]): string[] {
   return out;
 }
 
-export function validateConfig(raw: unknown, registry: DomainRegistry): Validated<AppConfig> {
+/** Checks one source definition. `partial`: only "enabled" may be given (an override of a built-in source). */
+export function parseSource(s: unknown, p: string, errors: string[], registry: DomainRegistry): SourceConfig | null {
+  if (!isObject(s)) {
+    errors.push(`${p}: must be an object`);
+    return null;
+  }
+  const before = errors.length;
+  if (typeof s.id !== 'string' || !/^[a-z0-9-]+$/.test(s.id)) errors.push(`${p}.id: must be lowercase letters, digits and dashes`);
+  if (!(SOURCE_TOPICS as readonly unknown[]).includes(s.topic)) errors.push(`${p}.topic: must be one of ${SOURCE_TOPICS.join(', ')}`);
+  if (typeof s.name !== 'string' || s.name.trim() === '') errors.push(`${p}.name: must be a non-empty string`);
+  if (!isHttpUrl(s.url)) errors.push(`${p}.url: must be an http or https URL`);
+  if (!(ADAPTER_IDS as readonly unknown[]).includes(s.adapter)) errors.push(`${p}.adapter: must be one of ${ADAPTER_IDS.join(', ')}`);
+  if (typeof s.enabled !== 'boolean') errors.push(`${p}.enabled: must be true or false`);
+  let domains: 'all' | DomainId[] = 'all';
+  if (Array.isArray(s.domains)) {
+    domains = [];
+    s.domains.forEach((d, j) => {
+      if (typeof d === 'string' && registry.has(d)) (domains as DomainId[]).push(d);
+      else errors.push(`${p}.domains[${j}]: unknown domain "${String(d)}"`);
+    });
+  } else if (s.domains !== 'all') {
+    errors.push(`${p}.domains: must be "all" or a list of domain ids`);
+  }
+  if (errors.length !== before) return null;
+  return {
+    id: s.id as string,
+    topic: s.topic as SourceTopic,
+    name: (s.name as string).trim(),
+    url: s.url as string,
+    adapter: s.adapter as AdapterId,
+    enabled: s.enabled as boolean,
+    domains,
+  };
+}
+
+export function validateConfig(raw: unknown, data: AppData): Validated<AppConfig> {
   const errors: string[] = [];
+  const registry = data.domains;
   if (!isObject(raw)) return { ok: false, errors: ['config.json: the top level must be an object { ... }'] };
 
   // "" (or the old default) means the CV folder next to config.json, in the Documents folder.
@@ -153,10 +198,13 @@ export function validateConfig(raw: unknown, registry: DomainRegistry): Validate
     errors.push('hotkey: must be a key combination like "CommandOrControl+Alt+E" (modifiers CommandOrControl, Ctrl, Alt, Shift, Cmd, then one key), or "" for none');
   }
 
-  const sources: SourceConfig[] = [];
-  if (!Array.isArray(raw.sources)) {
+  // Built-in sources from data/sources.json. In config.json, an entry with a built-in id can only
+  // switch it on or off (other fields are ignored, so an old full copy of the list does no harm);
+  // an entry with a new id is a source of the user's own and needs every field.
+  const sources: SourceConfig[] = data.sources.map((src) => ({ ...src }));
+  if (raw.sources !== undefined && !Array.isArray(raw.sources)) {
     errors.push('sources: must be a list');
-  } else {
+  } else if (Array.isArray(raw.sources)) {
     const ids = new Set<string>();
     raw.sources.forEach((s, i) => {
       const p = `sources[${i}]`;
@@ -164,46 +212,33 @@ export function validateConfig(raw: unknown, registry: DomainRegistry): Validate
         errors.push(`${p}: must be an object`);
         return;
       }
-      const before = errors.length;
-      if (typeof s.id !== 'string' || !/^[a-z0-9-]+$/.test(s.id)) errors.push(`${p}.id: must be lowercase letters, digits and dashes`);
-      else if (ids.has(s.id)) errors.push(`${p}.id: "${s.id}" is used twice`);
-      else ids.add(s.id);
-      if (!(SOURCE_TOPICS as readonly unknown[]).includes(s.topic)) errors.push(`${p}.topic: must be one of ${SOURCE_TOPICS.join(', ')}`);
-      if (typeof s.name !== 'string' || s.name.trim() === '') errors.push(`${p}.name: must be a non-empty string`);
-      if (!isHttpUrl(s.url)) errors.push(`${p}.url: must be an http or https URL`);
-      if (!(ADAPTER_IDS as readonly unknown[]).includes(s.adapter)) errors.push(`${p}.adapter: must be one of ${ADAPTER_IDS.join(', ')}`);
-      if (typeof s.enabled !== 'boolean') errors.push(`${p}.enabled: must be true or false`);
-      let domains: 'all' | DomainId[] = 'all';
-      if (Array.isArray(s.domains)) {
-        domains = [];
-        s.domains.forEach((d, j) => {
-          if (typeof d === 'string' && registry.has(d)) (domains as DomainId[]).push(d);
-          else errors.push(`${p}.domains[${j}]: unknown domain "${String(d)}"`);
-        });
-      } else if (s.domains !== 'all') {
-        errors.push(`${p}.domains: must be "all" or a list of domain ids`);
+      if (typeof s.id === 'string' && ids.has(s.id)) {
+        errors.push(`${p}.id: "${s.id}" is used twice`);
+        return;
       }
-      if (errors.length === before) {
-        sources.push({
-          id: s.id as string,
-          topic: s.topic as SourceTopic,
-          name: (s.name as string).trim(),
-          url: s.url as string,
-          adapter: s.adapter as AdapterId,
-          enabled: s.enabled as boolean,
-          domains,
-        });
+      if (typeof s.id === 'string') ids.add(s.id);
+      const builtIn = sources.find((b) => b.id === s.id);
+      if (builtIn) {
+        if (s.enabled !== undefined && typeof s.enabled !== 'boolean') errors.push(`${p}.enabled: must be true or false`);
+        else if (typeof s.enabled === 'boolean') builtIn.enabled = s.enabled;
+        return;
       }
+      const own = parseSource(s, p, errors, registry);
+      if (own) sources.push(own);
     });
   }
 
-  const search: AppConfig['search'] = { gdelt: { enabled: true, maxRecords: 75 }, googleNews: { enabled: false } };
+  const search: AppConfig['search'] = { gdelt: { enabled: true, maxRecords: 75 }, googleNews: { enabled: false }, watchlist: true, topics: data.news.topics };
   if (raw.search !== undefined) {
     if (!isObject(raw.search)) {
       errors.push('search: must be an object with "gdelt" and "googleNews"');
     } else {
       for (const key of Object.keys(raw.search)) {
-        if (key !== 'gdelt' && key !== 'googleNews') errors.push(`search: unknown provider "${key}" (known: gdelt, googleNews)`);
+        if (key !== 'gdelt' && key !== 'googleNews' && key !== 'watchlist') errors.push(`search: unknown setting "${key}" (known: gdelt, googleNews, watchlist)`);
+      }
+      if (raw.search.watchlist !== undefined) {
+        if (typeof raw.search.watchlist !== 'boolean') errors.push('search.watchlist: must be true or false');
+        else search.watchlist = raw.search.watchlist;
       }
       const g = raw.search.gdelt;
       if (g !== undefined) {
@@ -226,11 +261,11 @@ export function validateConfig(raw: unknown, registry: DomainRegistry): Validate
   }
 
   const extraKeywords: Partial<Record<DomainId, string[]>> = {};
-  const tagKeywords = {} as Record<ScoredTag, string[]>;
-  let fairExclude: string[] = [];
-  if (!isObject(raw.keywords)) {
-    errors.push('keywords: must be an object with "tags"');
-  } else {
+  const extraTags: Partial<Record<ScoredTag, string[]>> = {};
+  let extraFairExclude: string[] = [];
+  if (raw.keywords !== undefined && !isObject(raw.keywords)) {
+    errors.push('keywords: must be an object');
+  } else if (isObject(raw.keywords)) {
     const kw = raw.keywords;
     // Optional extra keywords per domain; the domain files in data/domains hold the real lists.
     if (kw.domains !== undefined && !isObject(kw.domains)) {
@@ -244,18 +279,16 @@ export function validateConfig(raw: unknown, registry: DomainRegistry): Validate
         extraKeywords[domain] = stringList(list, `keywords.domains.${domain}`, errors);
       }
     }
-    if (!isObject(kw.tags)) {
+    // Optional extra signal words; data/news.json holds the real lists.
+    if (kw.tags !== undefined && !isObject(kw.tags)) {
       errors.push('keywords.tags: must be an object with hiring_growth, hiring_cuts and funded_startup lists');
-    } else {
-      for (const tag of SCORED_TAGS) {
-        if (kw.tags[tag] === undefined) errors.push(`keywords.tags.${tag}: missing`);
-        else tagKeywords[tag] = dedupeCaseInsensitive(stringList(kw.tags[tag], `keywords.tags.${tag}`, errors));
-      }
-      for (const key of Object.keys(kw.tags)) {
+    } else if (isObject(kw.tags)) {
+      for (const [key, list] of Object.entries(kw.tags)) {
         if (!(SCORED_TAGS as string[]).includes(key)) errors.push(`keywords.tags: unknown tag "${key}"`);
+        else extraTags[key as ScoredTag] = stringList(list, `keywords.tags.${key}`, errors);
       }
     }
-    if (kw.fairExclude !== undefined) fairExclude = stringList(kw.fairExclude, 'keywords.fairExclude', errors);
+    if (kw.fairExclude !== undefined) extraFairExclude = stringList(kw.fairExclude, 'keywords.fairExclude', errors);
   }
 
   const cvAnalysis = validateCvAnalysis(raw.cvAnalysis, errors);
@@ -263,8 +296,12 @@ export function validateConfig(raw: unknown, registry: DomainRegistry): Validate
   if (errors.length > 0) return { ok: false, errors };
   const domainKeywords: Partial<Record<DomainId, string[]>> = {};
   for (const d of registry.recognisable) {
-    domainKeywords[d.id] = dedupeCaseInsensitive([...d.keywords.map((k) => k.term), ...(extraKeywords[d.id] ?? [])]);
+    // Job titles name a field in a headline as well as in a CV ("Lehrer", "Pflegekräfte").
+    domainKeywords[d.id] = dedupeCaseInsensitive([...d.keywords.map((k) => k.term), ...d.titles.map((t) => t.term), ...(extraKeywords[d.id] ?? [])]);
   }
+  const tagKeywords = {} as Record<ScoredTag, string[]>;
+  for (const tag of SCORED_TAGS) tagKeywords[tag] = dedupeCaseInsensitive([...data.news.tags[tag], ...(extraTags[tag] ?? [])]);
+  const fairExclude = dedupeCaseInsensitive([...data.news.fairExclude, ...extraFairExclude]);
   return {
     ok: true,
     value: {
@@ -281,7 +318,7 @@ export function validateConfig(raw: unknown, registry: DomainRegistry): Validate
   };
 }
 
-function dedupeCaseInsensitive(list: string[]): string[] {
+export function dedupeCaseInsensitive(list: string[]): string[] {
   const seen = new Set<string>();
   return list.filter((k) => {
     const key = k.toLowerCase();

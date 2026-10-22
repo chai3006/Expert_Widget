@@ -86,7 +86,7 @@ export function createCliEngine(opts: CliOptions, fetchImpl: typeof fetch = fetc
   const stores: AppStores = opts.state ? new FileStores(resolve(opts.state)) : memoryStores();
   const cache = opts.state ? undefined : new MemoryHttpCache();
   const loadInputs = (): LoadedFiles => {
-    const loaded = loadInputFiles(files, join(APP_ROOT, 'data', 'domains'), process.env, homedir());
+    const loaded = loadInputFiles(files, join(APP_ROOT, 'data'), process.env, homedir());
     // The CV is the --cv file, whatever cvFolder in config.json says.
     return { ...loaded, cvFolder: dirname(cvPath) };
   };

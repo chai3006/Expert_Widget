@@ -96,7 +96,8 @@ export class ExpertEngine {
           stores: this.deps.stores,
           cv: this.deps.cv,
           providers: this.deps.providers(inputs.config),
-          watchlist: inputs.watchlist.map((w) => w.name),
+          // Watchlist names are the only user-chosen search words; the user can switch them off.
+          watchlist: inputs.config.search.watchlist && this.watchlistSearch ? inputs.watchlist.map((w) => w.name) : [],
           isOnline: this.deps.isOnline,
           translator: this.deps.translator?.() ?? null,
           now: this.deps.now,

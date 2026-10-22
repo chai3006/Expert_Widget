@@ -638,6 +638,33 @@ function renderWatchlist(v: ViewModel): HTMLElement {
     return section;
   }
   section.append(h('div', { class: 'card watch-card' }, h('div', { class: 'chips' }, ...v.data.watchlist.map((c) => renderWatchChip(c)))));
+  // The watchlist names are the only words of the user's own that leave this computer.
+  const on = v.ui.watchlistSearch;
+  section.append(
+    h(
+      'div',
+      { class: 'watch-search' },
+      h(
+        'button',
+        {
+          class: 'link-button',
+          type: 'button',
+          role: 'switch',
+          'aria-checked': on ? 'true' : 'false',
+          'data-focus-key': 'watch-search',
+          onclick: () => void api.setWatchlistSearch(!on).then(setView),
+        },
+        on ? 'Searching the news for these names: on' : 'Searching the news for these names: off',
+      ),
+      h(
+        'p',
+        { class: 'muted small' },
+        on
+          ? 'These company names are sent to the news search (GDELT) as search words. Turn this off to keep them on this computer; news from the feeds still shows them.'
+          : 'The names stay on this computer. News from the feeds still shows them.',
+      ),
+    ),
+  );
   return section;
 }
 

@@ -1,17 +1,19 @@
-// Search providers (layers 2 and 3): building queries from config.json keyword lists and parsing
-// the answers. Queries contain only domain names' keyword lists and the signal keywords from the
-// config, or a watchlist company's name, never anything taken from the CV.
+// Search providers (layers 2 and 3): building queries and parsing the answers.
+//
+// Privacy: the queries are the fixed broad topics of data/news.json plus the signal words, the same
+// for every user whatever their CV says, and, unless switched off, one query per watchlist company
+// name (the only words the user chose). buildProviderQuery is not given the domain mix at all; the
+// results are filtered and ranked by the domain mix on this computer. test/privacy.test.ts checks it.
 
 import * as cheerio from 'cheerio/slim';
 import { base64ToLatin1 } from '../../hash.js';
-import type { DomainId } from '../../shared/types.js';
 import type { AppConfig } from '../../config.js';
-import type { DomainQuery, ProviderQuery } from '../provider.js';
+import type { ProviderQuery, TopicQuery } from '../provider.js';
 import { ContractError } from '../provider.js';
 import type { ParsedItem } from '../types.js';
 import { cleanText, htmlToText, toIsoTimestamp } from '../text.js';
 
-const DOMAIN_TERMS = 8;
+const TOPIC_TERMS = 8;
 const SIGNAL_TERMS_PER_TAG = 5;
 
 /**
@@ -27,17 +29,17 @@ function pick(list: readonly string[] | undefined, n: number): string[] {
 }
 
 /**
- * One query per domain in the mix, highest weight first, and one per watchlist company. Company
- * names the services cannot take as a phrase (see isSearchableKeyword) are not searched; news
- * from the feeds still matches them.
+ * One query per broad topic of data/news.json, and one per watchlist company. Company names the
+ * services cannot take as a phrase (see isSearchableKeyword) are not searched; news from the feeds
+ * still matches them.
  */
-export function buildProviderQuery(config: AppConfig, domains: readonly DomainId[], companies: readonly string[] = []): ProviderQuery {
-  const queries: DomainQuery[] = domains
-    .map((domain) => ({ domain, keywords: pick(config.keywords.domains[domain], DOMAIN_TERMS) }))
+export function buildProviderQuery(config: AppConfig, companies: readonly string[] = []): ProviderQuery {
+  const topics: TopicQuery[] = config.search.topics
+    .map((t) => ({ topic: t.id, keywords: pick(t.keywords, TOPIC_TERMS) }))
     .filter((q) => q.keywords.length > 0);
   const t = config.keywords.tags;
   const signalKeywords = [...pick(t.hiring_cuts, SIGNAL_TERMS_PER_TAG), ...pick(t.hiring_growth, SIGNAL_TERMS_PER_TAG), ...pick(t.funded_startup, SIGNAL_TERMS_PER_TAG)];
-  return { domains: queries, companies: companies.filter(isSearchableKeyword), signalKeywords, maxAgeDays: config.newsMaxAgeDays };
+  return { topics, companies: companies.filter(isSearchableKeyword), signalKeywords, maxAgeDays: config.newsMaxAgeDays };
 }
 
 const term = (k: string) => (k.includes(' ') ? `"${k}"` : k);
@@ -52,7 +54,7 @@ export const GDELT_ENDPOINT = 'https://api.gdeltproject.org/api/v2/doc/doc';
  * with upper-case OR, not nested; phrases in double quotes; sourcecountry: takes the country name
  * without spaces; sourcelang: the language name. Terms separated by spaces must all match.
  */
-export function gdeltUrl(q: DomainQuery, signalKeywords: readonly string[], maxAgeDays: number, maxRecords = 75): string {
+export function gdeltUrl(q: TopicQuery, signalKeywords: readonly string[], maxAgeDays: number, maxRecords = 75): string {
   const query = [orGroup(q.keywords), orGroup(signalKeywords), 'sourcecountry:germany', 'sourcelang:german'].join(' ');
   const params = new URLSearchParams({
     query,
@@ -92,7 +94,7 @@ export function gdeltDate(s: unknown): string | null {
  * Parses an ArtList JSON answer. GDELT answers query problems with a plain-text sentence (still
  * HTTP 200), and an empty result with `{}`. Each article must have url, title and seendate.
  */
-export function parseGdelt(body: string, domain?: DomainId): ParsedItem[] {
+export function parseGdelt(body: string, topic?: string): ParsedItem[] {
   let data: unknown;
   try {
     data = JSON.parse(body);
@@ -113,14 +115,14 @@ export function parseGdelt(body: string, domain?: DomainId): ParsedItem[] {
       eventDate: null,
       eventEndDate: null,
       publisher,
-      ...(domain ? { queryDomain: domain } : {}),
+      ...(topic ? { queryTopic: topic } : {}),
     };
   });
 }
 
 // ---- Google News RSS search ------------------------------------------------------------------
 
-export function googleNewsUrl(q: DomainQuery, signalKeywords: readonly string[], maxAgeDays: number): string {
+export function googleNewsUrl(q: TopicQuery, signalKeywords: readonly string[], maxAgeDays: number): string {
   const query = `${orGroup(q.keywords)} ${orGroup(signalKeywords)} when:${maxAgeDays}d`;
   return `https://news.google.com/rss/search?q=${encodeURIComponent(query)}&hl=de&gl=DE&ceid=DE:de`;
 }
@@ -151,7 +153,7 @@ export function decodeGoogleNewsLink(link: string): string {
 }
 
 /** Google News RSS: `title` is "Headline - Publisher" and `<source>` names the publisher. */
-export function parseGoogleNews(xml: string, domain?: DomainId): ParsedItem[] {
+export function parseGoogleNews(xml: string, topic?: string): ParsedItem[] {
   const $ = cheerio.load(xml, { xml: true });
   if ($('rss').length === 0 && $('feed').length === 0) throw new ContractError('Google News did not answer with an RSS feed');
   const items: ParsedItem[] = [];
@@ -169,7 +171,7 @@ export function parseGoogleNews(xml: string, domain?: DomainId): ParsedItem[] {
       eventDate: null,
       eventEndDate: null,
       publisher: publisher || undefined,
-      ...(domain ? { queryDomain: domain } : {}),
+      ...(topic ? { queryTopic: topic } : {}),
     });
   });
   return items;

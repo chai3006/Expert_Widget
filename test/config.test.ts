@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { domainOrder, expandEnvVars, expandPath, parseJson, validateConfig, validateEmployers } from '../packages/core/src/config.js';
-import { defaultConfigJson, defaultEmployers, registry } from './helpers/config.js';
+import { defaultConfigJson, defaultEmployers, registry, appData } from './helpers/config.js';
 
 describe('config validation', () => {
   it('accepts the bundled default config', () => {
-    const result = validateConfig(defaultConfigJson(), registry());
+    const result = validateConfig(defaultConfigJson(), appData());
     expect(result.ok).toBe(true);
     if (result.ok) {
       expect(result.value.newsMaxAgeDays).toBe(7);
@@ -13,32 +13,60 @@ describe('config validation', () => {
     }
   });
 
+  // Changed on purpose (Phase 5): the built-in sources, signal words and topics live in data/;
+  // config.json only switches built-in sources on or off and adds sources and words of its own.
   it('reports each problem with its exact path', () => {
     const raw = defaultConfigJson();
     raw.newsMaxAgeDays = 0;
-    (raw.sources as Array<Record<string, unknown>>)[1].url = 'ftp://example.com';
-    (raw.sources as Array<Record<string, unknown>>)[2].domains = ['automotive-emobility', 'cooking'];
-    (raw.sources as Array<Record<string, unknown>>)[3].id = 'ingenieur-recruiting-tag';
+    raw.sources = [
+      { id: 'startbase', enabled: 'yes' },
+      {"id":"my-feed","topic":"hiring","name":"Own feed","url":"ftp://example.com","adapter":"rss","enabled":true,"domains":"all"},
+      {"id":"my-other-feed","topic":"hiring","name":"Own feed","url":"https://example.com/feed","adapter":"rss","enabled":true,"domains":["automotive-emobility","cooking"]},
+      {"id":"my-other-feed","topic":"hiring","name":"Own feed","url":"https://example.com/feed","adapter":"rss","enabled":true,"domains":"all"},
+    ];
     // Domain keywords live in data/domains; config.json may only add extra ones to known domains.
     (raw.keywords as Record<string, Record<string, unknown>>).domains = { gardening: ['roses'] };
-    const result = validateConfig(raw, registry());
+    const result = validateConfig(raw, appData());
     expect(result.ok).toBe(false);
     if (!result.ok) {
       expect(result.errors).toContain('newsMaxAgeDays: must be a whole number between 1 and 365');
+      expect(result.errors).toContain('sources[0].enabled: must be true or false');
       expect(result.errors).toContain('sources[1].url: must be an http or https URL');
       expect(result.errors).toContain('sources[2].domains[1]: unknown domain "cooking"');
-      expect(result.errors).toContain('sources[3].id: "ingenieur-recruiting-tag" is used twice');
+      expect(result.errors).toContain('sources[3].id: "my-other-feed" is used twice');
       expect(result.errors.some((e) => e.startsWith('keywords.domains: unknown domain "gardening"'))).toBe(true);
     }
   });
 
-  it('rejects a missing tag keyword list and non-object input', () => {
+  it('switches built-in sources and adds own sources and words', () => {
     const raw = defaultConfigJson();
-    delete (raw.keywords as Record<string, Record<string, unknown>>).tags.hiring_cuts;
-    const result = validateConfig(raw, registry());
-    expect(!result.ok && result.errors).toContain('keywords.tags.hiring_cuts: missing');
-    expect(validateConfig([], registry()).ok).toBe(false);
-    expect(validateConfig(null, registry()).ok).toBe(false);
+    raw.sources = [{ id: 'munich-startup', enabled: true }, { id: 'startbase', enabled: false, url: 'https://ignored.example' }, {"id":"my-feed","topic":"hiring","name":"Own feed","url":"https://example.com/feed","adapter":"rss","enabled":true,"domains":"all"}];
+    (raw.keywords as Record<string, Record<string, unknown>>).tags = { hiring_growth: ['Großauftrag'] };
+    const result = validateConfig(raw, appData());
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    const byId = new Map(result.value.sources.map((src) => [src.id, src]));
+    expect(byId.get('munich-startup')?.enabled).toBe(true);
+    expect(byId.get('startbase')).toMatchObject({ enabled: false, url: 'https://www.startbase.de/feed/' });
+    expect(byId.get('my-feed')?.name).toBe('Own feed');
+    expect(result.value.keywords.tags.hiring_growth).toContain('Großauftrag');
+    expect(result.value.keywords.tags.hiring_growth).toContain('neue Stellen');
+  });
+
+  it('keeps an old config.json with the full source list and keyword lists working', () => {
+    const old = { ...defaultConfigJson(), sources: appData().sources.map((src) => ({ ...src, domains: 'all' })), keywords: { tags: appData().news.tags } };
+    const result = validateConfig(old, appData());
+    expect(result.ok).toBe(true);
+    if (result.ok) expect(result.value.sources).toEqual(appData().sources);
+  });
+
+  it('rejects an unknown tag and non-object input', () => {
+    const raw = defaultConfigJson();
+    (raw.keywords as Record<string, Record<string, unknown>>).tags = { hiring_maybe: ['x'] };
+    const result = validateConfig(raw, appData());
+    expect(!result.ok && result.errors).toContain('keywords.tags: unknown tag "hiring_maybe"');
+    expect(validateConfig([], appData()).ok).toBe(false);
+    expect(validateConfig(null, appData()).ok).toBe(false);
   });
 
   it('reports JSON syntax errors with a line number', () => {

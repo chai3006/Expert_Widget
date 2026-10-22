@@ -5,8 +5,8 @@
 
 import { copyFileSync, existsSync, mkdirSync, readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
-import type { DomainRegistry } from '../../core/src/domains.js';
-import { loadDomainRegistry } from './appData.js';
+import type { AppData } from '../../core/src/newsData.js';
+import { loadAppData } from './appData.js';
 import {
   expandPath,
   parseJson,
@@ -69,7 +69,7 @@ export function loadUserFiles(
   files: UserFiles,
   env: Record<string, string | undefined>,
   homeDir: string,
-  registry: DomainRegistry,
+  data: AppData,
   platform: NodeJS.Platform = process.platform,
 ): LoadedFiles {
   const fallbackCv = join(files.home, 'CV');
@@ -85,7 +85,7 @@ export function loadUserFiles(
   if (!configText.ok) return { ok: false, error: configText.error, cvFolder: fallbackCv };
   const configJson = parseJson(configText.text, 'config.json');
   if (!configJson.ok) return { ok: false, error: `${files.configPath}\n\n${configJson.errors.join('\n')}`, cvFolder: fallbackCv };
-  const config = validateConfig(configJson.value, registry);
+  const config = validateConfig(configJson.value, data);
   if (!config.ok) return { ok: false, error: `${files.configPath} has problems:\n\n${config.errors.join('\n')}`, cvFolder: fallbackCv };
 
   const cvFolder = cvFolderFor(files, config.value.cvFolder, env, homeDir, platform);
@@ -94,7 +94,7 @@ export function loadUserFiles(
   if (!employersText.ok) return { ok: false, error: employersText.error, cvFolder };
   const employersJson = parseJson(employersText.text, 'employers.json');
   if (!employersJson.ok) return { ok: false, error: `${files.employersPath}\n\n${employersJson.errors.join('\n')}`, cvFolder };
-  const employers = validateEmployers(employersJson.value, registry);
+  const employers = validateEmployers(employersJson.value, data.domains);
   if (!employers.ok) return { ok: false, error: `${files.employersPath} has problems:\n\n${employers.errors.join('\n')}`, cvFolder };
 
   const watchlistText = read(files.watchlistPath);
@@ -107,9 +107,9 @@ export function loadUserFiles(
   return { ok: true, config: config.value, employers: employers.value, watchlist: watchlist.value, cvFolder };
 }
 
-/** Loads the domain registry from `domainsDir`, then the user files validated against it. */
-export function loadInputs(files: UserFiles, domainsDir: string, env: Record<string, string | undefined>, homeDir: string): LoadedFiles {
-  const registry = loadDomainRegistry(domainsDir);
-  if (!registry.ok) return { ok: false, error: `The domain files in ${domainsDir} have problems:\n\n${registry.errors.join('\n')}`, cvFolder: join(files.home, 'CV') };
-  return loadUserFiles(files, env, homeDir, registry.value);
+/** Loads the app data from `dataDir` (data/), then the user files validated against it. */
+export function loadInputs(files: UserFiles, dataDir: string, env: Record<string, string | undefined>, homeDir: string): LoadedFiles {
+  const data = loadAppData(dataDir);
+  if (!data.ok) return { ok: false, error: `The data files in ${dataDir} have problems:\n\n${data.errors.join('\n')}`, cvFolder: join(files.home, 'CV') };
+  return loadUserFiles(files, env, homeDir, data.value);
 }

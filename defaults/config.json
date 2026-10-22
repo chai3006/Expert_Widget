@@ -3,110 +3,29 @@
   "newsMaxAgeDays": 7,
   "maxItemsPerTag": 12,
   "hotkey": "CommandOrControl+Alt+E",
-  "cvAnalysis": { "halfLifeYears": 5, "currentRoleBoost": 1.5, "ignoreWords": [] },
-  "sources": [
-    {
-      "id": "ingenieur-recruiting-tag",
-      "topic": "career_fair",
-      "name": "VDI nachrichten Recruiting Tag",
-      "url": "https://www.ingenieur.de/recruiting-tag/",
-      "adapter": "ingenieur-recruiting-tag",
-      "enabled": true,
-      "domains": "all"
-    },
-    {
-      "id": "messen-karrieremessen",
-      "topic": "career_fair",
-      "name": "messen.de",
-      "url": "https://www.messen.de/de/1594/branche/karrieremessen",
-      "adapter": "messen-de",
-      "enabled": true,
-      "domains": "all"
-    },
-    {
-      "id": "ingenieur-wirtschaft",
-      "topic": "hiring",
-      "name": "ingenieur.de Wirtschaft",
-      "url": "https://www.ingenieur.de/wirtschaft/feed/",
-      "adapter": "rss",
-      "enabled": true,
-      "domains": "all"
-    },
-    {
-      "id": "ingenieur-all",
-      "topic": "hiring",
-      "name": "ingenieur.de",
-      "url": "https://www.ingenieur.de/feed/",
-      "adapter": "rss",
-      "enabled": true,
-      "domains": "all"
-    },
-    {
-      "id": "eurofound-erm",
-      "topic": "hiring",
-      "name": "Eurofound ERM",
-      "url": "https://apps.eurofound.europa.eu/restructuring-events/search?Country=Germany",
-      "adapter": "eurofound-erm",
-      "enabled": true,
-      "domains": "all"
-    },
-    {
-      "id": "produktion-wirtschaft",
-      "topic": "hiring",
-      "name": "produktion.de",
-      "url": "https://www.produktion.de/wirtschaft/",
-      "adapter": "produktion-de",
-      "enabled": true,
-      "domains": "all"
-    },
-    {
-      "id": "startbase",
-      "topic": "funded_startup",
-      "name": "Startbase",
-      "url": "https://www.startbase.de/feed/",
-      "adapter": "rss",
-      "enabled": true,
-      "domains": "all"
-    },
-    {
-      "id": "munich-startup",
-      "topic": "funded_startup",
-      "name": "Munich Startup",
-      "url": "https://www.munich-startup.de/feed/",
-      "adapter": "rss",
-      "enabled": false,
-      "domains": "all"
-    }
-  ],
-  "search": {
-    "gdelt": { "enabled": true, "maxRecords": 75 },
-    "googleNews": { "enabled": false }
+  "cvAnalysis": {
+    "halfLifeYears": 5,
+    "currentRoleBoost": 1.5,
+    "ignoreWords": []
   },
-  "keywords": {
-    "tags": {
-      "hiring_cuts": [
-        "Stellenabbau", "Jobabbau", "Personalabbau", "Arbeitsplatzabbau", "Werksschließung", "Werkschließung",
-        "Standortschließung", "Entlassungen", "Entlassung", "Kündigungen", "streicht", "Stellen ab",
-        "Jobs ab", "Stellen streichen", "Jobs fallen weg", "fallen weg", "Kurzarbeit", "Insolvenz",
-        "Kahlschlag", "Sparprogramm", "Produktionseinstellung", "Einstellung der Produktion", "Abbau",
-        "job cuts", "layoffs", "lay off", "redundancies", "plant closure", "insolvency"
-      ],
-      "hiring_growth": [
-        "neues Werk", "schafft Arbeitsplätze", "schafft Jobs", "schafft Stellen", "schafft neue", "neue Arbeitsplätze", "neue Stellen", "neue Jobs", "Einstellung",
-        "stellt ein", "Neueinstellungen", "sucht Fachkräfte", "Fachkräfte gesucht", "Ansiedlung",
-        "Expansion", "expandiert", "Werkseröffnung", "eröffnet", "baut aus", "Ausbau",
-        "new plant", "hiring", "hires", "expansion", "new jobs", "creates jobs"
-      ],
-      "funded_startup": [
-        "Finanzierungsrunde", "Seed", "Pre-Seed", "Series A", "Series B", "Series C", "Serie A",
-        "raises", "raised", "funding round", "Millionen Euro", "Millionen Pfund", "Millionen Dollar",
-        "Millionen Franken", "Mio. Euro", "Mio. €", "Wachstumskapital", "Risikokapital", "Venture Capital",
-        "Venture-Capital", "Kapitalspritze", "Investment", "Investoren"
-      ]
+  "search": {
+    "gdelt": {
+      "enabled": true,
+      "maxRecords": 75
     },
-    "fairExclude": [
-      "Azubi", "A-Zu-Bi", "Ausbildungsmesse", "Ausbildung", "Schüler", "Schule", "Jugend", "Lehrstelle",
-      "Studienwahl", "Berufsorientierung", "Abi", "Abitur", "Einstieg Abi"
-    ]
+    "googleNews": {
+      "enabled": false
+    },
+    "watchlist": true
+  },
+  "sources": [],
+  "keywords": {
+    "domains": {},
+    "tags": {
+      "hiring_cuts": [],
+      "hiring_growth": [],
+      "funded_startup": []
+    },
+    "fairExclude": []
   }
 }

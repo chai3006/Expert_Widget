@@ -69,12 +69,14 @@ export async function runRefresh(deps: RefreshDeps): Promise<StatusMessage[]> {
   // Domains chosen by hand win over the CV until the user goes back to the automatic result.
   const weights = effectiveProfile(stores.profile.value)?.weights ?? [];
 
-  // 2. Which providers run. Search needs a domain mix or a watchlist to know what to search for.
-  const query = buildProviderQuery(config, weights.map((w) => w.domain), deps.watchlist ?? []);
-  const feeds = deps.providers.filter((p) => p.layer === 1 && sourceIsRelevant(p, weights));
+  // 2. Which providers run: every enabled feed and the fixed broad searches, the same requests for
+  //    every user whatever the CV says (privacy: nothing about the domain mix leaves this computer).
+  //    The domain mix only filters and ranks the results below, in buildNewsCards.
+  const query = buildProviderQuery(config, deps.watchlist ?? []);
+  const feeds = deps.providers.filter((p) => p.layer === 1);
   const cached = stores.feed.value.sources;
   const now = deps.now();
-  const hasSearch = query.domains.length > 0 || query.companies.length > 0;
+  const hasSearch = query.topics.length > 0 || query.companies.length > 0;
   const allSearches = hasSearch ? deps.providers.filter((p) => p.layer === 2) : [];
   const searches = allSearches.filter((p) => searchIsDue(cached[p.id], query, now));
   const fallbacks = hasSearch ? deps.providers.filter((p) => p.layer === 3) : [];
@@ -84,17 +86,17 @@ export async function runRefresh(deps: RefreshDeps): Promise<StatusMessage[]> {
     return messages;
   }
 
-  // 3. Layers 1 and 2 together, then layer 3 for the domains the search left empty and the
+  // 3. Layers 1 and 2 together, then layer 3 for the topics the search left empty and the
   //    watchlist companies.
   const outcomes = await runAll([...feeds, ...searches], query);
   // A search that was not due still covers its domains with the items it found last time.
   const reused: Outcome[] = allSearches
     .filter((p) => !searches.includes(p) && cached[p.id]?.lastError === null && cached[p.id]?.fetchedAt !== null)
     .map((p) => ({ provider: p, items: cached[p.id].items }));
-  const uncovered = uncoveredDomains(query, [...outcomes.filter((o) => o.provider.layer === 2), ...reused]);
-  const fallbackQuery = { ...query, domains: query.domains.filter((d) => uncovered.includes(d.domain)) };
+  const uncovered = uncoveredTopics(query, [...outcomes.filter((o) => o.provider.layer === 2), ...reused]);
+  const fallbackQuery = { ...query, topics: query.topics.filter((t) => uncovered.includes(t.topic)) };
   const dueFallbacks = fallbacks.filter((p) => searchIsDue(cached[p.id], fallbackQuery, now));
-  if (dueFallbacks.length > 0 && fallbackQuery.domains.length + fallbackQuery.companies.length > 0) {
+  if (dueFallbacks.length > 0 && fallbackQuery.topics.length + fallbackQuery.companies.length > 0) {
     outcomes.push(...(await runAll(dueFallbacks, fallbackQuery)));
   }
 
@@ -210,16 +212,16 @@ function isRateLimited(error: string): boolean {
 }
 
 export function queryKey(query: ProviderQuery): string {
-  return JSON.stringify([query.domains, query.companies, query.signalKeywords, query.maxAgeDays]);
+  return JSON.stringify([query.topics, query.companies, query.signalKeywords, query.maxAgeDays]);
 }
 
-/** Domains with no usable search result: all of them when the search failed or did not run. */
-export function uncoveredDomains(query: ProviderQuery, searchOutcomes: readonly Outcome[]): DomainId[] {
-  const all = query.domains.map((d) => d.domain);
+/** Topics with no usable search result: all of them when the search failed or did not run. */
+export function uncoveredTopics(query: ProviderQuery, searchOutcomes: readonly Outcome[]): string[] {
+  const all = query.topics.map((t) => t.topic);
   const ok = searchOutcomes.filter((o): o is Extract<Outcome, { items: ParsedItem[] }> => 'items' in o);
   if (ok.length === 0) return all;
-  const covered = new Set(ok.flatMap((o) => o.items.map((i) => i.queryDomain)));
-  return all.filter((d) => !covered.has(d));
+  const covered = new Set(ok.flatMap((o) => o.items.map((i) => i.queryTopic)));
+  return all.filter((t) => !covered.has(t));
 }
 
 export function nextFailure(before: ProviderHealthRecord | undefined, error: string, at: number): ProviderHealthRecord {
@@ -238,7 +240,10 @@ export function offlineMessage(lastUpdated: number | null, now: number): StatusM
     : { level: 'warning', text: 'Offline. Connect to the internet and press Refresh.' };
 }
 
-/** A source limited to certain domains is only fetched when the CV mix includes one of them. */
+/**
+ * Whether a source's items can matter for this domain mix. Used only when showing items: every
+ * enabled source is fetched for every user, so the requests reveal nothing about the CV.
+ */
 export function sourceIsRelevant(source: Pick<NewsProvider, 'domains'>, weights: readonly DomainWeight[]): boolean {
   if (source.domains === 'all' || weights.length === 0) return true;
   return source.domains.some((d) => weights.some((w) => w.domain === d));

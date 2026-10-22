@@ -216,8 +216,8 @@ describe('company search', () => {
       ],
     });
     const fetcher = { getText: async (u: string) => (urls.push(u), body) } as unknown as PoliteFetcher;
-    const items = await new GdeltProvider(fetcher, 75).fetch({ domains: [], companies: ['CELUS'], signalKeywords: ['hiring'], maxAgeDays: 7 });
-    expect(items.map((i) => [i.headline, i.queryCompany, i.queryDomain])).toEqual([['CELUS raises EUR 25 million', 'CELUS', undefined]]);
+    const items = await new GdeltProvider(fetcher, 75).fetch({ topics: [], companies: ['CELUS'], signalKeywords: ['hiring'], maxAgeDays: 7 });
+    expect(items.map((i) => [i.headline, i.queryCompany, i.queryTopic])).toEqual([['CELUS raises EUR 25 million', 'CELUS', undefined]]);
     expect(urls).toEqual([gdeltCompanyUrl('CELUS', 7, 75)]);
     expect(new URL(urls[0]).searchParams.get('query')).toBe('"CELUS"');
   });
@@ -233,9 +233,9 @@ describe('company search', () => {
     await run(names, t0 + 60_000);
     await run([...names, 'Isar Aerospace'], t0 + 120_000);
     await run([...names, 'Isar Aerospace'], t0 + SEARCH_MIN_GAP_MS);
-    expect(calls.map((q) => [q.domains.length, q.companies])).toEqual([
-      [0, ['CELUS', 'Valispace', 'Hefex Labs']],
-      [0, ['CELUS', 'Valispace', 'Hefex Labs', 'Isar Aerospace']],
+    expect(calls.map((q) => [q.topics.length, q.companies])).toEqual([
+      [7, ['CELUS', 'Valispace', 'Hefex Labs']],
+      [7, ['CELUS', 'Valispace', 'Hefex Labs', 'Isar Aerospace']],
     ]);
   });
 

@@ -4,6 +4,7 @@
 import type { AppConfig, ScoredTag } from '../config.js';
 import type { DomainId, ItemDomain, NewsTag } from '../shared/types.js';
 import { KeywordMatcher, containsAny, foldText } from '../text/keywords.js';
+import { TermMatcher } from '../text/terms.js';
 import type { RawItem } from './types.js';
 
 export interface Classification {
@@ -21,7 +22,7 @@ const TAG_PRIORITY: ScoredTag[] = ['hiring_cuts', 'hiring_growth', 'funded_start
 
 export class RuleBasedClassifier implements Classifier {
   private readonly tagMatchers: Record<ScoredTag, KeywordMatcher>;
-  private readonly domainMatchers: Array<{ domain: DomainId; matcher: KeywordMatcher }>;
+  private readonly domainMatchers: Array<{ domain: DomainId; matcher: TermMatcher }>;
   private readonly fairExclude: string[];
 
   constructor(keywords: AppConfig['keywords']) {
@@ -32,7 +33,8 @@ export class RuleBasedClassifier implements Classifier {
     };
     this.domainMatchers = (Object.entries(keywords.domains) as Array<[DomainId, string[]]>).map(([domain, kws]) => ({
       domain,
-      matcher: new KeywordMatcher(kws),
+      // Same matching as for CVs: plurals and umlauts ("Pflegekräfte"), endings ("Hotels"), compounds.
+      matcher: new TermMatcher(kws.map((term) => ({ term, weight: 1 }))),
     }));
     this.fairExclude = keywords.fairExclude;
   }

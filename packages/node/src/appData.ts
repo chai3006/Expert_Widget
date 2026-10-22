@@ -1,10 +1,11 @@
 // The data shipped with the app (data/ in the repository and the installed app): the domain
-// registry and, from Phase 4 on, the employer directory. Read once at start; a broken file is a
-// configuration error with the file name, like a broken config.json.
+// registry, the news rules and the source registry. Read on every Refresh, like config.json; a
+// broken file is a configuration error with the file name.
 
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { DomainRegistry, type Validated } from '../../core/src/domains.js';
+import { validateNewsData, validateSourceRegistry, type AppData } from '../../core/src/newsData.js';
 
 /** The app or repository root: the nearest folder upwards that has defaults/config.json. */
 export function findAppRoot(start = __dirname): string {
@@ -33,4 +34,27 @@ export function loadDomainRegistry(domainsDir: string): Validated<DomainRegistry
   }
   if (errors.length > 0) return { ok: false, errors };
   return DomainRegistry.fromRaw(files);
+}
+
+function readJson(path: string): Validated<unknown> {
+  try {
+    return { ok: true, value: JSON.parse(readFileSync(path, 'utf8').replace(/^\uFEFF/, '')) };
+  } catch (err) {
+    return { ok: false, errors: [`Cannot read ${path}: ${err instanceof Error ? err.message : String(err)}`] };
+  }
+}
+
+/** data/domains/*.json, data/news.json and data/sources.json. */
+export function loadAppData(dataDir: string): Validated<AppData> {
+  const domains = loadDomainRegistry(join(dataDir, 'domains'));
+  if (!domains.ok) return domains;
+  const newsRaw = readJson(join(dataDir, 'news.json'));
+  if (!newsRaw.ok) return newsRaw;
+  const news = validateNewsData(newsRaw.value, domains.value);
+  if (!news.ok) return news;
+  const sourcesRaw = readJson(join(dataDir, 'sources.json'));
+  if (!sourcesRaw.ok) return sourcesRaw;
+  const sources = validateSourceRegistry(sourcesRaw.value, domains.value);
+  if (!sources.ok) return sources;
+  return { ok: true, value: { domains: domains.value, news: news.value, sources: sources.value } };
 }

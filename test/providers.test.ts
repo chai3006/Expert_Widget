@@ -17,7 +17,7 @@ import {
 import { checkContract, ContractError, type NewsProvider, type ProviderQuery } from '../packages/core/src/news/provider.js';
 import type { ParsedItem } from '../packages/core/src/news/types.js';
 import { GdeltProvider, GoogleNewsProvider } from '../packages/core/src/news/providers.js';
-import { SEARCH_MIN_GAP_MS, runRefresh, uncoveredDomains, type CvProvider } from '../packages/core/src/refresh.js';
+import { SEARCH_MIN_GAP_MS, runRefresh, uncoveredTopics, type CvProvider } from '../packages/core/src/refresh.js';
 import { FileStores as AppStores } from '../packages/node/src/state/fileStores.js';
 import { buildView } from '../packages/core/src/view.js';
 import type { Fetcher as PoliteFetcher } from '../packages/core/src/ports.js';
@@ -43,7 +43,7 @@ describe('provider contract', () => {
   });
 
   it('accepts search fixtures', () => {
-    expect(() => checkContract(parseGdelt(fixture('sources', 'gdelt-artlist.json'), 'automotive-emobility'), 'hiring')).not.toThrow();
+    expect(() => checkContract(parseGdelt(fixture('sources', 'gdelt-artlist.json'), 'industry'), 'hiring')).not.toThrow();
     expect(() => checkContract(parseGoogleNews(fixture('sources', 'google-news.rss.xml'), 'automotive-emobility'), 'hiring')).not.toThrow();
   });
 
@@ -69,21 +69,24 @@ describe('provider contract', () => {
 });
 
 describe('search queries', () => {
-  it('use only config keywords that both services accept', () => {
+  // Changed on purpose (Phase 5): one query per fixed broad topic of data/news.json, the same for
+  // every user, instead of one per domain of the CV mix.
+  it('use only the fixed topic words and signal words, which both services accept', () => {
     expect(isSearchableKeyword('Elektroauto')).toBe(true);
     expect(isSearchableKeyword('neues Werk')).toBe(true);
     expect(isSearchableKeyword('ECU')).toBe(false);
     expect(isSearchableKeyword('C++')).toBe(false);
-    const q = buildProviderQuery(config, ['automotive-emobility', 'embedded-iot']);
-    expect(q.domains.map((d) => d.domain)).toEqual(['automotive-emobility', 'embedded-iot']);
-    expect(q.domains.every((d) => d.keywords.length > 0 && d.keywords.length <= 8 && d.keywords.every(isSearchableKeyword))).toBe(true);
-    const allConfigWords = new Set([...Object.values(config.keywords.domains).flat(), ...Object.values(config.keywords.tags).flat()]);
-    expect([...q.domains.flatMap((d) => d.keywords), ...q.signalKeywords].every((k) => allConfigWords.has(k))).toBe(true);
+    const q = buildProviderQuery(config);
+    expect(q.topics.map((t) => t.topic)).toEqual(config.search.topics.map((t) => t.id));
+    expect(q.topics.length).toBe(7);
+    expect(q.topics.every((t) => t.keywords.length > 0 && t.keywords.length <= 8 && t.keywords.every(isSearchableKeyword))).toBe(true);
+    const allowed = new Set([...config.search.topics.flatMap((t) => t.keywords), ...Object.values(config.keywords.tags).flat()]);
+    expect([...q.topics.flatMap((t) => t.keywords), ...q.signalKeywords].every((k) => allowed.has(k))).toBe(true);
     expect(q.maxAgeDays).toBe(7);
   });
 
   it('builds the GDELT request with country, language, timespan and record limit', () => {
-    const url = new URL(gdeltUrl({ domain: 'automotive-emobility', keywords: ['Elektroauto', 'neues Werk'] }, ['Stellenabbau', 'Series A'], 7));
+    const url = new URL(gdeltUrl({ topic: 'industry', keywords: ['Elektroauto', 'neues Werk'] }, ['Stellenabbau', 'Series A'], 7));
     expect(url.origin + url.pathname).toBe('https://api.gdeltproject.org/api/v2/doc/doc');
     expect(url.searchParams.get('query')).toBe('(Elektroauto OR "neues Werk") (Stellenabbau OR "Series A") sourcecountry:germany sourcelang:german');
     expect(url.searchParams.get('mode')).toBe('artlist');
@@ -93,7 +96,7 @@ describe('search queries', () => {
   });
 
   it('builds the Google News request in German for Germany', () => {
-    const url = new URL(googleNewsUrl({ domain: 'automotive-emobility', keywords: ['Elektroauto'] }, ['Stellenabbau', 'Jobabbau'], 7));
+    const url = new URL(googleNewsUrl({ topic: 'industry', keywords: ['Elektroauto'] }, ['Stellenabbau', 'Jobabbau'], 7));
     expect(url.searchParams.get('q')).toBe('Elektroauto (Stellenabbau OR Jobabbau) when:7d');
     expect(url.searchParams.get('hl')).toBe('de');
     expect(url.searchParams.get('gl')).toBe('DE');
@@ -103,37 +106,37 @@ describe('search queries', () => {
 
 describe('GDELT provider', () => {
   it('parses an ArtList answer', () => {
-    const items = parseGdelt(fixture('sources', 'gdelt-artlist.json'), 'automotive-emobility');
+    const items = parseGdelt(fixture('sources', 'gdelt-artlist.json'), 'industry');
     expect(items).toHaveLength(3);
     expect(items[0]).toMatchObject({
       url: 'https://www.example-news.de/wirtschaft/zulieferer-baut-stellen-ab-100.html',
       headline: 'Zulieferer kündigt Stellenabbau in der Batteriefertigung an',
       publishedAt: '2026-10-09T08:15:00.000Z',
       publisher: 'example-news.de',
-      queryDomain: 'automotive-emobility',
+      queryTopic: 'industry',
     });
     expect(items[1].publisher).toBe('example-zeitung.de');
     expect(gdeltDate('2026-10-09')).toBeNull();
   });
 
   it('treats an empty result as no items and a text answer as a broken contract', () => {
-    expect(parseGdelt('{}', 'automotive-emobility')).toEqual([]);
-    expect(() => parseGdelt('Your search contained a keyword that was too short.', 'automotive-emobility')).toThrow(ContractError);
-    expect(() => parseGdelt('{"articles": "none"}', 'automotive-emobility')).toThrow(/not a list/);
+    expect(parseGdelt('{}', 'industry')).toEqual([]);
+    expect(() => parseGdelt('Your search contained a keyword that was too short.', 'industry')).toThrow(ContractError);
+    expect(() => parseGdelt('{"articles": "none"}', 'industry')).toThrow(/not a list/);
   });
 
   it('marks an article without a title as a contract failure', () => {
-    const items = parseGdelt('{"articles":[{"url":"https://example.com/x","seendate":"20261009T081500Z","domain":"example.com"}]}', 'automotive-emobility');
+    const items = parseGdelt('{"articles":[{"url":"https://example.com/x","seendate":"20261009T081500Z","domain":"example.com"}]}', 'industry');
     expect(() => checkContract(items, 'hiring')).toThrow(/has no title/);
   });
 
-  it('sends one request per domain, only with config words', async () => {
+  it('sends one request per broad topic', async () => {
     const urls: string[] = [];
     const fetcher = { getText: async (u: string) => (urls.push(u), fixture('sources', 'gdelt-artlist.json')) } as unknown as PoliteFetcher;
-    const query = buildProviderQuery(config, ['automotive-emobility', 'energy-storage']);
+    const query = buildProviderQuery(config);
     const items = await new GdeltProvider(fetcher, 75).fetch(query);
-    expect(urls).toHaveLength(2);
-    expect(items.map((i) => i.queryDomain)).toEqual([...Array(3).fill('automotive-emobility'), ...Array(3).fill('energy-storage')]);
+    expect(urls).toHaveLength(7);
+    expect(items.slice(0, 6).map((i) => i.queryTopic)).toEqual([...Array(3).fill('industry'), ...Array(3).fill('energy-construction')]);
   });
 });
 
@@ -153,7 +156,7 @@ describe('Google News provider', () => {
   });
 
   it('rejects an answer that is not a feed', () => {
-    expect(() => parseGoogleNews('<html><body>Consent</body></html>', 'automotive-emobility')).toThrow(ContractError);
+    expect(() => parseGoogleNews('<html><body>Consent</body></html>', 'industry')).toThrow(ContractError);
   });
 
   it('has its own provider id and layer', () => {
@@ -212,27 +215,27 @@ async function refresh(stores: AppStores, providers: NewsProvider[], day = 10) {
 }
 
 describe('layers', () => {
-  it('asks Google News only for domains GDELT left empty', async () => {
+  it('asks Google News only for topics GDELT left empty', async () => {
     const stores = new AppStores(dir);
     const googleCalls: ProviderQuery[] = [];
     await refresh(stores, [
       fake('feed', 1, () => [item('https://example.com/feed/1')]),
-      fake('gdelt', 2, () => [item('https://example.com/g/1', { queryDomain: 'automotive-emobility' })]),
-      fake('google-news', 3, () => [item('https://example.com/n/1', { queryDomain: 'energy-storage' })], googleCalls),
+      fake('gdelt', 2, () => [item('https://example.com/g/1', { queryTopic: 'industry' })]),
+      fake('google-news', 3, () => [item('https://example.com/n/1', { queryTopic: 'energy-construction' })], googleCalls),
     ]);
     expect(googleCalls).toHaveLength(1);
-    expect(googleCalls[0].domains.map((d) => d.domain)).toEqual(['energy-storage']);
+    expect(googleCalls[0].topics.map((t) => t.topic)).toEqual(config.search.topics.map((t) => t.id).filter((id) => id !== 'industry'));
   });
 
-  it('asks Google News for every domain when GDELT fails, and not at all when GDELT covers everything', async () => {
+  it('asks Google News for every topic when GDELT fails, and not at all when GDELT covers everything', async () => {
     const stores = new AppStores(dir);
     const calls: ProviderQuery[] = [];
     await refresh(stores, [fake('gdelt', 2, () => new Error('the server answered HTTP 429')), fake('google-news', 3, () => [], calls)]);
-    expect(calls[0].domains.map((d) => d.domain)).toEqual(['automotive-emobility', 'energy-storage']);
+    expect(calls[0].topics.map((t) => t.topic)).toEqual(config.search.topics.map((t) => t.id));
 
     const none: ProviderQuery[] = [];
     await refresh(stores, [
-      fake('gdelt', 2, () => [item('https://example.com/a', { queryDomain: 'automotive-emobility' }), item('https://example.com/b', { queryDomain: 'energy-storage' })]),
+      fake('gdelt', 2, () => config.search.topics.map((t) => item(`https://example.com/${t.id}`, { queryTopic: t.id }))),
       fake('google-news', 3, () => [], none),
     ], 11);
     expect(none).toHaveLength(0);
@@ -245,7 +248,7 @@ describe('layers', () => {
     const googleCalls: ProviderQuery[] = [];
     const providers = [
       fake('feed', 1, () => [item('https://example.com/feed/1')], feedCalls),
-      fake('gdelt', 2, () => [item('https://example.com/g/1', { queryDomain: 'automotive-emobility' })], gdeltCalls),
+      fake('gdelt', 2, () => [item('https://example.com/g/1', { queryTopic: 'industry' })], gdeltCalls),
       fake('google-news', 3, () => [], googleCalls),
     ];
     const at = (ms: number) => runRefresh({ config, cvFolder: dir, stores, cv: twoDomains, providers, isOnline: () => true, now: () => t(10) + ms, mock: false });
@@ -255,8 +258,8 @@ describe('layers', () => {
     await at(SEARCH_MIN_GAP_MS - 1);
     expect(feedCalls).toHaveLength(3);
     expect(gdeltCalls).toHaveLength(1);
-    // The skipped search still covers its domain, so Google News is not asked for it.
-    expect(googleCalls.map((q) => q.domains.map((d) => d.domain))).toEqual([['energy-storage']]);
+    // The skipped search still covers its topic, so Google News is not asked for it.
+    expect(googleCalls.map((q) => q.topics.map((t) => t.topic))).toEqual([config.search.topics.map((t) => t.id).filter((id) => id !== 'industry')]);
     expect(messages).toEqual([]);
     expect(stores.feed.value.sources.gdelt.items).toHaveLength(1);
 
@@ -282,7 +285,8 @@ describe('layers', () => {
     expect(calls).toHaveLength(3);
   });
 
-  it('searches again at once when the domain mix changes', async () => {
+  // Changed on purpose (Phase 5): the searches no longer depend on the domain mix.
+  it('does not search again when only the domain mix changes, because the queries do not depend on it', async () => {
     const stores = new AppStores(dir);
     const calls: ProviderQuery[] = [];
     const providers = [fake('gdelt', 2, () => [], calls)];
@@ -291,10 +295,10 @@ describe('layers', () => {
       readProfile: async () => ({ ok: true, profile: { fileName: 'cv.pdf', modifiedMs: 2, computedAt: 2, weights: [{ domain: 'energy-storage', weight: 100 }] } }),
     };
     await runRefresh({ config, cvFolder: dir, stores, cv: oneDomain, providers, isOnline: () => true, now: () => t(10) + 1, mock: false });
-    expect(calls.map((q) => q.domains.map((d) => d.domain))).toEqual([['automotive-emobility', 'energy-storage'], ['energy-storage']]);
+    expect(calls).toHaveLength(1);
   });
 
-  it('does not search without a domain mix', async () => {
+  it('searches the same broad topics without a domain mix', async () => {
     const stores = new AppStores(dir);
     const calls: ProviderQuery[] = [];
     await runRefresh({
@@ -307,15 +311,16 @@ describe('layers', () => {
       now: () => t(10),
       mock: false,
     });
-    expect(calls).toHaveLength(0);
+    expect(calls.map((q) => q.topics.length)).toEqual([7]);
   });
 
-  it('uncoveredDomains lists domains without search results', () => {
-    const q = buildProviderQuery(config, ['automotive-emobility', 'energy-storage']);
+  it('uncoveredTopics lists topics without search results', () => {
+    const q = buildProviderQuery(config);
+    const all = config.search.topics.map((t) => t.id);
     const gdelt = fake('gdelt', 2, () => []);
-    expect(uncoveredDomains(q, [])).toEqual(['automotive-emobility', 'energy-storage']);
-    expect(uncoveredDomains(q, [{ provider: gdelt, items: [item('https://x.de/1', { queryDomain: 'energy-storage' })] }])).toEqual(['automotive-emobility']);
-    expect(uncoveredDomains(q, [{ provider: gdelt, error: new Error('x') }])).toEqual(['automotive-emobility', 'energy-storage']);
+    expect(uncoveredTopics(q, [])).toEqual(all);
+    expect(uncoveredTopics(q, [{ provider: gdelt, items: [item('https://x.de/1', { queryTopic: 'energy-construction' })] }])).toEqual(all.filter((t) => t !== 'energy-construction'));
+    expect(uncoveredTopics(q, [{ provider: gdelt, error: new Error('x') }])).toEqual(all);
   });
 
   it('keeps the feed copy of an article that GDELT also found', async () => {
@@ -323,7 +328,7 @@ describe('layers', () => {
     const url = 'https://www.example.com/wirtschaft/werk';
     await refresh(stores, [
       { ...fake('feed', 1, () => [item(url, { headline: 'Autobauer: neues Werk schafft Arbeitsplätze' })]), name: 'Feed' },
-      { ...fake('gdelt', 2, () => [item(`${url}?utm_source=gdelt`, { headline: 'Autobauer: neues Werk schafft Arbeitsplätze', publisher: 'example.com', queryDomain: 'automotive-emobility' })]), name: 'GDELT' },
+      { ...fake('gdelt', 2, () => [item(`${url}?utm_source=gdelt`, { headline: 'Autobauer: neues Werk schafft Arbeitsplätze', publisher: 'example.com', queryTopic: 'industry' })]), name: 'GDELT' },
     ]);
     // Build the view against the default config's provider list, using the fake ids' caches.
     stores.feed.update((f) => ({ ...f, sources: { 'ingenieur-wirtschaft': f.sources.feed, gdelt: f.sources.gdelt } }));
@@ -374,7 +379,7 @@ describe('source health', () => {
     const ids = enabledProviders(config).map((p) => p.id);
     await refresh(
       stores,
-      ids.map((id, i) => fake(id, id === 'gdelt' ? 2 : 1, () => (i === 0 ? new Error('HTTP 500') : [item(`https://example.com/${id}`, { queryDomain: 'automotive-emobility' })]))),
+      ids.map((id, i) => fake(id, id === 'gdelt' ? 2 : 1, () => (i === 0 ? new Error('HTTP 500') : [item(`https://example.com/${id}`, { queryTopic: 'industry' })]))),
     );
     const v = buildView({ mock: false, config, employers: [], watchlist: [], configError: null, stores, cvFolder: dir, messages: [], refreshing: false, now: t(10) });
     expect(v.data.sourceHealth.total).toBe(ids.length);

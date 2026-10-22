@@ -1,0 +1,284 @@
+{
+  "schemaVersion": 1,
+  "topics": [
+    {
+      "id": "industry",
+      "label": "Industry, engineering and trades",
+      "sectors": [
+        "industry"
+      ],
+      "keywords": [
+        "Industrie",
+        "Maschinenbau",
+        "Autoindustrie",
+        "Zulieferer",
+        "Chemieindustrie",
+        "Elektroindustrie",
+        "Luftfahrt",
+        "Handwerk"
+      ]
+    },
+    {
+      "id": "energy-construction",
+      "label": "Energy, utilities, construction and real estate",
+      "sectors": [
+        "energy-construction"
+      ],
+      "keywords": [
+        "Energiewirtschaft",
+        "Energieversorger",
+        "Stadtwerke",
+        "Solarbranche",
+        "Bauindustrie",
+        "Baubranche",
+        "Wohnungsbau",
+        "Immobilienbranche"
+      ]
+    },
+    {
+      "id": "tech",
+      "label": "IT, software and telecoms",
+      "sectors": [
+        "tech"
+      ],
+      "keywords": [
+        "IT-Branche",
+        "Softwarefirma",
+        "Softwareunternehmen",
+        "Tech-Konzern",
+        "Telekommunikation",
+        "Rechenzentrum",
+        "Digitalbranche",
+        "Chipindustrie"
+      ]
+    },
+    {
+      "id": "health",
+      "label": "Health, care, pharma and social services",
+      "sectors": [
+        "health"
+      ],
+      "keywords": [
+        "Krankenhaus",
+        "Kliniken",
+        "Pflegebranche",
+        "Pflegeheim",
+        "Pharmakonzern",
+        "Pharmaindustrie",
+        "Medizintechnik",
+        "Sozialbranche"
+      ]
+    },
+    {
+      "id": "business",
+      "label": "Finance, insurance, law, consulting and HR services",
+      "sectors": [
+        "business"
+      ],
+      "keywords": [
+        "Banken",
+        "Sparkasse",
+        "Versicherer",
+        "Finanzbranche",
+        "Unternehmensberatung",
+        "Kanzlei",
+        "Steuerberater",
+        "Personaldienstleister"
+      ]
+    },
+    {
+      "id": "trade",
+      "label": "Retail, logistics, hospitality and food",
+      "sectors": [
+        "trade"
+      ],
+      "keywords": [
+        "Einzelhandel",
+        "Handelskette",
+        "Onlinehändler",
+        "Logistik",
+        "Spedition",
+        "Gastronomie",
+        "Hotellerie",
+        "Lebensmittelindustrie"
+      ]
+    },
+    {
+      "id": "public-media",
+      "label": "Public sector, education, media and creative industries",
+      "sectors": [
+        "public-media"
+      ],
+      "keywords": [
+        "öffentlicher Dienst",
+        "Behörde",
+        "Schulen",
+        "Hochschulen",
+        "Kitas",
+        "Medienhaus",
+        "Verlag",
+        "Werbeagentur"
+      ]
+    }
+  ],
+  "tags": {
+    "hiring_cuts": [
+      "Stellenabbau",
+      "Jobabbau",
+      "Personalabbau",
+      "Arbeitsplatzabbau",
+      "Werksschließung",
+      "Werkschließung",
+      "Standortschließung",
+      "Entlassungen",
+      "Entlassung",
+      "Kündigungen",
+      "streicht",
+      "Stellen ab",
+      "Jobs ab",
+      "Stellen streichen",
+      "Jobs fallen weg",
+      "fallen weg",
+      "Kurzarbeit",
+      "Insolvenz",
+      "Kahlschlag",
+      "Sparprogramm",
+      "Produktionseinstellung",
+      "Einstellung der Produktion",
+      "Abbau",
+      "job cuts",
+      "layoffs",
+      "lay off",
+      "redundancies",
+      "plant closure",
+      "insolvency",
+      "Filialschließung",
+      "Filialschließungen",
+      "schließt Filialen",
+      "Klinikschließung",
+      "Krankenhausschließung",
+      "Praxisschließung",
+      "Betriebsschließung",
+      "Massenentlassung",
+      "Kündigungswelle",
+      "Stellen gestrichen",
+      "Arbeitsplätze gestrichen",
+      "Insolvenzantrag",
+      "Insolvenzverfahren",
+      "Pleite",
+      "Sozialplan",
+      "Einstellungsstopp",
+      "hiring freeze",
+      "store closures",
+      "hospital closure",
+      "branch closures",
+      "cuts jobs"
+    ],
+    "hiring_growth": [
+      "neues Werk",
+      "schafft Arbeitsplätze",
+      "schafft Jobs",
+      "schafft Stellen",
+      "schafft neue",
+      "neue Arbeitsplätze",
+      "neue Stellen",
+      "neue Jobs",
+      "Einstellung",
+      "stellt ein",
+      "Neueinstellungen",
+      "sucht Fachkräfte",
+      "Fachkräfte gesucht",
+      "Ansiedlung",
+      "Expansion",
+      "expandiert",
+      "Werkseröffnung",
+      "eröffnet",
+      "baut aus",
+      "Ausbau",
+      "new plant",
+      "hiring",
+      "hires",
+      "expansion",
+      "new jobs",
+      "creates jobs",
+      "neue Filiale",
+      "neue Filialen",
+      "Neueröffnung",
+      "neue Praxis",
+      "neue Klinik",
+      "neuer Standort",
+      "neues Büro",
+      "stellt Personal ein",
+      "sucht Personal",
+      "Personal gesucht",
+      "Pflegekräfte gesucht",
+      "Lehrkräfte gesucht",
+      "Erzieher gesucht",
+      "Einstellungsoffensive",
+      "Ausbildungsoffensive",
+      "Personalaufbau",
+      "Stellen aufbauen",
+      "recruitment drive",
+      "hiring spree",
+      "new store",
+      "new office",
+      "suchen Personal",
+      "suchen Fachkräfte",
+      "suchen Mitarbeiter",
+      "stellen ein",
+      "stellen Personal ein"
+    ],
+    "funded_startup": [
+      "Finanzierungsrunde",
+      "Seed",
+      "Pre-Seed",
+      "Series A",
+      "Series B",
+      "Series C",
+      "Serie A",
+      "raises",
+      "raised",
+      "funding round",
+      "Millionen Euro",
+      "Millionen Pfund",
+      "Millionen Dollar",
+      "Millionen Franken",
+      "Mio. Euro",
+      "Mio. €",
+      "Wachstumskapital",
+      "Risikokapital",
+      "Venture Capital",
+      "Venture-Capital",
+      "Kapitalspritze",
+      "Investment",
+      "Investoren",
+      "Seed-Runde",
+      "Finanzierung gesichert",
+      "eingesammelt",
+      "Millionen eingesammelt",
+      "Business Angel",
+      "Business Angels",
+      "Wagniskapital",
+      "Series D",
+      "Bridge-Finanzierung",
+      "secures funding",
+      "seed round",
+      "venture funding"
+    ]
+  },
+  "fairExclude": [
+    "Azubi",
+    "A-Zu-Bi",
+    "Ausbildungsmesse",
+    "Ausbildung",
+    "Schüler",
+    "Schule",
+    "Jugend",
+    "Lehrstelle",
+    "Studienwahl",
+    "Berufsorientierung",
+    "Abi",
+    "Abitur",
+    "Einstieg Abi"
+  ]
+}

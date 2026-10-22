@@ -64,7 +64,6 @@ export function buildNewsCards(input: NewsBuildInput): NewsCard[] {
       if (companies.length > 0 && item.topic !== 'career_fair' && isCompanyEvent(item)) tag = 'career_fair';
       if (!tag) continue;
       let domain = c?.domain ?? 'all';
-      if (domain === 'all' && item.queryDomain) domain = item.queryDomain;
       // A source dedicated to specific domains lends its domain to items no keyword matched.
       if (domain === 'all' && Array.isArray(provider.domains) && provider.domains.length > 0) {
         domain = provider.domains.find((d) => mixDomains.has(d)) ?? provider.domains[0];

@@ -4,10 +4,9 @@ import { GDELT_PROVIDER_ID, GOOGLE_NEWS_PROVIDER_ID, type AppConfig, type Source
 import { ADAPTERS } from './adapters/index.js';
 import { gdeltCompanyUrl, gdeltUrl, googleNewsCompanyUrl, googleNewsUrl, parseGdelt, parseGoogleNews } from './adapters/search.js';
 import type { Fetcher } from '../ports.js';
-import type { DomainQuery, NewsProvider, ProviderQuery } from './provider.js';
+import type { NewsProvider, ProviderQuery, TopicQuery } from './provider.js';
 import type { ParsedItem } from './types.js';
 import { WatchlistMatcher } from './watchlist.js';
-import type { DomainId } from '../shared/types.js';
 
 /** Layer 1: one configured source, read through its feed or HTML adapter. */
 export class FeedProvider implements NewsProvider {
@@ -39,9 +38,9 @@ export class FeedProvider implements NewsProvider {
 }
 
 /**
- * Layers 2 and 3: one search request per domain in the mix, then one per watchlist company (by
- * name only; only articles naming the company exactly are kept). Any failed request fails the
- * provider.
+ * Layers 2 and 3: one search request per broad topic (the same for every user), then one per
+ * watchlist company (by name only; only articles naming the company exactly are kept). Any failed
+ * request fails the provider.
  */
 abstract class SearchProvider implements NewsProvider {
   readonly topic = 'hiring' as const;
@@ -52,15 +51,15 @@ abstract class SearchProvider implements NewsProvider {
 
   constructor(protected readonly fetcher: Fetcher) {}
 
-  protected abstract url(q: DomainQuery, query: ProviderQuery): string;
+  protected abstract url(q: TopicQuery, query: ProviderQuery): string;
   protected abstract companyUrl(name: string, query: ProviderQuery): string;
-  protected abstract parse(body: string, domain?: DomainId): ParsedItem[];
+  protected abstract parse(body: string, topic?: string): ParsedItem[];
 
   async fetch(query: ProviderQuery): Promise<ParsedItem[]> {
     const items: ParsedItem[] = [];
-    for (const q of query.domains) {
+    for (const q of query.topics) {
       const body = await this.fetcher.getText(this.url(q, query));
-      items.push(...this.parse(body, q.domain));
+      items.push(...this.parse(body, q.topic));
     }
     for (const name of query.companies) {
       const body = await this.fetcher.getText(this.companyUrl(name, query));
@@ -83,7 +82,7 @@ export class GdeltProvider extends SearchProvider {
     super(fetcher);
   }
 
-  protected url(q: DomainQuery, query: ProviderQuery): string {
+  protected url(q: TopicQuery, query: ProviderQuery): string {
     return gdeltUrl(q, query.signalKeywords, query.maxAgeDays, this.maxRecords);
   }
 
@@ -91,8 +90,8 @@ export class GdeltProvider extends SearchProvider {
     return gdeltCompanyUrl(name, query.maxAgeDays, this.maxRecords);
   }
 
-  protected parse(body: string, domain?: DomainId): ParsedItem[] {
-    return parseGdelt(body, domain);
+  protected parse(body: string, topic?: string): ParsedItem[] {
+    return parseGdelt(body, topic);
   }
 }
 
@@ -101,7 +100,7 @@ export class GoogleNewsProvider extends SearchProvider {
   readonly name = 'Google News search';
   readonly layer = 3 as const;
 
-  protected url(q: DomainQuery, query: ProviderQuery): string {
+  protected url(q: TopicQuery, query: ProviderQuery): string {
     return googleNewsUrl(q, query.signalKeywords, query.maxAgeDays);
   }
 
@@ -109,8 +108,8 @@ export class GoogleNewsProvider extends SearchProvider {
     return googleNewsCompanyUrl(name, query.maxAgeDays);
   }
 
-  protected parse(body: string, domain?: DomainId): ParsedItem[] {
-    return parseGoogleNews(body, domain);
+  protected parse(body: string, topic?: string): ParsedItem[] {
+    return parseGoogleNews(body, topic);
   }
 }
 

@@ -208,6 +208,30 @@
     {
       "term": "account management",
       "weight": 1
+    },
+    {
+      "term": "Filial",
+      "weight": 1
+    },
+    {
+      "term": "Handelskette",
+      "weight": 1
+    },
+    {
+      "term": "Modekette",
+      "weight": 1
+    },
+    {
+      "term": "Einzelhändler",
+      "weight": 1
+    },
+    {
+      "term": "Supermarkt",
+      "weight": 1
+    },
+    {
+      "term": "Discounter",
+      "weight": 1
     }
   ],
   "titles": [

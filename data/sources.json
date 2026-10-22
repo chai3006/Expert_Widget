@@ -1,0 +1,104 @@
+{
+  "schemaVersion": 1,
+  "sources": [
+    {
+      "id": "ingenieur-recruiting-tag",
+      "topic": "career_fair",
+      "name": "VDI nachrichten Recruiting Tag",
+      "url": "https://www.ingenieur.de/recruiting-tag/",
+      "adapter": "ingenieur-recruiting-tag",
+      "enabled": true,
+      "domains": ["automotive-emobility", "semiconductors", "embedded-iot", "industrial-automation", "energy-storage", "aerospace-defense", "machinery-household", "medtech", "rail-transport", "telecom", "software-ai", "civil-chemical", "construction-architecture"]
+    },
+    {
+      "id": "messen-karrieremessen",
+      "topic": "career_fair",
+      "name": "messen.de",
+      "url": "https://www.messen.de/de/1594/branche/karrieremessen",
+      "adapter": "messen-de",
+      "enabled": true,
+      "domains": "all"
+    },
+    {
+      "id": "ingenieur-wirtschaft",
+      "topic": "hiring",
+      "name": "ingenieur.de Wirtschaft",
+      "url": "https://www.ingenieur.de/wirtschaft/feed/",
+      "adapter": "rss",
+      "enabled": true,
+      "domains": ["automotive-emobility", "semiconductors", "embedded-iot", "industrial-automation", "energy-storage", "aerospace-defense", "machinery-household", "medtech", "rail-transport", "telecom", "software-ai", "civil-chemical", "construction-architecture"]
+    },
+    {
+      "id": "ingenieur-all",
+      "topic": "hiring",
+      "name": "ingenieur.de",
+      "url": "https://www.ingenieur.de/feed/",
+      "adapter": "rss",
+      "enabled": true,
+      "domains": ["automotive-emobility", "semiconductors", "embedded-iot", "industrial-automation", "energy-storage", "aerospace-defense", "machinery-household", "medtech", "rail-transport", "telecom", "software-ai", "civil-chemical", "construction-architecture"]
+    },
+    {
+      "id": "eurofound-erm",
+      "topic": "hiring",
+      "name": "Eurofound ERM",
+      "url": "https://apps.eurofound.europa.eu/restructuring-events/search?Country=Germany",
+      "adapter": "eurofound-erm",
+      "enabled": true,
+      "domains": "all"
+    },
+    {
+      "id": "produktion-wirtschaft",
+      "topic": "hiring",
+      "name": "produktion.de",
+      "url": "https://www.produktion.de/wirtschaft/",
+      "adapter": "produktion-de",
+      "enabled": true,
+      "domains": ["automotive-emobility", "semiconductors", "embedded-iot", "industrial-automation", "energy-storage", "aerospace-defense", "machinery-household", "medtech", "rail-transport", "civil-chemical", "skilled-trades"]
+    },
+    {
+      "id": "tagesschau-wirtschaft",
+      "topic": "hiring",
+      "name": "tagesschau.de Wirtschaft",
+      "url": "https://www.tagesschau.de/wirtschaft/index~rss2.xml",
+      "adapter": "rss",
+      "enabled": true,
+      "domains": "all"
+    },
+    {
+      "id": "handelsblatt-schlagzeilen",
+      "topic": "hiring",
+      "name": "Handelsblatt",
+      "url": "https://www.handelsblatt.com/contentexport/feed/schlagzeilen",
+      "adapter": "rss",
+      "enabled": true,
+      "domains": "all"
+    },
+    {
+      "id": "aerzteblatt-news",
+      "topic": "hiring",
+      "name": "Deutsches Ärzteblatt",
+      "url": "https://www.aerzteblatt.de/rss/news.asp",
+      "adapter": "rss",
+      "enabled": true,
+      "domains": ["healthcare-nursing", "pharma-life-sciences", "medtech", "social-work"]
+    },
+    {
+      "id": "startbase",
+      "topic": "funded_startup",
+      "name": "Startbase",
+      "url": "https://www.startbase.de/feed/",
+      "adapter": "rss",
+      "enabled": true,
+      "domains": "all"
+    },
+    {
+      "id": "munich-startup",
+      "topic": "funded_startup",
+      "name": "Munich Startup",
+      "url": "https://www.munich-startup.de/feed/",
+      "adapter": "rss",
+      "enabled": false,
+      "domains": "all"
+    }
+  ]
+}

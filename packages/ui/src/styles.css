@@ -1234,3 +1234,13 @@ a {
   color: var(--muted);
   font-size: 12.5px;
 }
+
+.watch-search {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.watch-search p {
+  margin: 0 4px;
+}
