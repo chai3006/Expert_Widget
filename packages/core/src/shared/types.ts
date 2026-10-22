@@ -92,6 +92,8 @@ export interface WatchlistChip {
 
 export interface EmployerSegmentView {
   segment: string;
+  /** top, tier1, tier2, service, sme or startup for the starter list; null for the user's own employers.json. */
+  tier: string | null;
   companies: CompanyChip[];
 }
 
@@ -99,8 +101,10 @@ export interface EmployerDomainView {
   domain: DomainId;
   label: string;
   weight: number;
-  /** Empty when employers.json has nothing for this domain; the UI then shows a note. */
+  /** Empty when there is no starter list and nothing in employers.json; the UI then shows a note. */
   segments: EmployerSegmentView[];
+  /** True when data/employers has verified companies for this domain. */
+  starterList: boolean;
 }
 
 export interface NewsCard {

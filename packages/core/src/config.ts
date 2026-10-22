@@ -7,6 +7,7 @@
 
 import type { DomainRegistry } from './domains.js';
 import type { AppData, SearchTopic } from './newsData.js';
+import type { EmployerDirectory } from './contracts.js';
 import type { DomainId } from './shared/types.js';
 import { isValidHotkey } from './hotkey.js';
 
@@ -44,6 +45,8 @@ export const DEFAULT_CV_ANALYSIS: CvAnalysisConfig = { halfLifeYears: 5, current
 export interface AppConfig {
   /** The domain registry the config was validated against (data/domains). */
   domains: DomainRegistry;
+  /** The employer directory (data/employers), all statuses; the view shows verified companies only. */
+  directory: EmployerDirectory[];
   cvFolder: string;
   cvAnalysis: CvAnalysisConfig;
   newsMaxAgeDays: number;
@@ -306,6 +309,7 @@ export function validateConfig(raw: unknown, data: AppData): Validated<AppConfig
     ok: true,
     value: {
       domains: registry,
+      directory: data.employers ?? [],
       cvFolder: (raw.cvFolder as string).trim(),
       cvAnalysis,
       newsMaxAgeDays: raw.newsMaxAgeDays as number,

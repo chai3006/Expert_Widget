@@ -567,11 +567,32 @@ function renderEmployers(v: ViewModel): HTMLElement {
     section.append(h('p', { class: 'note' }, 'Employers appear once your CV gives a domain mix.'));
     return section;
   }
-  // Domains without employers in employers.json are left out (no placeholder note).
-  const listed = v.data.employers.filter((d) => d.segments.length > 0);
-  if (listed.length === 0) return h('div', { hidden: true });
-  for (const domain of listed) {
+  if (v.data.employers.some((d) => d.starterList)) section.append(h('p', { class: 'muted small starter-note' }, 'Starter list for Germany, may be incomplete.'));
+  for (const domain of v.data.employers) {
     section.append(h('h3', { class: 'domain-title' }, h('span', {}, domain.label), h('span', {}, `${domain.weight}%`)));
+    if (domain.segments.length === 0) {
+      // No verified starter list for this domain yet: say so and point to how lists are made.
+      section.append(
+        h(
+          'p',
+          { class: 'note' },
+          'No company list for this field yet. ',
+          h(
+            'a',
+            {
+              href: CONTRIBUTING_URL,
+              'data-focus-key': `contribute:${domain.domain}`,
+              onclick: (e: Event) => {
+                e.preventDefault();
+                void api.openExternal(CONTRIBUTING_URL);
+              },
+            },
+            'How company lists are made and how to add one',
+          ),
+        ),
+      );
+      continue;
+    }
     for (const seg of domain.segments) {
       const id = `${domain.domain}:${seg.segment}`;
       const open = !collapsed.has(id);
@@ -598,12 +619,42 @@ function renderEmployers(v: ViewModel): HTMLElement {
             h('span', {}, seg.segment),
             h('span', { class: 'count' }, `${seg.companies.length}`),
           ),
-          open ? h('div', { class: 'chips', id: bodyId }, ...seg.companies.map((c) => renderChip(c))) : null,
+          open ? renderSegmentChips(id, bodyId, seg.companies) : null,
         ),
       );
     }
   }
   return section;
+}
+
+/** Where the company-directory guide lives (placeholder until the repository's public home is decided). */
+const CONTRIBUTING_URL = 'https://github.com/chai3006/Expert_Widget/blob/feature/expert-page/docs/COMPANY_DIRECTORY.md';
+const SEGMENT_PREVIEW = 8;
+/** Segments whose full list the user opened with "Show more". */
+const expandedSegments = new Set<string>();
+
+function renderSegmentChips(id: string, bodyId: string, companies: CompanyChip[]): HTMLElement {
+  const all = expandedSegments.has(id) || companies.length <= SEGMENT_PREVIEW + 2;
+  const shown = all ? companies : companies.slice(0, SEGMENT_PREVIEW);
+  const box = h('div', { class: 'chips', id: bodyId }, ...shown.map((c) => renderChip(c)));
+  if (!all) {
+    box.append(
+      h(
+        'button',
+        {
+          class: 'link-button',
+          type: 'button',
+          'data-focus-key': `more:${id}`,
+          onclick: () => {
+            expandedSegments.add(id);
+            render();
+          },
+        },
+        `Show ${companies.length - SEGMENT_PREVIEW} more`,
+      ),
+    );
+  }
+  return box;
 }
 
 function renderChip(c: CompanyChip): HTMLElement {

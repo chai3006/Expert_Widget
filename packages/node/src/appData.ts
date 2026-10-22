@@ -5,6 +5,8 @@
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { DomainRegistry, type Validated } from '../../core/src/domains.js';
+import type { EmployerDirectory } from '../../core/src/contracts.js';
+import { validateDirectory } from '../../core/src/directory.js';
 import { validateNewsData, validateSourceRegistry, type AppData } from '../../core/src/newsData.js';
 
 /** The app or repository root: the nearest folder upwards that has defaults/config.json. */
@@ -56,5 +58,19 @@ export function loadAppData(dataDir: string): Validated<AppData> {
   if (!sourcesRaw.ok) return sourcesRaw;
   const sources = validateSourceRegistry(sourcesRaw.value, domains.value);
   if (!sources.ok) return sources;
-  return { ok: true, value: { domains: domains.value, news: news.value, sources: sources.value } };
+  const employers: EmployerDirectory[] = [];
+  const dir = join(dataDir, 'employers');
+  const errors: string[] = [];
+  for (const name of existsSync(dir) ? readdirSync(dir).filter((n) => n.endsWith('.json')).sort() : []) {
+    const raw = readJson(join(dir, name));
+    if (!raw.ok) {
+      errors.push(...raw.errors);
+      continue;
+    }
+    const d = validateDirectory(raw.value, domains.value, name.slice(0, -'.json'.length));
+    if (d.ok) employers.push(d.value);
+    else errors.push(...d.errors);
+  }
+  if (errors.length > 0) return { ok: false, errors };
+  return { ok: true, value: { domains: domains.value, news: news.value, sources: sources.value, employers } };
 }

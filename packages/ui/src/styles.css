@@ -1244,3 +1244,7 @@ a {
 .watch-search p {
   margin: 0 4px;
 }
+
+.starter-note {
+  margin: -4px 0 0;
+}

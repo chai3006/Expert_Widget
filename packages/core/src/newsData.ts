@@ -3,6 +3,7 @@
 // the Node layer.
 
 import { SCORED_TAGS, dedupeCaseInsensitive, parseSource, stringList, type ScoredTag, type SourceConfig, type Validated } from './config.js';
+import type { EmployerDirectory } from './contracts.js';
 import type { DomainRegistry } from './domains.js';
 
 export const NEWS_SCHEMA_VERSION = 1;
@@ -26,11 +27,13 @@ export interface NewsData {
   fairExclude: string[];
 }
 
-/** Everything in data/ the app needs besides the employer directory. */
+/** Everything in data/ the app needs. */
 export interface AppData {
   domains: DomainRegistry;
   news: NewsData;
   sources: SourceConfig[];
+  /** data/employers/<domain>.json; missing domains have no starter list yet. */
+  employers?: EmployerDirectory[];
 }
 
 const isObject = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null && !Array.isArray(v);

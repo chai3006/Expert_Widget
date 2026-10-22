@@ -1,5 +1,7 @@
 // Builds the complete view model the renderer displays.
 
+import type { EmployerDirectory } from './contracts.js';
+import { visibleSegments } from './directory.js';
 import { companyKey, orderCompanies, orderNews, watchlistKey } from './shared/ordering.js';
 import {
   type DomainWeight,
@@ -21,28 +23,37 @@ import { NEEDS_ATTENTION_AFTER } from './refresh.js';
 
 export { companyKey };
 
+/**
+ * Employers per domain in the mix: the verified starter list (data/employers) in tier order, then
+ * the user's own employers.json segments without the companies the starter list already has.
+ */
 export function buildEmployerView(
   segments: readonly EmployerSegment[],
   weights: readonly DomainWeight[],
   visited: Readonly<Record<string, number>>,
   labelOf: (domain: string) => string = (d) => d,
+  directories: readonly EmployerDirectory[] = [],
 ): EmployerDomainView[] {
-  return weights.map(({ domain, weight }) => ({
-    domain,
-    label: labelOf(domain),
-    weight,
-    segments: segments
+  const chip = (name: string, careerUrl: string) => {
+    const key = companyKey(name);
+    return { key, name, careerUrl, visitedAt: visited[key] ?? null };
+  };
+  return weights.map(({ domain, weight }) => {
+    const directory = directories.find((d) => d.domain === domain);
+    const starter = directory ? visibleSegments(directory) : [];
+    const listed = new Set(starter.flatMap((s) => s.companies.map((c) => companyKey(c.name))));
+    const own = segments
       .filter((s) => s.domain === domain)
-      .map((s) => ({
-        segment: s.segment,
-        companies: orderCompanies(
-          s.companies.map((c) => {
-            const key = companyKey(c.name);
-            return { key, name: c.name, careerUrl: c.careerUrl, visitedAt: visited[key] ?? null };
-          }),
-        ),
-      })),
-  }));
+      .map((s) => ({ segment: s.segment, tier: null, companies: orderCompanies(s.companies.filter((c) => !listed.has(companyKey(c.name))).map((c) => chip(c.name, c.careerUrl))) }))
+      .filter((s) => s.companies.length > 0);
+    return {
+      domain,
+      label: labelOf(domain),
+      weight,
+      starterList: starter.length > 0,
+      segments: [...starter.map((s) => ({ segment: s.label.en, tier: s.tier as string | null, companies: orderCompanies(s.companies.map((c) => chip(c.name, c.careerUrl))) })), ...own],
+    };
+  });
 }
 
 /** Watchlist chips in file order (visited ones last), each with its count of new news cards. */
@@ -145,7 +156,7 @@ export function buildView(input: ViewInput): ViewModel {
       ...data,
       profile,
       domains: config.domains.domains.map((d) => ({ id: d.id, label: d.label.en, shortLabel: d.shortLabel.en })),
-      employers: buildEmployerView(input.employers, weights, visited, (d) => config.domains.label(d)),
+      employers: buildEmployerView(input.employers, weights, visited, (d) => config.domains.label(d), config.directory),
       watchlist: buildWatchlistView(input.watchlist, news, visited),
       news,
       sourceHealth: buildSourceHealth(providers, stores.health.value),

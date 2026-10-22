@@ -102,10 +102,13 @@ describe('config validation', () => {
 });
 
 describe('employers validation', () => {
-  it('accepts the bundled employers', () => {
-    const employers = defaultEmployers();
-    expect(employers).toHaveLength(5);
-    expect(employers.flatMap((s) => s.companies)).toHaveLength(30);
+  // Changed on purpose (Phase 4): the starter list moved to data/employers; employers.json is now
+  // only for the user's own additions and starts empty.
+  it('accepts the bundled (empty) employers.json and the directory with all 30 automotive companies', () => {
+    expect(defaultEmployers()).toEqual([]);
+    const automotive = appData().employers?.find((d) => d.domain === 'automotive-emobility');
+    expect(automotive?.segments).toHaveLength(5);
+    expect(automotive?.segments.flatMap((s) => s.companies)).toHaveLength(30);
   });
 
   it('reports bad entries', () => {

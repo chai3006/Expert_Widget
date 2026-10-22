@@ -1,0 +1,403 @@
+{
+  "schemaVersion": 1,
+  "domain": "automotive-emobility",
+  "segments": [
+    {
+      "tier": "top",
+      "label": {
+        "de": "Hersteller und Batterie",
+        "en": "OEMs and battery"
+      },
+      "companies": [
+        {
+          "name": "Mercedes-Benz",
+          "website": "https://group.mercedes-benz.com",
+          "careerUrl": "https://group.mercedes-benz.com/karriere",
+          "status": "verified",
+          "confidence": 1,
+          "lastVerified": "2026-10-10",
+          "generatedBy": "manual (curated list, October 2026)",
+          "sources": [
+            "check-links 2026-10-10"
+          ]
+        },
+        {
+          "name": "Volkswagen Group",
+          "website": "https://www.volkswagen-group.com",
+          "careerUrl": "https://www.volkswagen-group.com/en/careers",
+          "status": "proposed",
+          "confidence": 0.6,
+          "lastVerified": "",
+          "generatedBy": "manual (curated list, October 2026)",
+          "sources": []
+        },
+        {
+          "name": "Audi",
+          "website": "https://www.audi.com",
+          "careerUrl": "https://www.audi.com",
+          "status": "verified",
+          "confidence": 1,
+          "lastVerified": "2026-10-10",
+          "generatedBy": "manual (curated list, October 2026)",
+          "sources": [
+            "check-links 2026-10-10"
+          ]
+        },
+        {
+          "name": "Porsche",
+          "website": "https://www.porsche.com",
+          "careerUrl": "https://jobs.porsche.com",
+          "status": "verified",
+          "confidence": 1,
+          "lastVerified": "2026-10-10",
+          "generatedBy": "manual (curated list, October 2026)",
+          "sources": [
+            "check-links 2026-10-10"
+          ]
+        },
+        {
+          "name": "PowerCo",
+          "website": "https://www.powerco.de",
+          "careerUrl": "https://www.powerco.de",
+          "status": "verified",
+          "confidence": 1,
+          "lastVerified": "2026-10-10",
+          "generatedBy": "manual (curated list, October 2026)",
+          "sources": [
+            "check-links 2026-10-10"
+          ]
+        },
+        {
+          "name": "BMW Group",
+          "website": "https://www.bmwgroup.com",
+          "careerUrl": "https://www.bmwgroup.jobs",
+          "status": "verified",
+          "confidence": 1,
+          "lastVerified": "2026-10-10",
+          "generatedBy": "manual (curated list, October 2026)",
+          "sources": [
+            "check-links 2026-10-10"
+          ]
+        }
+      ]
+    },
+    {
+      "tier": "tier1",
+      "label": {
+        "de": "Zulieferer (Tier 1 und Tier 2)",
+        "en": "Tier 1 and tier 2 suppliers"
+      },
+      "companies": [
+        {
+          "name": "Bosch",
+          "website": "https://www.bosch.de",
+          "careerUrl": "https://www.bosch.de/karriere",
+          "status": "verified",
+          "confidence": 1,
+          "lastVerified": "2026-10-10",
+          "generatedBy": "manual (curated list, October 2026)",
+          "sources": [
+            "check-links 2026-10-10"
+          ]
+        },
+        {
+          "name": "Continental",
+          "website": "https://www.continental.com",
+          "careerUrl": "https://www.continental.com/de/karriere",
+          "status": "verified",
+          "confidence": 1,
+          "lastVerified": "2026-10-10",
+          "generatedBy": "manual (curated list, October 2026)",
+          "sources": [
+            "check-links 2026-10-10"
+          ]
+        },
+        {
+          "name": "ZF",
+          "website": "https://www.zf.com",
+          "careerUrl": "https://www.zf.com/karriere",
+          "status": "verified",
+          "confidence": 1,
+          "lastVerified": "2026-10-10",
+          "generatedBy": "manual (curated list, October 2026)",
+          "sources": [
+            "check-links 2026-10-10"
+          ]
+        },
+        {
+          "name": "Schaeffler",
+          "website": "https://www.schaeffler.de",
+          "careerUrl": "https://www.schaeffler.de/karriere",
+          "status": "verified",
+          "confidence": 1,
+          "lastVerified": "2026-10-10",
+          "generatedBy": "manual (curated list, October 2026)",
+          "sources": [
+            "check-links 2026-10-10"
+          ]
+        },
+        {
+          "name": "Mahle",
+          "website": "https://www.mahle.com",
+          "careerUrl": "https://www.mahle.com/de/karriere",
+          "status": "proposed",
+          "confidence": 0.6,
+          "lastVerified": "",
+          "generatedBy": "manual (curated list, October 2026)",
+          "sources": []
+        },
+        {
+          "name": "Webasto",
+          "website": "https://www.webasto-group.com",
+          "careerUrl": "https://www.webasto-group.com",
+          "status": "verified",
+          "confidence": 1,
+          "lastVerified": "2026-10-10",
+          "generatedBy": "manual (curated list, October 2026)",
+          "sources": [
+            "check-links 2026-10-10"
+          ]
+        },
+        {
+          "name": "Dräxlmaier",
+          "website": "https://www.draexlmaier.com",
+          "careerUrl": "https://www.draexlmaier.com",
+          "status": "verified",
+          "confidence": 1,
+          "lastVerified": "2026-10-10",
+          "generatedBy": "manual (curated list, October 2026)",
+          "sources": [
+            "check-links 2026-10-10"
+          ]
+        },
+        {
+          "name": "Brose",
+          "website": "https://www.brose.com",
+          "careerUrl": "https://www.brose.com",
+          "status": "verified",
+          "confidence": 1,
+          "lastVerified": "2026-10-10",
+          "generatedBy": "manual (curated list, October 2026)",
+          "sources": [
+            "check-links 2026-10-10"
+          ]
+        },
+        {
+          "name": "Kostal",
+          "website": "https://www.kostal.com",
+          "careerUrl": "https://www.kostal.com",
+          "status": "verified",
+          "confidence": 1,
+          "lastVerified": "2026-10-10",
+          "generatedBy": "manual (curated list, October 2026)",
+          "sources": [
+            "check-links 2026-10-10"
+          ]
+        },
+        {
+          "name": "Marquardt",
+          "website": "https://www.marquardt.com",
+          "careerUrl": "https://www.marquardt.com",
+          "status": "verified",
+          "confidence": 1,
+          "lastVerified": "2026-10-10",
+          "generatedBy": "manual (curated list, October 2026)",
+          "sources": [
+            "check-links 2026-10-10"
+          ]
+        },
+        {
+          "name": "Preh",
+          "website": "https://www.preh.com",
+          "careerUrl": "https://www.preh.com",
+          "status": "verified",
+          "confidence": 1,
+          "lastVerified": "2026-10-10",
+          "generatedBy": "manual (curated list, October 2026)",
+          "sources": [
+            "check-links 2026-10-10"
+          ]
+        },
+        {
+          "name": "Forvia HELLA",
+          "website": "https://www.hella.com",
+          "careerUrl": "https://www.hella.com",
+          "status": "verified",
+          "confidence": 1,
+          "lastVerified": "2026-10-10",
+          "generatedBy": "manual (curated list, October 2026)",
+          "sources": [
+            "check-links 2026-10-10"
+          ]
+        }
+      ]
+    },
+    {
+      "tier": "service",
+      "label": {
+        "de": "Engineering-Dienstleister",
+        "en": "Engineering service providers"
+      },
+      "companies": [
+        {
+          "name": "IAV",
+          "website": "https://www.iav.com",
+          "careerUrl": "https://www.iav.com",
+          "status": "verified",
+          "confidence": 1,
+          "lastVerified": "2026-10-10",
+          "generatedBy": "manual (curated list, October 2026)",
+          "sources": [
+            "check-links 2026-10-10"
+          ]
+        },
+        {
+          "name": "FEV",
+          "website": "https://www.fev.com",
+          "careerUrl": "https://www.fev.com",
+          "status": "verified",
+          "confidence": 1,
+          "lastVerified": "2026-10-10",
+          "generatedBy": "manual (curated list, October 2026)",
+          "sources": [
+            "check-links 2026-10-10"
+          ]
+        },
+        {
+          "name": "EDAG",
+          "website": "https://www.edag.com",
+          "careerUrl": "https://www.edag.com",
+          "status": "verified",
+          "confidence": 1,
+          "lastVerified": "2026-10-10",
+          "generatedBy": "manual (curated list, October 2026)",
+          "sources": [
+            "check-links 2026-10-10"
+          ]
+        },
+        {
+          "name": "Bertrandt",
+          "website": "https://www.bertrandt.com",
+          "careerUrl": "https://www.bertrandt.com",
+          "status": "verified",
+          "confidence": 1,
+          "lastVerified": "2026-10-10",
+          "generatedBy": "manual (curated list, October 2026)",
+          "sources": [
+            "check-links 2026-10-10"
+          ]
+        }
+      ]
+    },
+    {
+      "tier": "tier2",
+      "label": {
+        "de": "Halbleiter, Energie und Industrie",
+        "en": "Semiconductors, energy and industrial"
+      },
+      "companies": [
+        {
+          "name": "Infineon",
+          "website": "https://www.infineon.com",
+          "careerUrl": "https://www.infineon.com/careers",
+          "status": "verified",
+          "confidence": 1,
+          "lastVerified": "2026-10-10",
+          "generatedBy": "manual (curated list, October 2026)",
+          "sources": [
+            "check-links 2026-10-10"
+          ]
+        },
+        {
+          "name": "Siemens",
+          "website": "https://www.siemens.com",
+          "careerUrl": "https://www.siemens.com/careers",
+          "status": "verified",
+          "confidence": 1,
+          "lastVerified": "2026-10-10",
+          "generatedBy": "manual (curated list, October 2026)",
+          "sources": [
+            "check-links 2026-10-10"
+          ]
+        },
+        {
+          "name": "Varta",
+          "website": "https://www.varta-ag.com",
+          "careerUrl": "https://www.varta-ag.com",
+          "status": "verified",
+          "confidence": 1,
+          "lastVerified": "2026-10-10",
+          "generatedBy": "manual (curated list, October 2026)",
+          "sources": [
+            "check-links 2026-10-10"
+          ]
+        },
+        {
+          "name": "Tesla Grünheide",
+          "website": "https://www.tesla.com",
+          "careerUrl": "https://www.tesla.com/careers",
+          "status": "proposed",
+          "confidence": 0.6,
+          "lastVerified": "",
+          "generatedBy": "manual (curated list, October 2026)",
+          "sources": []
+        }
+      ]
+    },
+    {
+      "tier": "tier2",
+      "label": {
+        "de": "Test, Werkzeuge und Validierung",
+        "en": "Test, tools and validation"
+      },
+      "companies": [
+        {
+          "name": "Rohde & Schwarz",
+          "website": "https://www.rohde-schwarz.com",
+          "careerUrl": "https://www.rohde-schwarz.com/careers",
+          "status": "proposed",
+          "confidence": 0.6,
+          "lastVerified": "",
+          "generatedBy": "manual (curated list, October 2026)",
+          "sources": []
+        },
+        {
+          "name": "dSPACE",
+          "website": "https://www.dspace.com",
+          "careerUrl": "https://www.dspace.com",
+          "status": "verified",
+          "confidence": 1,
+          "lastVerified": "2026-10-10",
+          "generatedBy": "manual (curated list, October 2026)",
+          "sources": [
+            "check-links 2026-10-10"
+          ]
+        },
+        {
+          "name": "Vector Informatik",
+          "website": "https://www.vector.com",
+          "careerUrl": "https://www.vector.com",
+          "status": "verified",
+          "confidence": 1,
+          "lastVerified": "2026-10-10",
+          "generatedBy": "manual (curated list, October 2026)",
+          "sources": [
+            "check-links 2026-10-10"
+          ]
+        },
+        {
+          "name": "ETAS",
+          "website": "https://www.etas.com",
+          "careerUrl": "https://www.etas.com",
+          "status": "verified",
+          "confidence": 1,
+          "lastVerified": "2026-10-10",
+          "generatedBy": "manual (curated list, October 2026)",
+          "sources": [
+            "check-links 2026-10-10"
+          ]
+        }
+      ]
+    }
+  ]
+}
