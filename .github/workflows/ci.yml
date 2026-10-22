@@ -1,0 +1,82 @@
+# Builds and tests Expert on Windows, macOS (Apple silicon and Intel) and Linux, and uploads the
+# unsigned installers as workflow artefacts. Nothing is published or released.
+#
+# Runs on pushes to main, on pull requests and by hand (Actions › CI › Run workflow). It does not
+# run on every feature-branch push, because macOS runners count ten times against the free minutes
+# of a private repository.
+#
+# Each macOS architecture is built on its own runner: the PDF reader depends on @napi-rs/canvas,
+# which installs one native binary for the CPU it is installed on, so an Intel DMG built on an
+# Apple-silicon runner would carry the wrong binary.
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Windows x64
+            os: windows-latest
+            target: --win --x64
+            artefacts: release/*.exe
+          - name: macOS Apple silicon
+            os: macos-latest
+            target: --mac --arm64
+            artefacts: release/*.dmg
+          # Intel macOS runner; if GitHub retires this label, remove the entry or pick the current one.
+          - name: macOS Intel
+            os: macos-15-intel
+            target: --mac --x64
+            artefacts: release/*.dmg
+          - name: Linux x64
+            os: ubuntu-latest
+            target: --linux --x64
+            artefacts: |
+              release/*.AppImage
+              release/*.deb
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Type-check
+        run: npm run typecheck
+
+      - name: Test
+        run: npm test
+
+      - name: Compile (also downloads the offline translation model)
+        run: npm run compile
+
+      - name: Package (unsigned)
+        run: npx electron-builder ${{ matrix.target }} --publish never
+        env:
+          # No signing certificates in CI: build unsigned instead of searching the keychain.
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+
+      - name: Upload installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: expert-${{ matrix.os }}
+          path: ${{ matrix.artefacts }}
+          if-no-files-found: error
+          retention-days: 14
