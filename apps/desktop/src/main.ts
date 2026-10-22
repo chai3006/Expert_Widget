@@ -515,7 +515,7 @@ function registerIpc(): void {
   });
   handle('feedback:remove', (id) => {
     if (!isShortString(id)) return;
-    const card = currentView().news.find((n) => n.id === id);
+    const card = currentView().data.news.find((n) => n.id === id);
     if (!card) return;
     stores.interactions.update((s) => {
       const { [id]: _dropped, ...useful } = s.useful;
@@ -537,7 +537,7 @@ function registerIpc(): void {
       });
     } else {
       // The card is taken from the main process's own view, never from the renderer.
-      const card = currentView().news.find((n) => n.id === id);
+      const card = currentView().data.news.find((n) => n.id === id);
       if (card) {
         const { seenAt: _seenAt, useful: _useful, ...entry } = card;
         stores.interactions.update((s) => ({ ...s, useful: { ...s.useful, [id]: { ...entry, markedAt: Date.now() } } }));

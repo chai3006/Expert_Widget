@@ -51,7 +51,7 @@ const view = (stores: AppStores, now = t0) =>
 
 // The same steps main.ts runs for the three feedback IPC calls.
 function thumbsDown(stores: AppStores, id: string, now = t0) {
-  const card = view(stores, now).news.find((n) => n.id === id)!;
+  const card = view(stores, now).data.news.find((n) => n.id === id)!;
   stores.interactions.update((s) => {
     const { [id]: _drop, ...useful } = s.useful;
     return { ...s, useful, removed: { ...s.removed, [canonicalUrl(card.url)]: now } };
@@ -68,7 +68,7 @@ function thumbsUp(stores: AppStores, id: string, now = t0) {
     });
     return;
   }
-  const { seenAt: _s, useful: _u, ...entry } = view(stores, now).news.find((n) => n.id === id)!;
+  const { seenAt: _s, useful: _u, ...entry } = view(stores, now).data.news.find((n) => n.id === id)!;
   stores.interactions.update((s) => ({ ...s, useful: { ...s.useful, [id]: { ...entry, markedAt: now } } }));
 }
 
@@ -78,13 +78,13 @@ describe('thumbs down', () => {
     await refreshWith(stores, [growth(1), growth(2)]);
     const id = itemId(growth(1).url);
     thumbsDown(stores, id);
-    expect(view(stores).news.map((n) => n.id)).not.toContain(id);
+    expect(view(stores).data.news.map((n) => n.id)).not.toContain(id);
 
     await refreshWith(stores, [growth(1, 'https://example.com/news/1/?utm_source=rss'), growth(2)], t0 + 3600 * 1000);
-    expect(view(stores, t0 + 3600 * 1000).news.map((n) => n.headline)).toEqual([growth(2).headline]);
+    expect(view(stores, t0 + 3600 * 1000).data.news.map((n) => n.headline)).toEqual([growth(2).headline]);
 
     // …and after a restart.
-    expect(view(new AppStores(dir), t0 + 3600 * 1000).news).toHaveLength(1);
+    expect(view(new AppStores(dir), t0 + 3600 * 1000).data.news).toHaveLength(1);
   });
 
   it('can be undone', async () => {
@@ -93,17 +93,17 @@ describe('thumbs down', () => {
     const id = itemId(growth(1).url);
     thumbsDown(stores, id);
     undoRemove(stores, id);
-    expect(view(stores).news.map((n) => n.id)).toContain(id);
+    expect(view(stores).data.news.map((n) => n.id)).toContain(id);
   });
 
   it('removed cards do not count towards the new-items badge', async () => {
     const stores = new AppStores(dir);
     await refreshWith(stores, [growth(1), growth(2), growth(3)]);
-    expect(view(stores).unseenCount).toBe(3);
+    expect(view(stores).ui.unseenCount).toBe(3);
     thumbsDown(stores, itemId(growth(2).url));
-    expect(view(stores).unseenCount).toBe(2);
+    expect(view(stores).ui.unseenCount).toBe(2);
     stores.interactions.update((s) => ({ ...s, seen: { [itemId(growth(1).url)]: t0 } }));
-    expect(view(stores).unseenCount).toBe(1);
+    expect(view(stores).ui.unseenCount).toBe(1);
   });
 
   it('also drops a thumbs up on the same card', async () => {
@@ -112,7 +112,7 @@ describe('thumbs down', () => {
     const id = itemId(growth(1).url);
     thumbsUp(stores, id);
     thumbsDown(stores, id);
-    expect(view(stores).news).toEqual([]);
+    expect(view(stores).data.news).toEqual([]);
     expect(stores.interactions.value.useful).toEqual({});
   });
 });
@@ -124,7 +124,7 @@ describe('thumbs up', () => {
     const id = itemId(growth(1).url);
     thumbsUp(stores, id);
     await refreshWith(stores, [growth(2)], t0 + 1000);
-    const cards = view(stores, t0 + 1000).news;
+    const cards = view(stores, t0 + 1000).data.news;
     expect(cards.find((n) => n.id === id)).toMatchObject({ useful: true, headline: growth(1).headline });
     expect(cards.filter((n) => n.id === id)).toHaveLength(1);
   });
@@ -135,7 +135,7 @@ describe('thumbs up', () => {
     const id = itemId(growth(1).url);
     thumbsUp(stores, id);
     const later = t0 + 30 * DAY;
-    expect(view(new AppStores(dir), later).news.map((n) => n.id)).toEqual([id]);
+    expect(view(new AppStores(dir), later).data.news.map((n) => n.id)).toEqual([id]);
   });
 
   it('keeps a career fair after its date', async () => {
@@ -151,7 +151,7 @@ describe('thumbs up', () => {
     await runRefresh({ config, cvFolder: dir, stores, cv, providers: [fair], isOnline: () => true, now: () => t0, mock: false });
     const id = itemId('https://www.messen.de/fair/1');
     thumbsUp(stores, id);
-    expect(view(stores, new Date(2026, 9, 25).getTime()).news.map((n) => n.id)).toEqual([id]);
+    expect(view(stores, new Date(2026, 9, 25).getTime()).data.news.map((n) => n.id)).toEqual([id]);
   });
 
   it('pressing it again undoes it, and the normal rules apply again', async () => {
@@ -160,8 +160,8 @@ describe('thumbs up', () => {
     const id = itemId(growth(1).url);
     thumbsUp(stores, id);
     thumbsUp(stores, id);
-    expect(view(stores).news[0].useful).toBe(false);
-    expect(view(stores, t0 + 30 * DAY).news).toEqual([]);
+    expect(view(stores).data.news[0].useful).toBe(false);
+    expect(view(stores, t0 + 30 * DAY).data.news).toEqual([]);
   });
 
   it('a damaged useful entry is dropped, the rest of the file is kept', () => {
@@ -194,7 +194,7 @@ describe('window state', () => {
     const before = readFileSync(join(dir, 'ui.json'), 'utf8');
     await refreshWith(stores, [growth(1)]);
     expect(readFileSync(join(dir, 'ui.json'), 'utf8')).toBe(before);
-    expect(view(stores).mode).toBe('collapsed');
+    expect(view(stores).ui.mode).toBe('collapsed');
   });
 });
 

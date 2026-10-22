@@ -178,27 +178,37 @@ export interface StatusMessage {
   text: string;
 }
 
-export interface ViewModel {
+/** The data the widget shows: the same for any front end (widget, Expert page, CLI). */
+export interface ExpertData {
+  lastUpdated: number | null;
+  profile: CvProfile | null;
+  employers: EmployerDomainView[];
+  watchlist: WatchlistChip[];
+  news: NewsCard[];
+  sourceHealth: SourceHealthView;
+}
+
+/** How the data is shown right now: theme, window mode, messages, refresh state. */
+export interface UiView {
   mock: boolean;
   /** When set, the UI shows only an error screen with this text. */
   configError: string | null;
   theme: Theme;
-  lastUpdated: number | null;
   refreshing: boolean;
   messages: StatusMessage[];
   cvFolder: string;
   /** Problem with the CV folder or file (none, several, unreadable). */
   cvStatus: StatusMessage | null;
-  profile: CvProfile | null;
-  employers: EmployerDomainView[];
-  watchlist: WatchlistChip[];
-  news: NewsCard[];
   /** Unseen cards in the feed (removed ones are never in it); shown on the collapsed button. */
   unseenCount: number;
-  sourceHealth: SourceHealthView;
   mode: WindowMode;
   /** True once at least one refresh has produced a profile or news. */
   hasData: boolean;
+}
+
+export interface ViewModel {
+  ui: UiView;
+  data: ExpertData;
 }
 
 /** The API the preload script exposes to the renderer as `window.expert`. */

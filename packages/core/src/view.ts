@@ -5,10 +5,12 @@ import {
   DOMAIN_LABELS,
   type DomainWeight,
   type EmployerDomainView,
+  type ExpertData,
   type NewsCard,
   type ProviderStatus,
   type SourceHealthView,
   type StatusMessage,
+  type UiView,
   type ViewModel,
   type WatchlistChip,
 } from './shared/types.js';
@@ -79,26 +81,28 @@ export interface ViewInput {
 
 export function buildView(input: ViewInput): ViewModel {
   const { stores, config } = input;
-  const ui = stores.ui.value;
-  const base: ViewModel = {
+  const uiState = stores.ui.value;
+  const ui: UiView = {
     mock: input.mock,
     configError: input.configError,
-    theme: ui.theme,
-    lastUpdated: stores.feed.value.lastUpdated,
+    theme: uiState.theme,
     refreshing: input.refreshing,
     messages: input.messages,
     cvFolder: input.cvFolder,
     cvStatus: null,
+    unseenCount: 0,
+    mode: uiState.mode,
+    hasData: false,
+  };
+  const data: ExpertData = {
+    lastUpdated: stores.feed.value.lastUpdated,
     profile: null,
     employers: [],
     watchlist: [],
     news: [],
-    unseenCount: 0,
     sourceHealth: { working: 0, total: 0, providers: [] },
-    mode: ui.mode,
-    hasData: false,
   };
-  if (input.configError || !config) return base;
+  if (input.configError || !config) return { ui, data };
 
   const { profile, lastProblem } = stores.profile.value;
   const weights = profile?.weights ?? [];
@@ -121,15 +125,20 @@ export function buildView(input: ViewInput): ViewModel {
   );
 
   return {
-    ...base,
-    cvStatus: lastProblem ? { level: 'warning', text: lastProblem } : null,
-    profile,
-    employers: buildEmployerView(input.employers, weights, visited),
-    watchlist: buildWatchlistView(input.watchlist, news, visited),
-    news,
-    unseenCount: news.filter((n) => n.seenAt === null).length,
-    sourceHealth: buildSourceHealth(providers, stores.health.value),
-    hasData: profile !== null || stores.feed.value.lastUpdated !== null,
+    ui: {
+      ...ui,
+      cvStatus: lastProblem ? { level: 'warning', text: lastProblem } : null,
+      unseenCount: news.filter((n) => n.seenAt === null).length,
+      hasData: profile !== null || stores.feed.value.lastUpdated !== null,
+    },
+    data: {
+      ...data,
+      profile,
+      employers: buildEmployerView(input.employers, weights, visited),
+      watchlist: buildWatchlistView(input.watchlist, news, visited),
+      news,
+      sourceHealth: buildSourceHealth(providers, stores.health.value),
+    },
   };
 }
 

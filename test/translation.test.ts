@@ -117,7 +117,7 @@ describe('translation in Refresh and the view', () => {
     const { t, closed } = fakeTranslator();
     await refresh(stores, t);
     expect(closed()).toBe(1);
-    const card = view(stores).news[0];
+    const card = view(stores).data.news[0];
     expect(card.headline).toBe(item.headline);
     expect(card.translated).toEqual({ headline: `EN: ${item.headline}`, summary: `EN: ${item.excerpt}` });
     // Classification still uses the original German keywords.
@@ -141,7 +141,7 @@ describe('translation in Refresh and the view', () => {
     expect(messages).toEqual([
       { level: 'info', text: 'English translation is not available this time (the translation model is missing (vocab.deen.spm)). Showing the original texts.' },
     ]);
-    expect(view(stores).news[0]).toMatchObject({ headline: item.headline, translated: null });
+    expect(view(stores).data.news[0]).toMatchObject({ headline: item.headline, translated: null });
   });
 
   it('a thumbs-up card saved before translation existed still loads', () => {
@@ -152,7 +152,7 @@ describe('translation in Refresh and the view', () => {
         abc: { id: 'abc', tag: 'hiring_growth', headline: 'Alt', summary: '', url: 'https://example.com/alt', sourceName: 'X', domain: 'all', domainLabel: 'All domains', date: '2026-10-01T00:00:00.000Z', eventDate: null, eventEndDate: null, markedAt: 1 },
       },
     }));
-    expect(view(new AppStores(dir)).news[0]).toMatchObject({ id: 'abc', useful: true, translated: null });
+    expect(view(new AppStores(dir)).data.news[0]).toMatchObject({ id: 'abc', useful: true, translated: null });
   });
 });
 

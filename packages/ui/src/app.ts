@@ -110,14 +110,14 @@ function store(key: string, value: string): void {
 
 function render(): void {
   if (!view) return;
-  document.documentElement.dataset.theme = view.theme;
-  document.documentElement.dataset.mode = view.mode;
+  document.documentElement.dataset.theme = view.ui.theme;
+  document.documentElement.dataset.mode = view.ui.mode;
 
   // Keep scroll position and keyboard focus across re-renders.
   const oldScroll = root.querySelector('.scroll')?.scrollTop ?? 0;
   const focusKey = (document.activeElement as HTMLElement | null)?.dataset?.focusKey;
 
-  if (view.mode === 'collapsed') {
+  if (view.ui.mode === 'collapsed') {
     root.replaceChildren(renderButton(view));
   } else {
     root.replaceChildren(renderHeader(view), renderBody(view), renderUndoBar());
@@ -131,7 +131,7 @@ function render(): void {
 // ---- Collapsed: the floating button ----------------------------------------------------------
 
 function renderButton(v: ViewModel): HTMLElement {
-  const count = v.unseenCount;
+  const count = v.ui.unseenCount;
   const label = `Expert Widget, ${count === 0 ? 'no new items' : `${count} new ${count === 1 ? 'item' : 'items'}`}. Double-click or press Enter to open.`;
   const button = h(
     'button',
@@ -190,11 +190,11 @@ function expand(): void {
 // ---- Expanded: the panel ---------------------------------------------------------------------
 
 function renderHeader(v: ViewModel): HTMLElement {
-  const nextTheme: Theme = v.theme === 'day' ? 'dark' : 'day';
+  const nextTheme: Theme = v.ui.theme === 'day' ? 'dark' : 'day';
   return h(
     'header',
     { class: 'header' },
-    h('div', { class: 'brand' }, h('h1', { class: 'brand-title' }, 'Expert'), v.mock ? h('span', { class: 'mock-badge', title: 'Mock data (npm run dev:mock)' }, 'Mock') : null),
+    h('div', { class: 'brand' }, h('h1', { class: 'brand-title' }, 'Expert'), v.ui.mock ? h('span', { class: 'mock-badge', title: 'Mock data (npm run dev:mock)' }, 'Mock') : null),
     h(
       'button',
       {
@@ -205,12 +205,12 @@ function renderHeader(v: ViewModel): HTMLElement {
         title: nextTheme === 'dark' ? 'Dark mode' : 'Day mode',
         onclick: () => {
           if (!view) return;
-          view = { ...view, theme: nextTheme };
+          view = { ...view, ui: { ...view.ui, theme: nextTheme } };
           render();
           void api.setTheme(nextTheme);
         },
       },
-      icon(v.theme === 'day' ? 'moon' : 'sun'),
+      icon(v.ui.theme === 'day' ? 'moon' : 'sun'),
     ),
     h(
       'button',
@@ -218,14 +218,14 @@ function renderHeader(v: ViewModel): HTMLElement {
         class: 'refresh-button',
         type: 'button',
         'data-focus-key': 'refresh',
-        'aria-busy': v.refreshing ? 'true' : 'false',
+        'aria-busy': v.ui.refreshing ? 'true' : 'false',
         onclick: () => {
-          if (view?.refreshing) return;
+          if (view?.ui.refreshing) return;
           void api.refresh().then(setView);
         },
       },
       icon('refresh'),
-      v.refreshing ? 'Refreshing…' : 'Refresh',
+      v.ui.refreshing ? 'Refreshing…' : 'Refresh',
     ),
     h(
       'button',
@@ -257,13 +257,13 @@ function renderHeader(v: ViewModel): HTMLElement {
 function renderBody(v: ViewModel): HTMLElement {
   const scroll = h('main', { class: 'scroll' });
 
-  if (v.configError) {
+  if (v.ui.configError) {
     scroll.append(
       h(
         'section',
         { class: 'card error-screen', role: 'alert' },
         h('h2', {}, 'Configuration problem'),
-        h('pre', {}, v.configError),
+        h('pre', {}, v.ui.configError),
         h('p', { class: 'muted small' }, 'Fix the file, save it and press Refresh.'),
       ),
     );
@@ -272,14 +272,14 @@ function renderBody(v: ViewModel): HTMLElement {
 
   scroll.append(renderStatus(v));
 
-  if (!v.hasData) {
+  if (!v.ui.hasData) {
     scroll.append(
       h(
         'section',
         { class: 'card empty' },
         h('h2', {}, 'Press Refresh to load'),
         h('p', { class: 'muted' }, 'Put your CV (.pdf, .docx or .txt, German or English) in this folder:'),
-        h('p', { class: 'path' }, v.cvFolder),
+        h('p', { class: 'path' }, v.ui.cvFolder),
       ),
     );
     return scroll;
@@ -291,8 +291,8 @@ function renderBody(v: ViewModel): HTMLElement {
 
 function renderStatus(v: ViewModel): HTMLElement {
   const box = h('div', { class: 'status', role: 'status', 'aria-live': 'polite' });
-  if (v.cvStatus) box.append(h('p', { class: `message ${v.cvStatus.level}` }, v.cvStatus.text));
-  for (const m of v.messages) box.append(h('p', { class: `message ${m.level}` }, m.text));
+  if (v.ui.cvStatus) box.append(h('p', { class: `message ${v.ui.cvStatus.level}` }, v.ui.cvStatus.text));
+  for (const m of v.ui.messages) box.append(h('p', { class: `message ${m.level}` }, m.text));
   return box;
 }
 
@@ -301,13 +301,13 @@ function renderStatus(v: ViewModel): HTMLElement {
  * one-line legend with short names. A click expands it to the full names and the CV file name.
  */
 function renderDomainMix(v: ViewModel): HTMLElement {
-  const weights = v.profile?.weights ?? [];
+  const weights = v.data.profile?.weights ?? [];
   const detailsId = 'mix-details';
   const updated = h(
     'span',
     { class: 'mix-updated' },
     'Updated ',
-    h('strong', { 'data-last-updated': v.lastUpdated ?? '' }, v.lastUpdated ? lastUpdatedLabel(v.lastUpdated, Date.now()) : 'never'),
+    h('strong', { 'data-last-updated': v.data.lastUpdated ?? '' }, v.data.lastUpdated ? lastUpdatedLabel(v.data.lastUpdated, Date.now()) : 'never'),
   );
 
   const toggle = h(
@@ -344,14 +344,14 @@ function renderDomainMix(v: ViewModel): HTMLElement {
   const card = h('section', { class: 'card mix-card', 'aria-labelledby': 'mix-title' }, toggle);
   if (mixOpen) {
     const details = h('div', { class: 'mix-details', id: detailsId });
-    if (weights.length > 0 && v.profile) {
+    if (weights.length > 0 && v.data.profile) {
       const legend = h('ul', { class: 'legend' });
       weights.forEach((w, i) => {
         legend.append(h('li', {}, h('span', { class: `swatch mix-${i + 1}` }), h('span', {}, DOMAIN_LABELS[w.domain]), h('span', { class: 'weight' }, `${w.weight}%`)));
       });
-      details.append(legend, h('p', { class: 'muted small' }, `Based on your CV · ${v.profile.fileName}`));
+      details.append(legend, h('p', { class: 'muted small' }, `Based on your CV · ${v.data.profile.fileName}`));
     } else {
-      details.append(h('p', { class: 'path' }, v.cvFolder));
+      details.append(h('p', { class: 'path' }, v.ui.cvFolder));
     }
     card.append(details);
   }
@@ -360,12 +360,12 @@ function renderDomainMix(v: ViewModel): HTMLElement {
 
 function renderEmployers(v: ViewModel): HTMLElement {
   const section = h('section', { class: 'section', 'aria-labelledby': 'employers-title' }, h('h2', { class: 'section-title', id: 'employers-title' }, 'Employers for you'));
-  if (v.employers.length === 0) {
+  if (v.data.employers.length === 0) {
     section.append(h('p', { class: 'note' }, 'Employers appear once your CV gives a domain mix.'));
     return section;
   }
   // Domains without employers in employers.json are left out (no placeholder note).
-  const listed = v.employers.filter((d) => d.segments.length > 0);
+  const listed = v.data.employers.filter((d) => d.segments.length > 0);
   if (listed.length === 0) return h('div', { hidden: true });
   for (const domain of listed) {
     section.append(h('h3', { class: 'domain-title' }, h('span', {}, domain.label), h('span', {}, `${domain.weight}%`)));
@@ -430,11 +430,11 @@ function renderChip(c: CompanyChip): HTMLElement {
 /** Companies from watchlist.json, whatever the domain mix. */
 function renderWatchlist(v: ViewModel): HTMLElement {
   const section = h('section', { class: 'section', 'aria-labelledby': 'watchlist-title' }, h('h2', { class: 'section-title', id: 'watchlist-title' }, 'Watchlist'));
-  if (v.watchlist.length === 0) {
+  if (v.data.watchlist.length === 0) {
     section.append(h('p', { class: 'note' }, 'Add companies to watchlist.json to keep an eye on them.'));
     return section;
   }
-  section.append(h('div', { class: 'card watch-card' }, h('div', { class: 'chips' }, ...v.watchlist.map((c) => renderWatchChip(c)))));
+  section.append(h('div', { class: 'card watch-card' }, h('div', { class: 'chips' }, ...v.data.watchlist.map((c) => renderWatchChip(c)))));
   return section;
 }
 
@@ -549,7 +549,7 @@ function renderNews(v: ViewModel): HTMLElement {
     renderSourceHealth(v),
   );
 
-  const company = companyFilter ? v.watchlist.find((c) => c.key === companyFilter) : undefined;
+  const company = companyFilter ? v.data.watchlist.find((c) => c.key === companyFilter) : undefined;
   if (company) {
     section.append(
       h(
@@ -572,9 +572,9 @@ function renderNews(v: ViewModel): HTMLElement {
       ),
     );
   }
-  const cards = v.news.filter((n) => tagMatchesFilter(n.tag, filter) && (!company || n.watchlist.some((w) => watchlistKey(w) === company.key)));
+  const cards = v.data.news.filter((n) => tagMatchesFilter(n.tag, filter) && (!company || n.watchlist.some((w) => watchlistKey(w) === company.key)));
   if (cards.length === 0) {
-    const empty = company ? `No news about ${company.name} right now.` : v.news.length === 0 ? 'No news yet. Press Refresh to load.' : 'Nothing in this category right now.';
+    const empty = company ? `No news about ${company.name} right now.` : v.data.news.length === 0 ? 'No news yet. Press Refresh to load.' : 'Nothing in this category right now.';
     section.append(h('p', { class: 'note' }, empty));
     return section;
   }
@@ -590,7 +590,7 @@ const STATUS_LABELS: Record<ProviderHealthView['status'], string> = {
 };
 
 function renderSourceHealth(v: ViewModel): HTMLElement {
-  const { working, total, providers } = v.sourceHealth;
+  const { working, total, providers } = v.data.sourceHealth;
   const attention = providers.some((p) => p.needsAttention);
   const failing = providers.some((p) => p.status === 'failed');
   const summary = total === 0 ? 'Sources: not checked yet' : `Sources: ${working} of ${total} working`;
@@ -768,14 +768,17 @@ function markVisited(key: string): void {
   const now = Date.now();
   view = {
     ...view,
-    employers: view.employers.map((d) => ({
+    data: {
+    ...view.data,
+    employers: view.data.employers.map((d) => ({
       ...d,
       segments: d.segments.map((s) => ({
         ...s,
         companies: orderCompanies(s.companies.map((c) => (c.key === key ? { ...c, visitedAt: now } : c))),
       })),
     })),
-    watchlist: orderCompanies(view.watchlist.map((c) => (c.key === key ? { ...c, visitedAt: now } : c))),
+    watchlist: orderCompanies(view.data.watchlist.map((c) => (c.key === key ? { ...c, visitedAt: now } : c))),
+    },
   };
   render();
   void api.markVisited(key);
@@ -784,7 +787,7 @@ function markVisited(key: string): void {
 function markSeen(id: string): void {
   if (!view) return;
   const now = Date.now();
-  const news = orderNews(view.news.map((n) => (n.id === id && n.seenAt === null ? { ...n, seenAt: now } : n)));
+  const news = orderNews(view.data.news.map((n) => (n.id === id && n.seenAt === null ? { ...n, seenAt: now } : n)));
   view = withNews(view, news);
   render();
   void api.markSeen(id);
@@ -793,8 +796,8 @@ function markSeen(id: string): void {
 function removeNews(id: string): void {
   if (!view) return;
   // Keep keyboard focus in the list: move it to the next card's link (or the filters).
-  const index = view.news.findIndex((n) => n.id === id);
-  const news = view.news.filter((n) => n.id !== id);
+  const index = view.data.news.findIndex((n) => n.id === id);
+  const news = view.data.news.filter((n) => n.id !== id);
   const next = news[Math.min(index, news.length - 1)];
   view = withNews(view, news);
   clearUndo();
@@ -810,8 +813,8 @@ function removeNews(id: string): void {
 /** The view with a changed news list, and the counts that depend on it brought up to date. */
 function withNews(v: ViewModel, news: NewsCard[]): ViewModel {
   const unseen = news.filter((n) => n.seenAt === null);
-  const watchlist = v.watchlist.map((c) => ({ ...c, newsCount: unseen.filter((n) => n.watchlist.some((w) => watchlistKey(w) === c.key)).length }));
-  return { ...v, news, watchlist, unseenCount: unseen.length };
+  const watchlist = v.data.watchlist.map((c) => ({ ...c, newsCount: unseen.filter((n) => n.watchlist.some((w) => watchlistKey(w) === c.key)).length }));
+  return { ui: { ...v.ui, unseenCount: unseen.length }, data: { ...v.data, news, watchlist } };
 }
 
 function clearUndo(): void {
@@ -821,7 +824,7 @@ function clearUndo(): void {
 
 function toggleUseful(id: string): void {
   if (!view) return;
-  view = { ...view, news: view.news.map((n) => (n.id === id ? { ...n, useful: !n.useful } : n)) };
+  view = { ...view, data: { ...view.data, news: view.data.news.map((n) => (n.id === id ? { ...n, useful: !n.useful } : n)) } };
   render();
   void api.toggleUseful(id).then(setView);
 }

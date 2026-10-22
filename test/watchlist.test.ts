@@ -149,7 +149,7 @@ async function refreshAll(stores: AppStores, list: readonly WatchlistEntry[] = w
 describe('watchlist in the news feed', () => {
   it('labels matching cards, shows them first and outside the domain mix', async () => {
     const view = (await refreshAll(new AppStores(dir)))();
-    const headlines = view.news.map((n) => [n.headline, n.tag, n.watchlist]);
+    const headlines = view.data.news.map((n) => [n.headline, n.tag, n.watchlist]);
     expect(headlines).toEqual([
       ['CELUS schafft 40 neue Stellen in München', 'hiring_growth', ['CELUS']],
       ['Medizintechnik: Valispace expandiert in die Medizintechnik und schafft neue Stellen', 'hiring_growth', ['Valispace']],
@@ -163,17 +163,17 @@ describe('watchlist in the news feed', () => {
 
   it('shows a company event with its date, or "date to be confirmed"', async () => {
     const view = (await refreshAll(new AppStores(dir)))();
-    const fair = view.news.find((n) => n.headline.startsWith('Startup-Karrieretag'));
-    const webinar = view.news.find((n) => n.headline.startsWith('Webinar'));
+    const fair = view.data.news.find((n) => n.headline.startsWith('Startup-Karrieretag'));
+    const webinar = view.data.news.find((n) => n.headline.startsWith('Webinar'));
     expect([fair?.eventDate, webinar?.eventDate]).toEqual(['2026-10-20', null]);
   });
 
   it('counts new cards per company, and the count drops once a card is seen', async () => {
     const stores = new AppStores(dir);
     const view = await refreshAll(stores);
-    expect(view().watchlist.map((c) => [c.name, c.newsCount])).toEqual([['CELUS', 2], ['Valispace', 2], ['Hefex Labs', 1]]);
+    expect(view().data.watchlist.map((c) => [c.name, c.newsCount])).toEqual([['CELUS', 2], ['Valispace', 2], ['Hefex Labs', 1]]);
     stores.interactions.update((s) => ({ ...s, seen: { [itemId('https://example.de/news/2')]: t0 } }));
-    expect(view().watchlist.find((c) => c.name === 'CELUS')?.newsCount).toBe(1);
+    expect(view().data.watchlist.find((c) => c.name === 'CELUS')?.newsCount).toBe(1);
   });
 
   it('follows edits to watchlist.json without a new search', async () => {
@@ -181,26 +181,26 @@ describe('watchlist in the news feed', () => {
     const view = await refreshAll(stores);
     const withoutCelus = watchlist.filter((w) => w.name !== 'CELUS');
     const after = view(withoutCelus);
-    expect(after.watchlist.map((c) => c.name)).toEqual(['Valispace', 'Hefex Labs']);
-    expect(after.news.find((n) => n.headline.startsWith('CELUS'))?.watchlist).toEqual([]);
+    expect(after.data.watchlist.map((c) => c.name)).toEqual(['Valispace', 'Hefex Labs']);
+    expect(after.data.news.find((n) => n.headline.startsWith('CELUS'))?.watchlist).toEqual([]);
   });
 });
 
 describe('watchlist chips', () => {
   it('has no link until a website is filled in', async () => {
     const view = (await refreshAll(new AppStores(dir)))();
-    expect(view.watchlist.map((c) => c.website)).toEqual(['https://www.celus.io/about', 'https://www.valispace.com', null]);
+    expect(view.data.watchlist.map((c) => c.website)).toEqual(['https://www.celus.io/about', 'https://www.valispace.com', null]);
   });
 
   it('moves a visited company to the end, apart from an employer of the same name', async () => {
     const stores = new AppStores(dir);
     const view = await refreshAll(stores);
     stores.interactions.update((s) => ({ ...s, visited: { [watchlistKey('CELUS')]: t0, celus: t0 } }));
-    const chips = view().watchlist;
+    const chips = view().data.watchlist;
     expect(chips.map((c) => [c.name, c.visitedAt])).toEqual([['Valispace', null], ['Hefex Labs', null], ['CELUS', t0]]);
 
     stores.interactions.update((s) => ({ ...s, visited: { celus: t0 } }));
-    expect(view().watchlist[0]).toMatchObject({ name: 'CELUS', visitedAt: null });
+    expect(view().data.watchlist[0]).toMatchObject({ name: 'CELUS', visitedAt: null });
   });
 });
 

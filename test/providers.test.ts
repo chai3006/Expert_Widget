@@ -328,7 +328,7 @@ describe('layers', () => {
     // Build the view against the default config's provider list, using the fake ids' caches.
     stores.feed.update((f) => ({ ...f, sources: { 'ingenieur-wirtschaft': f.sources.feed, gdelt: f.sources.gdelt } }));
     const v = buildView({ mock: false, config, employers: defaultEmployers(), watchlist: [], configError: null, stores, cvFolder: dir, messages: [], refreshing: false, now: t(10) });
-    const matching = v.news.filter((n) => n.headline === 'Autobauer: neues Werk schafft Arbeitsplätze');
+    const matching = v.data.news.filter((n) => n.headline === 'Autobauer: neues Werk schafft Arbeitsplätze');
     expect(matching).toHaveLength(1);
     expect(matching[0].sourceName).toBe('Feed');
   });
@@ -361,12 +361,12 @@ describe('source health', () => {
     const view = () => buildView({ mock: false, config, employers: [], watchlist: [], configError: null, stores, cvFolder: dir, messages: [], refreshing: false, now: t(12) });
     await refresh(stores, failing, 10);
     await refresh(stores, failing, 11);
-    expect(view().sourceHealth.providers.find((p) => p.id === 'ingenieur-wirtschaft')?.needsAttention).toBe(false);
+    expect(view().data.sourceHealth.providers.find((p) => p.id === 'ingenieur-wirtschaft')?.needsAttention).toBe(false);
     await refresh(stores, failing, 12);
-    const p = view().sourceHealth.providers.find((x) => x.id === 'ingenieur-wirtschaft');
+    const p = view().data.sourceHealth.providers.find((x) => x.id === 'ingenieur-wirtschaft');
     expect(p).toMatchObject({ status: 'failed', needsAttention: true, detail: 'the page layout may have changed' });
     await refresh(stores, [fake('ingenieur-wirtschaft', 1, () => [item('https://example.com/ok')])], 13);
-    expect(view().sourceHealth.providers.find((x) => x.id === 'ingenieur-wirtschaft')).toMatchObject({ status: 'ok', needsAttention: false });
+    expect(view().data.sourceHealth.providers.find((x) => x.id === 'ingenieur-wirtschaft')).toMatchObject({ status: 'ok', needsAttention: false });
   });
 
   it('summarises as "N of M working", counting only providers that have run', async () => {
@@ -377,16 +377,16 @@ describe('source health', () => {
       ids.map((id, i) => fake(id, id === 'gdelt' ? 2 : 1, () => (i === 0 ? new Error('HTTP 500') : [item(`https://example.com/${id}`, { queryDomain: 'automotive-emobility' })]))),
     );
     const v = buildView({ mock: false, config, employers: [], watchlist: [], configError: null, stores, cvFolder: dir, messages: [], refreshing: false, now: t(10) });
-    expect(v.sourceHealth.total).toBe(ids.length);
-    expect(v.sourceHealth.working).toBe(ids.length - 1);
-    expect(v.sourceHealth.providers.map((p) => p.id)).toEqual(ids);
+    expect(v.data.sourceHealth.total).toBe(ids.length);
+    expect(v.data.sourceHealth.working).toBe(ids.length - 1);
+    expect(v.data.sourceHealth.providers.map((p) => p.id)).toEqual(ids);
   });
 
   it('shows providers that have not run yet as unchecked', () => {
     const stores = new AppStores(dir);
     const v = buildView({ mock: false, config, employers: [], watchlist: [], configError: null, stores, cvFolder: dir, messages: [], refreshing: false, now: t(10) });
-    expect(v.sourceHealth.total).toBe(0);
-    expect(v.sourceHealth.providers.every((p) => p.status === 'unchecked')).toBe(true);
+    expect(v.data.sourceHealth.total).toBe(0);
+    expect(v.data.sourceHealth.providers.every((p) => p.status === 'unchecked')).toBe(true);
   });
 
   it('does not count an offline Refresh against the providers', async () => {
