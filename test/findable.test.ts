@@ -10,7 +10,9 @@ import {
   autostartLabel,
   hotkeyLabel,
   hotkeyMenuNote,
+  hideAction,
   isValidHotkey,
+  platformHotkey,
   onCloseRequest,
   secondInstanceAction,
   shouldApplyAutostartDefault,
@@ -117,9 +119,19 @@ describe('global hotkey', () => {
     expect(isValidHotkey('Ctrl+Alt+Enterprise')).toBe(false);
   });
 
-  it('is CommandOrControl+Alt+E by default, configurable, and "" switches it off', () => {
+  // Changed on purpose (Phase 7): the bundled config says "default", which is Ctrl+Alt+E on
+  // Windows and Linux and Control+Option+E on a Mac (Cmd+Option+E is taken by Safari).
+  it('is the platform default by default, configurable, and "" switches it off', () => {
     const raw = defaultConfigJson();
-    expect(raw.hotkey).toBe('CommandOrControl+Alt+E');
+    expect(raw.hotkey).toBe('default');
+    expect(platformHotkey('default', 'win32')).toBe('CommandOrControl+Alt+E');
+    expect(platformHotkey('default', 'linux')).toBe('CommandOrControl+Alt+E');
+    expect(platformHotkey('default', 'darwin')).toBe('Control+Option+E');
+    expect(platformHotkey('Ctrl+Shift+X', 'darwin')).toBe('Ctrl+Shift+X');
+    expect(isValidHotkey('Control+Option+E')).toBe(true);
+    expect(hideAction('linux')).toBe('collapse');
+    expect(hideAction('win32')).toBe('hide');
+    expect(hideAction('darwin')).toBe('hide');
     const ok = validateConfig({ ...raw, hotkey: 'Ctrl+Shift+X' }, appData());
     expect(ok.ok && ok.value.hotkey).toBe('Ctrl+Shift+X');
     const off = validateConfig({ ...raw, hotkey: '' }, appData());

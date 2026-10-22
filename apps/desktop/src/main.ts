@@ -20,6 +20,8 @@ import { FileStores } from '../../../packages/node/src/state/fileStores.js';
 import { ensureUserFiles, loadInputs, resolveHome, userFiles, type LoadedFiles } from '../../../packages/node/src/userFiles.js';
 import {
   AUTOSTART_FLAG,
+  hideAction,
+  platformHotkey,
   autostartLabel,
   hotkeyLabel,
   hotkeyMenuNote,
@@ -258,6 +260,13 @@ function createWindow(): void {
     event.preventDefault();
     openExternalSafe(url);
   });
+  if (MAC) {
+    // Above normal windows and on every Space, like a menu-bar utility (untested on a Mac).
+    win.setAlwaysOnTop(true, 'floating');
+    win.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
+  }
+  // Right-click on the widget opens the tray menu: the way to Quit where no tray icon shows.
+  win.webContents.on('context-menu', () => buildTrayMenu().popup({ window: win ?? undefined }));
   win.once('ready-to-show', () => win?.show());
   // X, Alt+F4 and the taskbar only hide the widget; only Quit in the tray menu exits.
   win.on('close', (event) => {
@@ -346,7 +355,7 @@ let hotkey: HotkeyState = { status: 'off' };
 /** (Re-)registers the show/hide hotkey from config.json; a taken hotkey only adds a tray note. */
 function registerHotkey(): void {
   const inputs = engine.current;
-  const wanted = inputs.ok ? inputs.config.hotkey : DEFAULT_HOTKEY;
+  const wanted = platformHotkey(inputs.ok ? inputs.config.hotkey : DEFAULT_HOTKEY, process.platform);
   // Unchanged and working: nothing to do. A taken hotkey is tried again on every Refresh.
   if (hotkey.status === 'active' && hotkey.hotkey === wanted) return;
   globalShortcut.unregisterAll();
@@ -442,7 +451,9 @@ function buildTrayMenu(): Menu {
 }
 
 function createTray(): void {
-  const image = nativeImage.createFromPath(join(appRoot(), 'assets', 'tray.png'));
+  // macOS: a black "template" image that the system recolours for light and dark menu bars.
+  const image = nativeImage.createFromPath(join(appRoot(), 'assets', MAC ? 'trayTemplate.png' : 'tray.png'));
+  if (MAC) image.setTemplateImage(true);
   tray = new Tray(image);
   tray.setToolTip(MOCK ? 'Expert Widget (mock data)' : 'Expert Widget');
   // Right-click opens the menu (Windows shows a context menu only on right-click);
@@ -534,7 +545,10 @@ function registerIpc(): void {
     if (theme !== 'day' && theme !== 'dark') return;
     stores.ui.update((ui) => ({ ...ui, theme }));
   });
-  handle('window:hide', () => win?.hide());
+  handle('window:hide', () => {
+    if (hideAction(process.platform) === 'collapse') setMode('collapsed');
+    else win?.hide();
+  });
   handle('window:mode', (mode) => {
     if (mode === 'collapsed' || mode === 'expanded') setMode(mode);
   });

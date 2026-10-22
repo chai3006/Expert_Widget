@@ -16,6 +16,25 @@ export function autostartLabel(_platform: NodeJS.Platform): string {
   return 'Start at login';
 }
 
+/**
+ * The show/hide hotkey when config.json says "default" (or nothing): Ctrl+Alt+E on Windows and
+ * Linux. On a Mac, Cmd+Option+E is taken by Safari (Empty Caches), so Control+Option+E is used.
+ * Untested on macOS and Linux. On Linux under Wayland, global hotkeys depend on the desktop and may
+ * not work at all; the widget runs under XWayland for that reason (see LINUX_SWITCHES in main.ts).
+ */
+export function platformHotkey(value: string, platform: NodeJS.Platform): string {
+  if (value !== 'default') return value;
+  return platform === 'darwin' ? 'Control+Option+E' : 'CommandOrControl+Alt+E';
+}
+
+/**
+ * Linux desktops without a tray (GNOME without the AppIndicator extension) would leave a hidden
+ * widget unreachable, so on Linux the X button collapses to the round button instead of hiding.
+ */
+export function hideAction(platform: NodeJS.Platform): 'hide' | 'collapse' {
+  return platform === 'linux' ? 'collapse' : 'hide';
+}
+
 /** A hotkey as the user knows it: "CommandOrControl+Alt+E" is "Ctrl+Alt+E" on Windows, "Cmd+Option+E" on a Mac. */
 export function hotkeyLabel(hotkey: string, platform: NodeJS.Platform): string {
   const mac = platform === 'darwin';

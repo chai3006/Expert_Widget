@@ -2,7 +2,7 @@
   "cvFolder": "",
   "newsMaxAgeDays": 7,
   "maxItemsPerTag": 12,
-  "hotkey": "CommandOrControl+Alt+E",
+  "hotkey": "default",
   "cvAnalysis": {
     "halfLifeYears": 5,
     "currentRoleBoost": 1.5,

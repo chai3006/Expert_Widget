@@ -51,7 +51,7 @@ export interface AppConfig {
   cvAnalysis: CvAnalysisConfig;
   newsMaxAgeDays: number;
   maxItemsPerTag: number;
-  /** Global show/hide hotkey, e.g. "CommandOrControl+Alt+E"; "" switches it off. */
+  /** Global show/hide hotkey, e.g. "CommandOrControl+Alt+E"; "default" for the platform's default; "" switches it off. */
   hotkey: string;
   sources: SourceConfig[];
   /** Search providers (layers 2 and 3). */
@@ -197,8 +197,8 @@ export function validateConfig(raw: unknown, data: AppData): Validated<AppConfig
   }
 
   const hotkey = raw.hotkey ?? DEFAULT_HOTKEY;
-  if (typeof hotkey !== 'string' || (hotkey.trim() !== '' && !isValidHotkey(hotkey.trim()))) {
-    errors.push('hotkey: must be a key combination like "CommandOrControl+Alt+E" (modifiers CommandOrControl, Ctrl, Alt, Shift, Cmd, then one key), or "" for none');
+  if (typeof hotkey !== 'string' || (hotkey.trim() !== '' && hotkey.trim() !== 'default' && !isValidHotkey(hotkey.trim()))) {
+    errors.push('hotkey: must be a key combination like "CommandOrControl+Alt+E" (modifiers CommandOrControl, Ctrl, Alt, Shift, Cmd, then one key), "default", or "" for none');
   }
 
   // Built-in sources from data/sources.json. In config.json, an entry with a built-in id can only

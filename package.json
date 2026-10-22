@@ -65,17 +65,14 @@
     "mac": {
       "target": [
         {
-          "target": "dmg",
-          "arch": [
-            "arm64",
-            "x64"
-          ]
+          "target": "dmg"
         }
       ],
       "icon": "build/icon.png",
       "category": "public.app-category.productivity",
       "extendInfo": {
-        "LSUIElement": true
+        "LSUIElement": true,
+        "NSDocumentsFolderUsageDescription": "Expert reads your CV from the ExpertWidget folder in Documents. The CV stays on this computer."
       }
     },
     "linux": {

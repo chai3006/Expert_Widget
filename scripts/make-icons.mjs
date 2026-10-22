@@ -23,7 +23,17 @@ function shade(x, y) {
   return TEAL;
 }
 
-function render(size) {
+/**
+ * macOS menu bar "template" icon: only the letter, black on transparent. macOS recolours template
+ * images for light and dark menu bars (the file name must end in Template).
+ */
+function templateShade(x, y) {
+  const inStem = x >= 0.2 && x <= 0.38 && y >= 0.12 && y <= 0.88;
+  const bar = (top, right) => x >= 0.2 && x <= right && y >= top && y <= top + 0.16;
+  return inStem || bar(0.12, 0.8) || bar(0.42, 0.72) || bar(0.72, 0.8) ? [0, 0, 0] : null;
+}
+
+function render(size, shadeAt = shade) {
   const ss = 4; // supersampling for smooth edges
   const raw = Buffer.alloc(size * (size * 4 + 1));
   for (let py = 0; py < size; py++) {
@@ -32,7 +42,7 @@ function render(size) {
       let r = 0, g = 0, b = 0, a = 0;
       for (let sy = 0; sy < ss; sy++) {
         for (let sx = 0; sx < ss; sx++) {
-          const c = shade((px + (sx + 0.5) / ss) / size, (py + (sy + 0.5) / ss) / size);
+          const c = shadeAt((px + (sx + 0.5) / ss) / size, (py + (sy + 0.5) / ss) / size);
           if (c) {
             r += c[0];
             g += c[1];
@@ -91,10 +101,13 @@ const outputs = {
   'assets/icon.png': 256,
   'assets/tray.png': 16,
   'assets/tray@2x.png': 32,
+  'assets/trayTemplate.png': [16, templateShade],
+  'assets/trayTemplate@2x.png': [32, templateShade],
 };
-for (const [file, size] of Object.entries(outputs)) {
+for (const [file, spec] of Object.entries(outputs)) {
+  const [size, shadeAt] = Array.isArray(spec) ? spec : [spec, shade];
   const path = join(root, file);
   mkdirSync(dirname(path), { recursive: true });
-  writeFileSync(path, render(size));
+  writeFileSync(path, render(size, shadeAt));
   console.log(`wrote ${file} (${size}x${size})`);
 }
