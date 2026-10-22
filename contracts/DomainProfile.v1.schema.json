@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:expert:contracts:DomainProfile:1",
+  "title": "DomainProfile",
+  "description": "The domain mix derived from one CV on the user's computer. Contains only derived weights and short evidence labels (terms from the domain registry plus dates), never CV text or the file name. This is the only CV-derived data an integration may send to a server, and only with the user's opt-in.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "source", "weights", "evidence", "computedAt", "notice"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "source": {
+      "description": "auto: computed from the CV. manual: set by the user. fallback: nothing usable was found, so the general domain is used.",
+      "enum": ["auto", "manual", "fallback"]
+    },
+    "weights": {
+      "description": "At most 4 domains, whole-number percentages that sum to 100, highest first.",
+      "type": "array",
+      "maxItems": 4,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["domain", "label", "weight"],
+        "properties": {
+          "domain": { "$ref": "#/$defs/domainId" },
+          "label": { "type": "string", "minLength": 1 },
+          "weight": { "type": "integer", "minimum": 1, "maximum": 100 }
+        }
+      }
+    },
+    "evidence": {
+      "description": "Why each domain is in the mix, strongest first, at most 3 per domain.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["domain", "label", "kind", "period", "current"],
+        "properties": {
+          "domain": { "$ref": "#/$defs/domainId" },
+          "label": { "type": "string", "minLength": 1, "maxLength": 80, "description": "A term from the domain registry, e.g. \"Pflegefachkraft\"." },
+          "kind": { "enum": ["title", "education", "certification", "skill", "keyword"] },
+          "period": { "type": ["string", "null"], "maxLength": 40, "description": "e.g. \"2021 to now\", or null when the CV gives no dates." },
+          "current": { "type": "boolean", "description": "True for the current or most recent role." }
+        }
+      }
+    },
+    "computedAt": { "type": ["integer", "null"], "description": "Epoch milliseconds." },
+    "notice": { "type": ["string", "null"], "description": "Plain-language note for fallback profiles (why the general domain is used)." }
+  },
+  "$defs": {
+    "domainId": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$" }
+  }
+}

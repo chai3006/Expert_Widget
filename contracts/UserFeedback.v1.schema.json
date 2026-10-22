@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:expert:contracts:UserFeedback:1",
+  "title": "UserFeedback",
+  "description": "One user action on a news item or company. Stored on the user's computer.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "action", "target"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "action": {
+      "description": "seen: a news item was opened. visited: a career page or watchlist site was opened. useful: thumbs up (again to undo). not-useful: thumbs down (hides the item for good). undo-not-useful: undoes a thumbs down.",
+      "enum": ["seen", "visited", "useful", "not-useful", "undo-not-useful"]
+    },
+    "target": { "type": "string", "minLength": 1, "maxLength": 300, "description": "News item id, or company key for visited." }
+  }
+}

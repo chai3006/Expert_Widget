@@ -82,12 +82,26 @@ export interface DomainWeight {
   weight: number;
 }
 
+/** One reason a domain is in the mix (see contracts/DomainProfile). Labels are registry terms, never CV text. */
+export interface DomainEvidenceView {
+  domain: DomainId;
+  label: string;
+  kind: 'title' | 'education' | 'certification' | 'skill' | 'keyword';
+  period: string | null;
+  current: boolean;
+}
+
 /** The only thing stored about the CV: never the text itself. */
 export interface CvProfile {
   fileName: string;
   modifiedMs: number;
   weights: DomainWeight[];
   computedAt: number;
+  /** auto (computed), manual (set by the user) or fallback (general domain). Missing means auto. */
+  source?: 'auto' | 'manual' | 'fallback';
+  evidence?: DomainEvidenceView[];
+  /** Plain-language note for a fallback profile. */
+  notice?: string | null;
 }
 
 export interface CompanyChip {
@@ -143,6 +157,8 @@ export interface NewsCard {
   translated: { headline: string | null; summary: string | null } | null;
   /** Watchlist companies the card mentions; such cards come first and skip the domain mix. */
   watchlist: string[];
+  /** Watchlist and employer-directory companies the card names (for company signals). */
+  companies?: string[];
 }
 
 export type WindowMode = 'collapsed' | 'expanded';

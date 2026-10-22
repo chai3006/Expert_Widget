@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:expert:contracts:CompanySignal:1",
+  "title": "CompanySignal",
+  "description": "A hiring, funding or career-fair signal about a named company, for scoring systems. Built from news items that name a watchlist or directory company.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "company", "tag", "date", "url", "domain", "source"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "company": { "type": "string", "minLength": 1 },
+    "tag": { "enum": ["hiring_growth", "hiring_cuts", "funded_startup", "career_fair"] },
+    "date": { "type": "string", "format": "date-time" },
+    "url": { "type": "string", "pattern": "^https?://" },
+    "domain": { "type": "string", "pattern": "^(all|[a-z0-9]+(-[a-z0-9]+)*)$" },
+    "source": { "type": "string", "minLength": 1 }
+  }
+}

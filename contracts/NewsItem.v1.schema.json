@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:expert:contracts:NewsItem:1",
+  "title": "NewsItem",
+  "description": "One card of the news feed. Only the headline, a short excerpt (or a summary written by the code), date, source and link are kept; the item links out to the source.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "id", "tag", "headline", "summary", "url", "source", "domain", "date", "eventDate", "eventEndDate", "translated", "companies", "seen", "useful"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "id": { "type": "string", "pattern": "^[0-9a-f]{16}$" },
+    "tag": { "enum": ["hiring_growth", "hiring_cuts", "funded_startup", "career_fair"] },
+    "headline": { "type": "string", "minLength": 1 },
+    "summary": { "type": "string", "maxLength": 400 },
+    "url": { "type": "string", "pattern": "^https?://" },
+    "source": { "type": "string", "minLength": 1 },
+    "domain": { "type": "string", "pattern": "^(all|[a-z0-9]+(-[a-z0-9]+)*)$" },
+    "date": { "type": "string", "format": "date-time" },
+    "eventDate": { "type": ["string", "null"], "pattern": "^\\d{4}-\\d{2}-\\d{2}$" },
+    "eventEndDate": { "type": ["string", "null"], "pattern": "^\\d{4}-\\d{2}-\\d{2}$" },
+    "translated": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "required": ["headline", "summary"],
+      "properties": { "headline": { "type": ["string", "null"] }, "summary": { "type": ["string", "null"] } }
+    },
+    "companies": { "type": "array", "items": { "type": "string" }, "description": "Watchlist or directory companies the item names." },
+    "seen": { "type": "boolean" },
+    "useful": { "type": "boolean" }
+  }
+}
