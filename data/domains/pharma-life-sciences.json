@@ -1,0 +1,244 @@
+{
+  "schemaVersion": 1,
+  "id": "pharma-life-sciences",
+  "order": 150,
+  "sector": "health",
+  "label": {
+    "de": "Pharma & Life Sciences",
+    "en": "Pharma & life sciences"
+  },
+  "shortLabel": {
+    "de": "Pharma",
+    "en": "Pharma"
+  },
+  "description": "Pharmaceutical companies, biotechnology, laboratories, pharmacies and clinical research.",
+  "keywords": [
+    {
+      "term": "Pharma",
+      "weight": 2
+    },
+    {
+      "term": "pharmaceutical",
+      "weight": 1
+    },
+    {
+      "term": "Pharmazie",
+      "weight": 1
+    },
+    {
+      "term": "pharmacy",
+      "weight": 1
+    },
+    {
+      "term": "Arzneimittel",
+      "weight": 1
+    },
+    {
+      "term": "medicinal products",
+      "weight": 1
+    },
+    {
+      "term": "Wirkstoff",
+      "weight": 1
+    },
+    {
+      "term": "active ingredient",
+      "weight": 1
+    },
+    {
+      "term": "GMP",
+      "weight": 2
+    },
+    {
+      "term": "GLP",
+      "weight": 1
+    },
+    {
+      "term": "GCP",
+      "weight": 1
+    },
+    {
+      "term": "klinische Studie",
+      "weight": 1
+    },
+    {
+      "term": "clinical trial",
+      "weight": 1
+    },
+    {
+      "term": "clinical research",
+      "weight": 1
+    },
+    {
+      "term": "Zulassung",
+      "weight": 1
+    },
+    {
+      "term": "regulatory affairs",
+      "weight": 1
+    },
+    {
+      "term": "Pharmakovigilanz",
+      "weight": 1
+    },
+    {
+      "term": "pharmacovigilance",
+      "weight": 1
+    },
+    {
+      "term": "Biotechnologie",
+      "weight": 1
+    },
+    {
+      "term": "biotechnology",
+      "weight": 1
+    },
+    {
+      "term": "Biotech",
+      "weight": 1
+    },
+    {
+      "term": "Life Sciences",
+      "weight": 1
+    },
+    {
+      "term": "Molekularbiologie",
+      "weight": 1
+    },
+    {
+      "term": "molecular biology",
+      "weight": 1
+    },
+    {
+      "term": "Zellkultur",
+      "weight": 1
+    },
+    {
+      "term": "cell culture",
+      "weight": 1
+    },
+    {
+      "term": "PCR",
+      "weight": 1
+    },
+    {
+      "term": "Labor",
+      "weight": 1
+    },
+    {
+      "term": "laboratory",
+      "weight": 1
+    },
+    {
+      "term": "HPLC",
+      "weight": 1
+    },
+    {
+      "term": "Analytik",
+      "weight": 1
+    },
+    {
+      "term": "analytical chemistry",
+      "weight": 1
+    },
+    {
+      "term": "Apotheke",
+      "weight": 1
+    },
+    {
+      "term": "Impfstoff",
+      "weight": 1
+    },
+    {
+      "term": "vaccine",
+      "weight": 1
+    },
+    {
+      "term": "Biologika",
+      "weight": 1
+    },
+    {
+      "term": "biologics",
+      "weight": 1
+    },
+    {
+      "term": "Antikörper",
+      "weight": 1
+    },
+    {
+      "term": "antibody",
+      "weight": 1
+    },
+    {
+      "term": "Bioinformatik",
+      "weight": 1
+    },
+    {
+      "term": "bioinformatics",
+      "weight": 1
+    },
+    {
+      "term": "Arzneimittelherstellung",
+      "weight": 1
+    },
+    {
+      "term": "drug development",
+      "weight": 1
+    },
+    {
+      "term": "Wirkstoffentwicklung",
+      "weight": 1
+    },
+    {
+      "term": "drug discovery",
+      "weight": 1
+    }
+  ],
+  "titles": [
+    "Pharmazeut",
+    "pharmacist",
+    "Apotheker",
+    "Apothekerin",
+    "PTA",
+    "Pharmazeutisch-technischer Assistent",
+    "Pharmazeutisch-technische Assistentin",
+    "Biologe",
+    "Biologin",
+    "biologist",
+    "Biotechnologe",
+    "biotechnologist",
+    "Laborant",
+    "Laborantin",
+    "Biologielaborant",
+    "Chemielaborant",
+    "lab technician",
+    "laboratory technician",
+    "Clinical Research Associate",
+    "Regulatory Affairs Manager",
+    "Pharmareferent",
+    "Pharmaberater",
+    "Medical Science Liaison",
+    "Biochemiker",
+    "biochemist",
+    "Pharmakant",
+    "Studienkoordinator",
+    "study coordinator"
+  ],
+  "education": [
+    "Pharmazie",
+    "Biotechnologie",
+    "biotechnology",
+    "Biologie",
+    "biology",
+    "Biochemie",
+    "biochemistry",
+    "Molekularbiologie",
+    "Life Sciences",
+    "Pharmazeutische Technologie",
+    "Approbation als Apotheker",
+    "Biologielaborant",
+    "Chemielaborant",
+    "GMP-Schulung",
+    "Pharmakant"
+  ]
+}

@@ -1,12 +1,27 @@
-// Turns CV text into a domain mix. `CvProfiler` is the seam for a future AI-based profiler; the
-// rule-based implementation below scores keyword hits from config.json.
+// The profiler seam and the shared domain-mix arithmetic. RuleBasedCvProfiler is the original
+// keyword-only profiler (kept for comparison and tests); the app uses StructuredCvProfiler.
 
+import type { DomainEvidence } from '../contracts.js';
 import type { DomainId, DomainWeight } from '../shared/types.js';
 import { KeywordMatcher, foldText } from '../text/keywords.js';
 
+/** The full result of a profiler: weights plus why (evidence) and whether it is a fallback. */
+export interface ProfileAnalysis {
+  weights: DomainWeight[];
+  evidence: DomainEvidence[];
+  source: 'auto' | 'fallback';
+  notice: string | null;
+}
+
+/**
+ * Turns CV text into a domain mix. This is the seam for other profilers (for example an optional
+ * local-model profiler, see docs/AI_PROFILER_DESIGN.md); none of them may store or send the text.
+ */
 export interface CvProfiler {
   /** Returns at most 4 domains with whole-number weights summing to 100, highest first. Empty if nothing matched. */
   computeWeights(cvText: string): Promise<DomainWeight[]>;
+  /** Weights with evidence. Profilers that only weigh leave this out. */
+  analyse?(cvText: string): ProfileAnalysis;
 }
 
 export const MIN_SHARE_PERCENT = 5;

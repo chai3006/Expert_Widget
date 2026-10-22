@@ -1,0 +1,131 @@
+{
+  "schemaVersion": 1,
+  "id": "rail-transport",
+  "order": 90,
+  "sector": "industry",
+  "label": {
+    "de": "Bahn & Verkehr",
+    "en": "Rail & transport"
+  },
+  "shortLabel": {
+    "de": "Bahn",
+    "en": "Rail"
+  },
+  "description": "Railways, rolling stock, signalling, public transport and traffic engineering.",
+  "keywords": [
+    {
+      "term": "Bahntechnik",
+      "weight": 1
+    },
+    {
+      "term": "railway",
+      "weight": 1
+    },
+    {
+      "term": "rail",
+      "weight": 1
+    },
+    {
+      "term": "Schienenfahrzeug",
+      "weight": 1
+    },
+    {
+      "term": "rolling stock",
+      "weight": 1
+    },
+    {
+      "term": "Eisenbahn",
+      "weight": 1
+    },
+    {
+      "term": "Zugsicherung",
+      "weight": 1
+    },
+    {
+      "term": "train control",
+      "weight": 1
+    },
+    {
+      "term": "ETCS",
+      "weight": 1
+    },
+    {
+      "term": "CBTC",
+      "weight": 1
+    },
+    {
+      "term": "Stellwerk",
+      "weight": 1
+    },
+    {
+      "term": "interlocking",
+      "weight": 1
+    },
+    {
+      "term": "Signaltechnik",
+      "weight": 1
+    },
+    {
+      "term": "signalling",
+      "weight": 1
+    },
+    {
+      "term": "EN 50128",
+      "weight": 1
+    },
+    {
+      "term": "EN 50126",
+      "weight": 1
+    },
+    {
+      "term": "Straßenbahn",
+      "weight": 1
+    },
+    {
+      "term": "tram",
+      "weight": 1
+    },
+    {
+      "term": "Nahverkehr",
+      "weight": 1
+    },
+    {
+      "term": "public transport",
+      "weight": 1
+    },
+    {
+      "term": "Deutsche Bahn",
+      "weight": 1
+    },
+    {
+      "term": "Verkehrstechnik",
+      "weight": 1
+    },
+    {
+      "term": "traffic engineering",
+      "weight": 1
+    }
+  ],
+  "titles": [
+    "Eisenbahningenieur",
+    "railway engineer",
+    "Lokführer",
+    "Triebfahrzeugführer",
+    "train driver",
+    "Zugbegleiter",
+    "Fahrdienstleiter",
+    "Signaltechniker",
+    "Verkehrsplaner",
+    "transport planner",
+    "Busfahrer",
+    "bus driver",
+    "Straßenbahnfahrer"
+  ],
+  "education": [
+    "Verkehrsingenieurwesen",
+    "transport engineering",
+    "Bahnsystemtechnik",
+    "Eisenbahnwesen",
+    "Verkehrswesen"
+  ]
+}

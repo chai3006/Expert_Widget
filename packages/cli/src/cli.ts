@@ -21,7 +21,8 @@ import { SCHEMA_VERSION } from '../../core/src/contracts.js';
 import { FileCvSource } from '../../node/src/cv/folderCvSource.js';
 import { PoliteFetcher } from '../../node/src/fetcher.js';
 import { FileStores } from '../../node/src/state/fileStores.js';
-import { loadUserFiles, type LoadedFiles, type UserFiles } from '../../node/src/userFiles.js';
+import { findAppRoot } from '../../node/src/appData.js';
+import { loadInputs as loadInputFiles, type LoadedFiles, type UserFiles } from '../../node/src/userFiles.js';
 
 export const USAGE = `Usage: expert-cli --cv <file> [--config <dir>] [--state <dir>] [--no-network] [--json]
 
@@ -64,15 +65,9 @@ export function parseArgs(argv: readonly string[]): CliOptions | { error: string
   return opts;
 }
 
-/** The repository's defaults folder: the nearest folder upwards that has defaults/config.json. */
-export function findDefaultsDir(start = __dirname): string {
-  for (let d = start; ; d = dirname(d)) {
-    if (existsSync(join(d, 'defaults', 'config.json'))) return join(d, 'defaults');
-    if (dirname(d) === d) throw new Error('cannot find the defaults folder');
-  }
-}
-
-export const DEFAULTS_DIR = findDefaultsDir();
+/** The repository (or installed app) folder with defaults/ and data/. */
+export const APP_ROOT = findAppRoot();
+export const DEFAULTS_DIR = join(APP_ROOT, 'defaults');
 
 /** The input files: those in --config when present there, else the bundled defaults. */
 export function cliFiles(configDir: string | null, defaultsDir = DEFAULTS_DIR): UserFiles {
@@ -91,7 +86,7 @@ export function createCliEngine(opts: CliOptions, fetchImpl: typeof fetch = fetc
   const stores: AppStores = opts.state ? new FileStores(resolve(opts.state)) : memoryStores();
   const cache = opts.state ? undefined : new MemoryHttpCache();
   const loadInputs = (): LoadedFiles => {
-    const loaded = loadUserFiles(files, process.env, homedir());
+    const loaded = loadInputFiles(files, join(APP_ROOT, 'data', 'domains'), process.env, homedir());
     // The CV is the --cv file, whatever cvFolder in config.json says.
     return { ...loaded, cvFolder: dirname(cvPath) };
   };

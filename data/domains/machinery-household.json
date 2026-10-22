@@ -1,0 +1,166 @@
+{
+  "schemaVersion": 1,
+  "id": "machinery-household",
+  "order": 70,
+  "sector": "industry",
+  "label": {
+    "de": "Maschinenbau & Hausgeräte",
+    "en": "Machinery & household"
+  },
+  "shortLabel": {
+    "de": "Maschinenbau",
+    "en": "Machinery"
+  },
+  "description": "Mechanical engineering, special machinery, machine tools and household appliances.",
+  "keywords": [
+    {
+      "term": "Maschinenbau",
+      "weight": 1
+    },
+    {
+      "term": "mechanical engineering",
+      "weight": 1
+    },
+    {
+      "term": "Sondermaschinenbau",
+      "weight": 1
+    },
+    {
+      "term": "special machinery",
+      "weight": 1
+    },
+    {
+      "term": "Werkzeugmaschine",
+      "weight": 1
+    },
+    {
+      "term": "machine tool",
+      "weight": 1
+    },
+    {
+      "term": "Hausgeräte",
+      "weight": 1
+    },
+    {
+      "term": "household appliances",
+      "weight": 1
+    },
+    {
+      "term": "home appliances",
+      "weight": 1
+    },
+    {
+      "term": "Haushaltsgeräte",
+      "weight": 1
+    },
+    {
+      "term": "white goods",
+      "weight": 1
+    },
+    {
+      "term": "Konstruktion",
+      "weight": 1
+    },
+    {
+      "term": "design engineer",
+      "weight": 1
+    },
+    {
+      "term": "SolidWorks",
+      "weight": 1
+    },
+    {
+      "term": "Creo",
+      "weight": 1
+    },
+    {
+      "term": "Siemens NX",
+      "weight": 1
+    },
+    {
+      "term": "Fertigungstechnik",
+      "weight": 1
+    },
+    {
+      "term": "manufacturing engineering",
+      "weight": 1
+    },
+    {
+      "term": "Hydraulik",
+      "weight": 1
+    },
+    {
+      "term": "hydraulics",
+      "weight": 1
+    },
+    {
+      "term": "Pneumatik",
+      "weight": 1
+    },
+    {
+      "term": "pneumatics",
+      "weight": 1
+    },
+    {
+      "term": "Landtechnik",
+      "weight": 1
+    },
+    {
+      "term": "agricultural machinery",
+      "weight": 1
+    },
+    {
+      "term": "Baumaschine",
+      "weight": 1
+    },
+    {
+      "term": "construction machinery",
+      "weight": 1
+    },
+    {
+      "term": "Verpackungsmaschine",
+      "weight": 1
+    },
+    {
+      "term": "packaging machinery",
+      "weight": 1
+    },
+    {
+      "term": "Getriebe",
+      "weight": 1
+    },
+    {
+      "term": "gearbox",
+      "weight": 1
+    },
+    {
+      "term": "Maschinenbauer",
+      "weight": 1
+    },
+    {
+      "term": "VDMA",
+      "weight": 1
+    }
+  ],
+  "titles": [
+    "Konstruktionsingenieur",
+    "Konstrukteur",
+    "design engineer",
+    "Maschinenbauingenieur",
+    "mechanical engineer",
+    "Entwicklungsingenieur Maschinenbau",
+    "Technischer Zeichner",
+    "technical draughtsman",
+    "Fertigungsingenieur",
+    "manufacturing engineer",
+    "Produktionsingenieur"
+  ],
+  "education": [
+    "Maschinenbau",
+    "mechanical engineering",
+    "Fertigungstechnik",
+    "Produktionstechnik",
+    "Konstruktionstechnik",
+    "Technischer Produktdesigner"
+  ]
+}

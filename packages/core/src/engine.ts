@@ -20,7 +20,7 @@ import type { NewsProvider } from './news/provider.js';
 import type { Clock, Translator } from './ports.js';
 import { runRefresh, type CvProvider } from './refresh.js';
 import { companyKey } from './shared/ordering.js';
-import { DOMAIN_LABELS, type DomainId, type StatusMessage, type ViewModel } from './shared/types.js';
+import type { StatusMessage, ViewModel } from './shared/types.js';
 import type { AppStores } from './state/appState.js';
 import { buildView } from './view.js';
 
@@ -177,7 +177,8 @@ export class ExpertEngine {
   // ---- Contracts ---------------------------------------------------------------------------
 
   private label(domain: string): string {
-    return this.deps.labelOf?.(domain) ?? DOMAIN_LABELS[domain as DomainId] ?? domain;
+    if (this.deps.labelOf) return this.deps.labelOf(domain);
+    return this.inputs.ok ? this.inputs.config.domains.label(domain) : domain;
   }
 
   domainProfile(): DomainProfile | null {

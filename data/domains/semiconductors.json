@@ -1,0 +1,150 @@
+{
+  "schemaVersion": 1,
+  "id": "semiconductors",
+  "order": 20,
+  "sector": "industry",
+  "label": {
+    "de": "Halbleiter",
+    "en": "Semiconductors"
+  },
+  "shortLabel": {
+    "de": "Halbleiter",
+    "en": "Semicon"
+  },
+  "description": "Chip design, semiconductor manufacturing and microelectronics.",
+  "keywords": [
+    {
+      "term": "Halbleiter",
+      "weight": 1
+    },
+    {
+      "term": "semiconductor",
+      "weight": 1
+    },
+    {
+      "term": "Chipdesign",
+      "weight": 1
+    },
+    {
+      "term": "chip design",
+      "weight": 1
+    },
+    {
+      "term": "IC design",
+      "weight": 1
+    },
+    {
+      "term": "ASIC",
+      "weight": 1
+    },
+    {
+      "term": "VLSI",
+      "weight": 1
+    },
+    {
+      "term": "Wafer",
+      "weight": 1
+    },
+    {
+      "term": "Lithografie",
+      "weight": 1
+    },
+    {
+      "term": "lithography",
+      "weight": 1
+    },
+    {
+      "term": "Reinraum",
+      "weight": 1
+    },
+    {
+      "term": "cleanroom",
+      "weight": 1
+    },
+    {
+      "term": "Leistungshalbleiter",
+      "weight": 1
+    },
+    {
+      "term": "power semiconductor",
+      "weight": 1
+    },
+    {
+      "term": "SiC",
+      "weight": 1
+    },
+    {
+      "term": "GaN",
+      "weight": 1
+    },
+    {
+      "term": "Siliziumkarbid",
+      "weight": 1
+    },
+    {
+      "term": "silicon carbide",
+      "weight": 1
+    },
+    {
+      "term": "Mikroelektronik",
+      "weight": 1
+    },
+    {
+      "term": "microelectronics",
+      "weight": 1
+    },
+    {
+      "term": "Verilog",
+      "weight": 1
+    },
+    {
+      "term": "VHDL",
+      "weight": 1
+    },
+    {
+      "term": "SystemVerilog",
+      "weight": 1
+    },
+    {
+      "term": "Chipfabrik",
+      "weight": 1
+    },
+    {
+      "term": "Chipfertigung",
+      "weight": 1
+    },
+    {
+      "term": "foundry",
+      "weight": 1
+    },
+    {
+      "term": "Mixed-Signal",
+      "weight": 1
+    },
+    {
+      "term": "Halbleiterwerk",
+      "weight": 1
+    }
+  ],
+  "titles": [
+    "Chipdesigner",
+    "chip designer",
+    "IC designer",
+    "ASIC designer",
+    "Halbleiteringenieur",
+    "Prozessingenieur Halbleiter",
+    "verification engineer",
+    "Layout-Ingenieur",
+    "Reinraumtechniker",
+    "Mikrotechnologe"
+  ],
+  "education": [
+    "Mikroelektronik",
+    "microelectronics",
+    "Halbleitertechnik",
+    "Halbleiterphysik",
+    "semiconductor physics",
+    "Mikrosystemtechnik",
+    "Mikrotechnologe"
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "id": "general",
+  "order": 310,
+  "sector": "general",
+  "label": {
+    "de": "Allgemein",
+    "en": "General"
+  },
+  "shortLabel": {
+    "de": "Allgemein",
+    "en": "General"
+  },
+  "description": "Fallback when no domain can be recognised in the CV: shows news for all fields.",
+  "fallback": true,
+  "keywords": [],
+  "titles": [],
+  "education": []
+}

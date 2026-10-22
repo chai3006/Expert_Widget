@@ -2,7 +2,6 @@
 
 import { companyKey, orderCompanies, orderNews, watchlistKey } from './shared/ordering.js';
 import {
-  DOMAIN_LABELS,
   type DomainWeight,
   type EmployerDomainView,
   type ExpertData,
@@ -26,10 +25,11 @@ export function buildEmployerView(
   segments: readonly EmployerSegment[],
   weights: readonly DomainWeight[],
   visited: Readonly<Record<string, number>>,
+  labelOf: (domain: string) => string = (d) => d,
 ): EmployerDomainView[] {
   return weights.map(({ domain, weight }) => ({
     domain,
-    label: DOMAIN_LABELS[domain],
+    label: labelOf(domain),
     weight,
     segments: segments
       .filter((s) => s.domain === domain)
@@ -96,6 +96,7 @@ export function buildView(input: ViewInput): ViewModel {
   };
   const data: ExpertData = {
     lastUpdated: stores.feed.value.lastUpdated,
+    domains: [],
     profile: null,
     employers: [],
     watchlist: [],
@@ -134,7 +135,8 @@ export function buildView(input: ViewInput): ViewModel {
     data: {
       ...data,
       profile,
-      employers: buildEmployerView(input.employers, weights, visited),
+      domains: config.domains.domains.map((d) => ({ id: d.id, label: d.label.en, shortLabel: d.shortLabel.en })),
+      employers: buildEmployerView(input.employers, weights, visited, (d) => config.domains.label(d)),
       watchlist: buildWatchlistView(input.watchlist, news, visited),
       news,
       sourceHealth: buildSourceHealth(providers, stores.health.value),

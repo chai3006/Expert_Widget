@@ -1,0 +1,250 @@
+{
+  "schemaVersion": 1,
+  "id": "accounting-tax",
+  "order": 170,
+  "sector": "business",
+  "label": {
+    "de": "Rechnungswesen & Steuern",
+    "en": "Accounting & tax"
+  },
+  "shortLabel": {
+    "de": "Steuern",
+    "en": "Accounting"
+  },
+  "description": "Bookkeeping, financial accounting, controlling, payroll, tax advisory and auditing.",
+  "keywords": [
+    {
+      "term": "Buchhaltung",
+      "weight": 2
+    },
+    {
+      "term": "accounting",
+      "weight": 1
+    },
+    {
+      "term": "bookkeeping",
+      "weight": 1
+    },
+    {
+      "term": "Finanzbuchhaltung",
+      "weight": 1
+    },
+    {
+      "term": "financial accounting",
+      "weight": 1
+    },
+    {
+      "term": "Lohnbuchhaltung",
+      "weight": 1
+    },
+    {
+      "term": "payroll",
+      "weight": 1
+    },
+    {
+      "term": "Kreditorenbuchhaltung",
+      "weight": 1
+    },
+    {
+      "term": "accounts payable",
+      "weight": 1
+    },
+    {
+      "term": "Debitorenbuchhaltung",
+      "weight": 1
+    },
+    {
+      "term": "accounts receivable",
+      "weight": 1
+    },
+    {
+      "term": "Bilanzierung",
+      "weight": 1
+    },
+    {
+      "term": "Bilanz",
+      "weight": 1
+    },
+    {
+      "term": "balance sheet",
+      "weight": 1
+    },
+    {
+      "term": "Jahresabschluss",
+      "weight": 1
+    },
+    {
+      "term": "annual financial statements",
+      "weight": 1
+    },
+    {
+      "term": "Monatsabschluss",
+      "weight": 1
+    },
+    {
+      "term": "month-end closing",
+      "weight": 1
+    },
+    {
+      "term": "HGB",
+      "weight": 1
+    },
+    {
+      "term": "IFRS",
+      "weight": 1
+    },
+    {
+      "term": "US-GAAP",
+      "weight": 1
+    },
+    {
+      "term": "Steuer",
+      "weight": 1
+    },
+    {
+      "term": "tax",
+      "weight": 1
+    },
+    {
+      "term": "Steuerberatung",
+      "weight": 1
+    },
+    {
+      "term": "tax advisory",
+      "weight": 1
+    },
+    {
+      "term": "Steuererklärung",
+      "weight": 1
+    },
+    {
+      "term": "tax return",
+      "weight": 1
+    },
+    {
+      "term": "Umsatzsteuer",
+      "weight": 1
+    },
+    {
+      "term": "VAT",
+      "weight": 1
+    },
+    {
+      "term": "Körperschaftsteuer",
+      "weight": 1
+    },
+    {
+      "term": "DATEV",
+      "weight": 2
+    },
+    {
+      "term": "SAP FI",
+      "weight": 1
+    },
+    {
+      "term": "SAP CO",
+      "weight": 1
+    },
+    {
+      "term": "Controlling",
+      "weight": 1
+    },
+    {
+      "term": "Kostenrechnung",
+      "weight": 1
+    },
+    {
+      "term": "cost accounting",
+      "weight": 1
+    },
+    {
+      "term": "Wirtschaftsprüfung",
+      "weight": 1
+    },
+    {
+      "term": "audit",
+      "weight": 1
+    },
+    {
+      "term": "auditing",
+      "weight": 1
+    },
+    {
+      "term": "Konzernabschluss",
+      "weight": 1
+    },
+    {
+      "term": "Hauptbuch",
+      "weight": 1
+    },
+    {
+      "term": "general ledger",
+      "weight": 1
+    },
+    {
+      "term": "Anlagenbuchhaltung",
+      "weight": 1
+    },
+    {
+      "term": "Reisekostenabrechnung",
+      "weight": 1
+    },
+    {
+      "term": "Lexware",
+      "weight": 1
+    },
+    {
+      "term": "Rechnungswesen",
+      "weight": 1
+    },
+    {
+      "term": "Steuerrecht",
+      "weight": 1
+    },
+    {
+      "term": "tax law",
+      "weight": 1
+    }
+  ],
+  "titles": [
+    "Buchhalter",
+    "Buchhalterin",
+    "accountant",
+    "Bilanzbuchhalter",
+    "Bilanzbuchhalterin",
+    "Finanzbuchhalter",
+    "Finanzbuchhalterin",
+    "Lohnbuchhalter",
+    "payroll specialist",
+    "Steuerberater",
+    "Steuerberaterin",
+    "tax advisor",
+    "tax consultant",
+    "Steuerfachangestellte",
+    "Steuerfachangestellter",
+    "Steuerfachwirt",
+    "Wirtschaftsprüfer",
+    "Wirtschaftsprüferin",
+    "auditor",
+    "Controller",
+    "financial controller",
+    "Leiter Rechnungswesen",
+    "head of accounting",
+    "Kreditorenbuchhalter",
+    "Debitorenbuchhalter"
+  ],
+  "education": [
+    "Steuerberaterexamen",
+    "Steuerberaterprüfung",
+    "Ausbildung zur Steuerfachangestellten",
+    "Ausbildung zum Steuerfachangestellten",
+    "Bilanzbuchhalter IHK",
+    "Wirtschaftsprüferexamen",
+    "Certified Public Accountant",
+    "ACCA",
+    "Accounting and Finance",
+    "Controller IHK",
+    "Finanzbuchhalter IHK",
+    "Steuerfachwirt"
+  ]
+}

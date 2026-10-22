@@ -1,0 +1,157 @@
+{
+  "schemaVersion": 1,
+  "id": "industrial-automation",
+  "order": 40,
+  "sector": "industry",
+  "label": {
+    "de": "Industrieautomation",
+    "en": "Industrial automation"
+  },
+  "shortLabel": {
+    "de": "Automation",
+    "en": "Automation"
+  },
+  "description": "Factory and process automation, PLC programming, robotics and drive technology.",
+  "keywords": [
+    {
+      "term": "Automatisierungstechnik",
+      "weight": 1
+    },
+    {
+      "term": "industrial automation",
+      "weight": 1
+    },
+    {
+      "term": "Automatisierung",
+      "weight": 1
+    },
+    {
+      "term": "automation",
+      "weight": 1
+    },
+    {
+      "term": "SPS",
+      "weight": 1
+    },
+    {
+      "term": "PLC",
+      "weight": 1
+    },
+    {
+      "term": "TIA Portal",
+      "weight": 1
+    },
+    {
+      "term": "CODESYS",
+      "weight": 1
+    },
+    {
+      "term": "SCADA",
+      "weight": 1
+    },
+    {
+      "term": "Industrie 4.0",
+      "weight": 1
+    },
+    {
+      "term": "Industry 4.0",
+      "weight": 1
+    },
+    {
+      "term": "Robotik",
+      "weight": 1
+    },
+    {
+      "term": "robotics",
+      "weight": 1
+    },
+    {
+      "term": "Roboter",
+      "weight": 1
+    },
+    {
+      "term": "Antriebstechnik",
+      "weight": 1
+    },
+    {
+      "term": "drive technology",
+      "weight": 1
+    },
+    {
+      "term": "Prozessautomatisierung",
+      "weight": 1
+    },
+    {
+      "term": "process automation",
+      "weight": 1
+    },
+    {
+      "term": "OPC UA",
+      "weight": 1
+    },
+    {
+      "term": "PROFINET",
+      "weight": 1
+    },
+    {
+      "term": "EtherCAT",
+      "weight": 1
+    },
+    {
+      "term": "Feldbus",
+      "weight": 1
+    },
+    {
+      "term": "fieldbus",
+      "weight": 1
+    },
+    {
+      "term": "Leittechnik",
+      "weight": 1
+    },
+    {
+      "term": "MES",
+      "weight": 1
+    },
+    {
+      "term": "IEC 61131",
+      "weight": 1
+    },
+    {
+      "term": "Fabrikautomation",
+      "weight": 1
+    },
+    {
+      "term": "factory automation",
+      "weight": 1
+    },
+    {
+      "term": "Cobot",
+      "weight": 1
+    }
+  ],
+  "titles": [
+    "Automatisierungstechniker",
+    "Automatisierungsingenieur",
+    "automation engineer",
+    "SPS-Programmierer",
+    "PLC programmer",
+    "Inbetriebnahmetechniker",
+    "Inbetriebnahmeingenieur",
+    "commissioning engineer",
+    "Robotikingenieur",
+    "robotics engineer",
+    "Steuerungstechniker",
+    "Elektrokonstrukteur",
+    "controls engineer"
+  ],
+  "education": [
+    "Automatisierungstechnik",
+    "Mechatronik",
+    "mechatronics",
+    "Robotik",
+    "Regelungstechnik",
+    "control engineering",
+    "Elektro- und Automatisierungstechnik"
+  ]
+}

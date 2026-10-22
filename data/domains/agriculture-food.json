@@ -1,0 +1,288 @@
+{
+  "schemaVersion": 1,
+  "id": "agriculture-food",
+  "order": 280,
+  "sector": "trade",
+  "label": {
+    "de": "Landwirtschaft & Lebensmittel",
+    "en": "Agriculture & food"
+  },
+  "shortLabel": {
+    "de": "Agrar",
+    "en": "Agri-food"
+  },
+  "description": "Farming, horticulture, forestry, food production, bakeries, breweries and veterinary work.",
+  "keywords": [
+    {
+      "term": "Landwirtschaft",
+      "weight": 2
+    },
+    {
+      "term": "agriculture",
+      "weight": 1
+    },
+    {
+      "term": "Agrar",
+      "weight": 1
+    },
+    {
+      "term": "agricultural",
+      "weight": 1
+    },
+    {
+      "term": "Ackerbau",
+      "weight": 1
+    },
+    {
+      "term": "crop farming",
+      "weight": 1
+    },
+    {
+      "term": "Viehzucht",
+      "weight": 1
+    },
+    {
+      "term": "livestock",
+      "weight": 1
+    },
+    {
+      "term": "Tierhaltung",
+      "weight": 1
+    },
+    {
+      "term": "animal husbandry",
+      "weight": 1
+    },
+    {
+      "term": "Milchvieh",
+      "weight": 1
+    },
+    {
+      "term": "dairy farming",
+      "weight": 1
+    },
+    {
+      "term": "Gartenbau",
+      "weight": 1
+    },
+    {
+      "term": "horticulture",
+      "weight": 1
+    },
+    {
+      "term": "Forstwirtschaft",
+      "weight": 1
+    },
+    {
+      "term": "forestry",
+      "weight": 1
+    },
+    {
+      "term": "Weinbau",
+      "weight": 1
+    },
+    {
+      "term": "viticulture",
+      "weight": 1
+    },
+    {
+      "term": "Lebensmittel",
+      "weight": 1
+    },
+    {
+      "term": "Lebensmittelindustrie",
+      "weight": 1
+    },
+    {
+      "term": "food industry",
+      "weight": 1
+    },
+    {
+      "term": "Lebensmitteltechnologie",
+      "weight": 1
+    },
+    {
+      "term": "food technology",
+      "weight": 1
+    },
+    {
+      "term": "Lebensmittelsicherheit",
+      "weight": 1
+    },
+    {
+      "term": "food safety",
+      "weight": 1
+    },
+    {
+      "term": "Nahrungsmittel",
+      "weight": 1
+    },
+    {
+      "term": "Molkerei",
+      "weight": 1
+    },
+    {
+      "term": "Brauerei",
+      "weight": 1
+    },
+    {
+      "term": "brewery",
+      "weight": 1
+    },
+    {
+      "term": "Bäckerei",
+      "weight": 1
+    },
+    {
+      "term": "bakery",
+      "weight": 1
+    },
+    {
+      "term": "Fleischerei",
+      "weight": 1
+    },
+    {
+      "term": "butchery",
+      "weight": 1
+    },
+    {
+      "term": "Fleischverarbeitung",
+      "weight": 1
+    },
+    {
+      "term": "meat processing",
+      "weight": 1
+    },
+    {
+      "term": "Getränkeindustrie",
+      "weight": 1
+    },
+    {
+      "term": "beverage industry",
+      "weight": 1
+    },
+    {
+      "term": "IFS Food",
+      "weight": 1
+    },
+    {
+      "term": "BRC",
+      "weight": 1
+    },
+    {
+      "term": "Pflanzenschutz",
+      "weight": 1
+    },
+    {
+      "term": "crop protection",
+      "weight": 1
+    },
+    {
+      "term": "Saatgut",
+      "weight": 1
+    },
+    {
+      "term": "Düngemittel",
+      "weight": 1
+    },
+    {
+      "term": "fertiliser",
+      "weight": 1
+    },
+    {
+      "term": "Tiermedizin",
+      "weight": 1
+    },
+    {
+      "term": "veterinary",
+      "weight": 1
+    },
+    {
+      "term": "Ernährung",
+      "weight": 1
+    },
+    {
+      "term": "nutrition",
+      "weight": 1
+    },
+    {
+      "term": "Ökolandbau",
+      "weight": 1
+    },
+    {
+      "term": "organic farming",
+      "weight": 1
+    },
+    {
+      "term": "Landtechnik",
+      "weight": 1
+    }
+  ],
+  "titles": [
+    "Landwirt",
+    "Landwirtin",
+    "farmer",
+    "Agrarwissenschaftler",
+    "Agraringenieur",
+    "Gärtner",
+    "Gärtnerin",
+    "gardener",
+    "Landschaftsgärtner",
+    "landscape gardener",
+    "Forstwirt",
+    "Förster",
+    "forester",
+    "Winzer",
+    "Winzerin",
+    "winemaker",
+    "Lebensmitteltechnologe",
+    "food technologist",
+    "Lebensmitteltechniker",
+    "Fachkraft für Lebensmitteltechnik",
+    "Bäcker",
+    "Bäckerin",
+    "baker",
+    "Konditor",
+    "Konditorin",
+    "pastry chef",
+    "Fleischer",
+    "Metzger",
+    "butcher",
+    "Brauer",
+    "brewer",
+    "Milchtechnologe",
+    "Tierarzt",
+    "Tierärztin",
+    "veterinarian",
+    "Tiermedizinische Fachangestellte",
+    "Tierpfleger",
+    "Tierpflegerin",
+    "Ökotrophologe",
+    "nutritionist",
+    "Ernährungsberater",
+    "Ernährungsberaterin",
+    "Qualitätsmanager Lebensmittel"
+  ],
+  "education": [
+    "Agrarwissenschaften",
+    "agricultural science",
+    "Agrarwirtschaft",
+    "Landwirtschaftsmeister",
+    "Ausbildung zum Landwirt",
+    "Gartenbau",
+    "Forstwissenschaft",
+    "Lebensmitteltechnologie",
+    "food science",
+    "Lebensmittelchemie",
+    "Ökotrophologie",
+    "Ernährungswissenschaft",
+    "nutrition science",
+    "Tiermedizin",
+    "veterinary medicine",
+    "Brauwesen",
+    "Bäckermeister",
+    "Fleischermeister",
+    "Konditormeister",
+    "Weinbau und Oenologie"
+  ]
+}

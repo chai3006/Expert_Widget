@@ -22,3 +22,22 @@ export function looksGerman(text: string): boolean {
   if (de > en) return true;
   return de >= en && /[äöüß]/i.test(text) && words.length >= 3;
 }
+
+// Frequent function words of French, Spanish, Italian, Polish and Turkish that German and English
+// do not use, to notice a CV in another language.
+const FOREIGN = new Set('le la les et pour avec dans une est sur aux el los las del para con una por que il gli della che di się że jest ve bir ile için bu'.split(' '));
+
+/** The language of a longer text: German, English, or another one. */
+export function languageOf(text: string): 'de' | 'en' | 'other' {
+  const words = text.toLowerCase().match(/[\p{L}]+/gu) ?? [];
+  let de = 0;
+  let en = 0;
+  let foreign = 0;
+  for (const w of words) {
+    if (GERMAN.has(w)) de++;
+    if (ENGLISH.has(w)) en++;
+    if (FOREIGN.has(w)) foreign++;
+  }
+  if (foreign >= 5 && foreign > de + en) return 'other';
+  return de >= en ? 'de' : 'en';
+}

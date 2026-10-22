@@ -1,55 +1,20 @@
 // Types shared by the main process and the renderer. Type-only plus small constant tables.
 
-export const DOMAIN_IDS = [
-  'automotive-emobility',
-  'semiconductors',
-  'embedded-iot',
-  'industrial-automation',
-  'energy-storage',
-  'aerospace-defense',
-  'machinery-household',
-  'medtech',
-  'rail-transport',
-  'telecom',
-  'software-ai',
-  'civil-chemical',
-] as const;
+/** A domain id from the registry (data/domains/<id>.json), e.g. "healthcare-nursing". */
+export type DomainId = string;
 
-export type DomainId = (typeof DOMAIN_IDS)[number];
+const DOMAIN_ID_PATTERN = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 
-export const DOMAIN_LABELS: Record<DomainId, string> = {
-  'automotive-emobility': 'Automotive & e-mobility',
-  semiconductors: 'Semiconductors',
-  'embedded-iot': 'Embedded & IoT',
-  'industrial-automation': 'Industrial automation',
-  'energy-storage': 'Energy & storage',
-  'aerospace-defense': 'Aerospace & defence',
-  'machinery-household': 'Machinery & household',
-  medtech: 'Medtech',
-  'rail-transport': 'Rail & transport',
-  telecom: 'Telecom',
-  'software-ai': 'Software & AI',
-  'civil-chemical': 'Civil & chemical',
-};
-
-/** Short names for the one-line legend of the compact Domain mix card. */
-export const DOMAIN_SHORT_LABELS: Record<DomainId, string> = {
-  'automotive-emobility': 'Automotive',
-  semiconductors: 'Semicon',
-  'embedded-iot': 'Embedded',
-  'industrial-automation': 'Automation',
-  'energy-storage': 'Storage',
-  'aerospace-defense': 'Aerospace',
-  'machinery-household': 'Machinery',
-  medtech: 'Medtech',
-  'rail-transport': 'Rail',
-  telecom: 'Telecom',
-  'software-ai': 'Software',
-  'civil-chemical': 'Civil/Chem',
-};
-
+/** True for a well-formed domain id. Whether the domain exists is the registry's business. */
 export function isDomainId(value: unknown): value is DomainId {
-  return typeof value === 'string' && (DOMAIN_IDS as readonly string[]).includes(value);
+  return typeof value === 'string' && value !== 'all' && DOMAIN_ID_PATTERN.test(value);
+}
+
+/** A domain as the UI lists it (all registry domains, for labels and the manual domain editor). */
+export interface DomainOption {
+  id: DomainId;
+  label: string;
+  shortLabel: string;
 }
 
 /** Domain of a news item: a specific domain, or `all` when no domain keyword matched. */
@@ -95,6 +60,8 @@ export interface DomainEvidenceView {
 export interface CvProfile {
   fileName: string;
   modifiedMs: number;
+  /** File size when read; with name and modified time it tells a replaced CV apart. */
+  sizeBytes?: number;
   weights: DomainWeight[];
   computedAt: number;
   /** auto (computed), manual (set by the user) or fallback (general domain). Missing means auto. */
@@ -197,6 +164,8 @@ export interface StatusMessage {
 /** The data the widget shows: the same for any front end (widget, Expert page, CLI). */
 export interface ExpertData {
   lastUpdated: number | null;
+  /** Every domain of the registry in registry order, for labels and choosing domains by hand. */
+  domains: DomainOption[];
   profile: CvProfile | null;
   employers: EmployerDomainView[];
   watchlist: WatchlistChip[];

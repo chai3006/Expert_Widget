@@ -1,0 +1,252 @@
+{
+  "schemaVersion": 1,
+  "id": "social-work",
+  "order": 300,
+  "sector": "health",
+  "label": {
+    "de": "Soziale Arbeit & Betreuung",
+    "en": "Social work & care"
+  },
+  "shortLabel": {
+    "de": "Soziales",
+    "en": "Social work"
+  },
+  "description": "Social work, youth welfare, disability support, counselling, integration and psychology.",
+  "keywords": [
+    {
+      "term": "Soziale Arbeit",
+      "weight": 2
+    },
+    {
+      "term": "social work",
+      "weight": 1
+    },
+    {
+      "term": "Sozialarbeit",
+      "weight": 1
+    },
+    {
+      "term": "Sozialpädagogik",
+      "weight": 1
+    },
+    {
+      "term": "social pedagogy",
+      "weight": 1
+    },
+    {
+      "term": "Jugendhilfe",
+      "weight": 1
+    },
+    {
+      "term": "youth welfare",
+      "weight": 1
+    },
+    {
+      "term": "Kinder- und Jugendhilfe",
+      "weight": 1
+    },
+    {
+      "term": "Jugendarbeit",
+      "weight": 1
+    },
+    {
+      "term": "youth work",
+      "weight": 1
+    },
+    {
+      "term": "Eingliederungshilfe",
+      "weight": 1
+    },
+    {
+      "term": "Behindertenhilfe",
+      "weight": 1
+    },
+    {
+      "term": "disability support",
+      "weight": 1
+    },
+    {
+      "term": "Inklusion",
+      "weight": 1
+    },
+    {
+      "term": "inclusion",
+      "weight": 1
+    },
+    {
+      "term": "Integrationsarbeit",
+      "weight": 1
+    },
+    {
+      "term": "Migrationsberatung",
+      "weight": 1
+    },
+    {
+      "term": "Flüchtlingshilfe",
+      "weight": 1
+    },
+    {
+      "term": "refugee support",
+      "weight": 1
+    },
+    {
+      "term": "Beratungsstelle",
+      "weight": 1
+    },
+    {
+      "term": "counselling",
+      "weight": 1
+    },
+    {
+      "term": "Schuldnerberatung",
+      "weight": 1
+    },
+    {
+      "term": "Suchthilfe",
+      "weight": 1
+    },
+    {
+      "term": "addiction support",
+      "weight": 1
+    },
+    {
+      "term": "Wohngruppe",
+      "weight": 1
+    },
+    {
+      "term": "betreutes Wohnen",
+      "weight": 1
+    },
+    {
+      "term": "assisted living",
+      "weight": 1
+    },
+    {
+      "term": "Streetwork",
+      "weight": 1
+    },
+    {
+      "term": "Familienhilfe",
+      "weight": 1
+    },
+    {
+      "term": "family support",
+      "weight": 1
+    },
+    {
+      "term": "Kinderschutz",
+      "weight": 1
+    },
+    {
+      "term": "child protection",
+      "weight": 1
+    },
+    {
+      "term": "Fallmanagement",
+      "weight": 1
+    },
+    {
+      "term": "case management",
+      "weight": 1
+    },
+    {
+      "term": "Diakonie",
+      "weight": 1
+    },
+    {
+      "term": "Caritas",
+      "weight": 1
+    },
+    {
+      "term": "AWO",
+      "weight": 1
+    },
+    {
+      "term": "Lebenshilfe",
+      "weight": 1
+    },
+    {
+      "term": "Wohlfahrtsverband",
+      "weight": 1
+    },
+    {
+      "term": "Hilfeplan",
+      "weight": 1
+    },
+    {
+      "term": "SGB VIII",
+      "weight": 1
+    },
+    {
+      "term": "SGB XII",
+      "weight": 1
+    },
+    {
+      "term": "Psychotherapie",
+      "weight": 1
+    },
+    {
+      "term": "psychotherapy",
+      "weight": 1
+    },
+    {
+      "term": "Psychologie",
+      "weight": 1
+    },
+    {
+      "term": "psychology",
+      "weight": 1
+    },
+    {
+      "term": "psychologische Beratung",
+      "weight": 1
+    },
+    {
+      "term": "Heilerziehungspflege",
+      "weight": 1
+    }
+  ],
+  "titles": [
+    "Sozialarbeiter",
+    "Sozialarbeiterin",
+    "social worker",
+    "Sozialpädagoge",
+    "Sozialpädagogin",
+    "Heilerziehungspfleger",
+    "Heilerziehungspflegerin",
+    "Heilpädagoge",
+    "Heilpädagogin",
+    "Jugendbetreuer",
+    "youth worker",
+    "Betreuungskraft",
+    "Alltagsbegleiter",
+    "Familienhelfer",
+    "Familienhelferin",
+    "Schulsozialarbeiter",
+    "Schulsozialarbeiterin",
+    "Streetworker",
+    "Psychologe",
+    "Psychologin",
+    "psychologist",
+    "Psychotherapeut",
+    "Psychotherapeutin",
+    "psychotherapist",
+    "Suchtberater",
+    "Integrationshelfer",
+    "Integrationsberater",
+    "Case Manager"
+  ],
+  "education": [
+    "Soziale Arbeit",
+    "Sozialpädagogik",
+    "Bachelor Soziale Arbeit",
+    "staatlich anerkannter Sozialarbeiter",
+    "staatlich anerkannte Sozialarbeiterin",
+    "Heilerziehungspflege",
+    "Heilpädagogik",
+    "Psychologie",
+    "psychology",
+    "Approbation als Psychotherapeut",
+    "Systemische Beratung"
+  ]
+}

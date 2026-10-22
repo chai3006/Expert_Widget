@@ -1,0 +1,231 @@
+{
+  "schemaVersion": 1,
+  "id": "construction-architecture",
+  "order": 130,
+  "sector": "energy-construction",
+  "label": {
+    "de": "Bau, Architektur & Immobilien",
+    "en": "Construction, architecture & real estate"
+  },
+  "shortLabel": {
+    "de": "Bau",
+    "en": "Construction"
+  },
+  "description": "Construction companies, architecture and planning offices, building services, real estate and facility management.",
+  "keywords": [
+    {
+      "term": "Architektur",
+      "weight": 2
+    },
+    {
+      "term": "architecture",
+      "weight": 1
+    },
+    {
+      "term": "Bauleitung",
+      "weight": 1
+    },
+    {
+      "term": "construction management",
+      "weight": 1
+    },
+    {
+      "term": "Bauprojekt",
+      "weight": 1
+    },
+    {
+      "term": "Rohbau",
+      "weight": 1
+    },
+    {
+      "term": "Baustelle",
+      "weight": 1
+    },
+    {
+      "term": "construction site",
+      "weight": 1
+    },
+    {
+      "term": "Bauunternehmen",
+      "weight": 1
+    },
+    {
+      "term": "construction company",
+      "weight": 1
+    },
+    {
+      "term": "Baugewerbe",
+      "weight": 1
+    },
+    {
+      "term": "Bauwesen",
+      "weight": 1
+    },
+    {
+      "term": "Immobilien",
+      "weight": 1
+    },
+    {
+      "term": "real estate",
+      "weight": 1
+    },
+    {
+      "term": "Facility Management",
+      "weight": 1
+    },
+    {
+      "term": "Gebäudetechnik",
+      "weight": 1
+    },
+    {
+      "term": "building services",
+      "weight": 1
+    },
+    {
+      "term": "TGA",
+      "weight": 1
+    },
+    {
+      "term": "HOAI",
+      "weight": 2
+    },
+    {
+      "term": "Bauantrag",
+      "weight": 1
+    },
+    {
+      "term": "VOB",
+      "weight": 1
+    },
+    {
+      "term": "Leistungsverzeichnis",
+      "weight": 1
+    },
+    {
+      "term": "Revit",
+      "weight": 1
+    },
+    {
+      "term": "ArchiCAD",
+      "weight": 1
+    },
+    {
+      "term": "AutoCAD",
+      "weight": 1
+    },
+    {
+      "term": "Allplan",
+      "weight": 1
+    },
+    {
+      "term": "BIM",
+      "weight": 1
+    },
+    {
+      "term": "Stadtplanung",
+      "weight": 1
+    },
+    {
+      "term": "urban planning",
+      "weight": 1
+    },
+    {
+      "term": "Innenarchitektur",
+      "weight": 1
+    },
+    {
+      "term": "interior architecture",
+      "weight": 1
+    },
+    {
+      "term": "Vermessung",
+      "weight": 1
+    },
+    {
+      "term": "surveying",
+      "weight": 1
+    },
+    {
+      "term": "Bauphysik",
+      "weight": 1
+    },
+    {
+      "term": "Sanierung",
+      "weight": 1
+    },
+    {
+      "term": "renovation",
+      "weight": 1
+    },
+    {
+      "term": "Wohnungsbau",
+      "weight": 1
+    },
+    {
+      "term": "housing construction",
+      "weight": 1
+    },
+    {
+      "term": "Hausverwaltung",
+      "weight": 1
+    },
+    {
+      "term": "property management",
+      "weight": 1
+    },
+    {
+      "term": "Projektsteuerung Bau",
+      "weight": 1
+    },
+    {
+      "term": "Ausführungsplanung",
+      "weight": 1
+    },
+    {
+      "term": "Entwurfsplanung",
+      "weight": 1
+    },
+    {
+      "term": "Baugenehmigung",
+      "weight": 1
+    }
+  ],
+  "titles": [
+    "Architekt",
+    "architect",
+    "Bauleiter",
+    "site manager",
+    "construction manager",
+    "Bauzeichner",
+    "Polier",
+    "Bautechniker",
+    "Projektleiter Bau",
+    "Stadtplaner",
+    "urban planner",
+    "Innenarchitekt",
+    "interior architect",
+    "Vermessungstechniker",
+    "surveyor",
+    "Immobilienkaufmann",
+    "Immobilienkauffrau",
+    "real estate agent",
+    "Immobilienmakler",
+    "Facility Manager",
+    "Hausverwalter",
+    "property manager",
+    "Bauprojektleiter"
+  ],
+  "education": [
+    "Architektur",
+    "Bautechnik",
+    "Stadtplanung",
+    "Innenarchitektur",
+    "Immobilienwirtschaft",
+    "real estate management",
+    "Facility Management",
+    "Vermessung",
+    "Staatlich geprüfter Bautechniker",
+    "Immobilienkaufmann",
+    "Immobilienkauffrau"
+  ]
+}

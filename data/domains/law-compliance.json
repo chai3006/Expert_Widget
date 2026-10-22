@@ -1,0 +1,257 @@
+{
+  "schemaVersion": 1,
+  "id": "law-compliance",
+  "order": 180,
+  "sector": "business",
+  "label": {
+    "de": "Recht & Compliance",
+    "en": "Law & compliance"
+  },
+  "shortLabel": {
+    "de": "Recht",
+    "en": "Law"
+  },
+  "description": "Law firms, legal departments, courts, notaries, compliance and data protection.",
+  "keywords": [
+    {
+      "term": "Recht",
+      "weight": 1
+    },
+    {
+      "term": "Rechtsabteilung",
+      "weight": 1
+    },
+    {
+      "term": "legal department",
+      "weight": 1
+    },
+    {
+      "term": "Rechtsberatung",
+      "weight": 1
+    },
+    {
+      "term": "legal advice",
+      "weight": 1
+    },
+    {
+      "term": "Vertragsrecht",
+      "weight": 1
+    },
+    {
+      "term": "contract law",
+      "weight": 1
+    },
+    {
+      "term": "Arbeitsrecht",
+      "weight": 1
+    },
+    {
+      "term": "employment law",
+      "weight": 1
+    },
+    {
+      "term": "Gesellschaftsrecht",
+      "weight": 1
+    },
+    {
+      "term": "corporate law",
+      "weight": 1
+    },
+    {
+      "term": "Datenschutz",
+      "weight": 1
+    },
+    {
+      "term": "data protection",
+      "weight": 1
+    },
+    {
+      "term": "DSGVO",
+      "weight": 1
+    },
+    {
+      "term": "GDPR",
+      "weight": 1
+    },
+    {
+      "term": "Compliance",
+      "weight": 1
+    },
+    {
+      "term": "Geldwäsche",
+      "weight": 1
+    },
+    {
+      "term": "anti-money laundering",
+      "weight": 1
+    },
+    {
+      "term": "Kanzlei",
+      "weight": 1
+    },
+    {
+      "term": "law firm",
+      "weight": 1
+    },
+    {
+      "term": "Gericht",
+      "weight": 1
+    },
+    {
+      "term": "court",
+      "weight": 1
+    },
+    {
+      "term": "Prozessführung",
+      "weight": 1
+    },
+    {
+      "term": "litigation",
+      "weight": 1
+    },
+    {
+      "term": "Vertragsgestaltung",
+      "weight": 1
+    },
+    {
+      "term": "contract drafting",
+      "weight": 1
+    },
+    {
+      "term": "Due Diligence",
+      "weight": 1
+    },
+    {
+      "term": "Notariat",
+      "weight": 1
+    },
+    {
+      "term": "notary",
+      "weight": 1
+    },
+    {
+      "term": "Mandant",
+      "weight": 1
+    },
+    {
+      "term": "Mandanten",
+      "weight": 1
+    },
+    {
+      "term": "Schriftsatz",
+      "weight": 1
+    },
+    {
+      "term": "Urheberrecht",
+      "weight": 1
+    },
+    {
+      "term": "copyright",
+      "weight": 1
+    },
+    {
+      "term": "Patentrecht",
+      "weight": 1
+    },
+    {
+      "term": "patent law",
+      "weight": 1
+    },
+    {
+      "term": "Markenrecht",
+      "weight": 1
+    },
+    {
+      "term": "trademark law",
+      "weight": 1
+    },
+    {
+      "term": "Insolvenzrecht",
+      "weight": 1
+    },
+    {
+      "term": "Strafrecht",
+      "weight": 1
+    },
+    {
+      "term": "criminal law",
+      "weight": 1
+    },
+    {
+      "term": "Verwaltungsrecht",
+      "weight": 1
+    },
+    {
+      "term": "administrative law",
+      "weight": 1
+    },
+    {
+      "term": "Legal Tech",
+      "weight": 1
+    },
+    {
+      "term": "beck-online",
+      "weight": 1
+    },
+    {
+      "term": "juris",
+      "weight": 1
+    },
+    {
+      "term": "RA-MICRO",
+      "weight": 1
+    }
+  ],
+  "titles": [
+    "Rechtsanwalt",
+    "Rechtsanwältin",
+    "lawyer",
+    "attorney",
+    "Jurist",
+    "Juristin",
+    "legal counsel",
+    "Syndikusrechtsanwalt",
+    "Justiziar",
+    "Richter",
+    "Richterin",
+    "judge",
+    "Staatsanwalt",
+    "Staatsanwältin",
+    "prosecutor",
+    "Notar",
+    "Notarin",
+    "Rechtsanwaltsfachangestellte",
+    "Rechtsanwaltsfachangestellter",
+    "Notarfachangestellte",
+    "paralegal",
+    "Compliance Officer",
+    "Compliance Manager",
+    "Datenschutzbeauftragter",
+    "Datenschutzbeauftragte",
+    "data protection officer",
+    "Rechtsreferendar",
+    "Rechtsreferendarin",
+    "Patentanwalt",
+    "patent attorney",
+    "Rechtspfleger",
+    "Rechtspflegerin"
+  ],
+  "education": [
+    "Rechtswissenschaft",
+    "Rechtswissenschaften",
+    "Jura",
+    "law degree",
+    "Bachelor of Laws",
+    "LL.B.",
+    "LL.M.",
+    "Master of Laws",
+    "Erstes juristisches Staatsexamen",
+    "Zweites juristisches Staatsexamen",
+    "Erste juristische Prüfung",
+    "Wirtschaftsrecht",
+    "business law",
+    "Ausbildung zur Rechtsanwaltsfachangestellten",
+    "Certified Compliance Officer",
+    "Fachanwalt"
+  ]
+}

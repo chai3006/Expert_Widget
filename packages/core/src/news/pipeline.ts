@@ -5,7 +5,7 @@
 // and come first. Runs at view time, so edits in config.json or watchlist.json apply without
 // refetching.
 
-import { DOMAIN_LABELS, type DomainWeight, type NewsCard, type NewsTag } from '../shared/types.js';
+import type { DomainWeight, NewsCard, NewsTag } from '../shared/types.js';
 import type { AppConfig, ProviderInfo } from '../config.js';
 import type { FeedCache, UsefulEntry } from '../state/appState.js';
 import type { Classifier } from './classifier.js';
@@ -82,7 +82,8 @@ export function buildNewsCards(input: NewsBuildInput): NewsCard[] {
   // Watchlist items are not shared out by domain weight: newest (or soonest) first, per group.
   const watched = selectForProfile(unique.filter((c) => c.watchlist.length > 0), [], config.maxItemsPerTag);
   const others = selectForProfile(unique.filter((c) => c.watchlist.length === 0), weights, config.maxItemsPerTag);
-  const selected = [...watched, ...others].map((c) => toCard(c, seen));
+  const labelOf = (d: string) => config.domains.label(d);
+  const selected = [...watched, ...others].map((c) => toCard(c, seen, labelOf));
   const kept = Object.values(useful)
     .filter((u) => removed[canonicalUrl(u.url)] === undefined)
     .filter((u) => u.tag !== 'career_fair' || allowMock || !isMockUrl(u.url))
@@ -119,7 +120,7 @@ function usefulCard(u: UsefulEntry, seen: Readonly<Record<string, number>>, watc
   };
 }
 
-function toCard(c: Candidate, seen: Readonly<Record<string, number>>): NewsCard {
+function toCard(c: Candidate, seen: Readonly<Record<string, number>>, labelOf: (domain: string) => string): NewsCard {
   const id = itemId(c.url);
   return {
     id,
@@ -129,7 +130,7 @@ function toCard(c: Candidate, seen: Readonly<Record<string, number>>): NewsCard 
     url: c.item.url,
     sourceName: c.item.publisher ?? c.item.sourceName,
     domain: c.domain,
-    domainLabel: c.domain === 'all' ? 'All domains' : DOMAIN_LABELS[c.domain],
+    domainLabel: c.domain === 'all' ? 'All domains' : labelOf(c.domain),
     date: new Date(c.date).toISOString(),
     eventDate: c.item.eventDate,
     eventEndDate: c.item.eventEndDate,

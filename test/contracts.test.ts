@@ -7,8 +7,7 @@ import { MockCvProvider, mockProviders } from '../packages/core/src/mock/mockDat
 import { runRefresh } from '../packages/core/src/refresh.js';
 import { memoryStores } from '../packages/core/src/state/appState.js';
 import { buildView } from '../packages/core/src/view.js';
-import { DOMAIN_LABELS, type DomainId } from '../packages/core/src/shared/types.js';
-import { defaultConfig, defaultEmployers, defaultWatchlist } from './helpers/config.js';
+import { defaultConfig, defaultEmployers, defaultWatchlist, registry } from './helpers/config.js';
 import { schemaErrors, schemaFiles } from './helpers/schemas.js';
 
 let dir: string;
@@ -34,7 +33,7 @@ describe('contracts', () => {
 
   it('builds a DomainProfile that matches its schema and leaves out the file name', async () => {
     const v = await mockView();
-    const profile = toDomainProfile(v.data.profile!, (d) => DOMAIN_LABELS[d as DomainId]);
+    const profile = toDomainProfile(v.data.profile!, (d) => registry().label(d));
     expect(schemaErrors('DomainProfile', profile)).toEqual([]);
     expect(profile.weights.reduce((a, w) => a + w.weight, 0)).toBe(100);
     expect(JSON.stringify(profile)).not.toContain(v.data.profile!.fileName);

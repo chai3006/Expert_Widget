@@ -1,0 +1,294 @@
+{
+  "schemaVersion": 1,
+  "id": "logistics-supply-chain",
+  "order": 220,
+  "sector": "trade",
+  "label": {
+    "de": "Logistik & Supply Chain",
+    "en": "Logistics & supply chain"
+  },
+  "shortLabel": {
+    "de": "Logistik",
+    "en": "Logistics"
+  },
+  "description": "Warehousing, transport, freight forwarding, purchasing and supply chain management.",
+  "keywords": [
+    {
+      "term": "Logistik",
+      "weight": 2
+    },
+    {
+      "term": "logistics",
+      "weight": 1
+    },
+    {
+      "term": "Supply Chain",
+      "weight": 1
+    },
+    {
+      "term": "Lager",
+      "weight": 1
+    },
+    {
+      "term": "warehouse",
+      "weight": 1
+    },
+    {
+      "term": "Lagerlogistik",
+      "weight": 1
+    },
+    {
+      "term": "Lagerverwaltung",
+      "weight": 1
+    },
+    {
+      "term": "Kommissionierung",
+      "weight": 1
+    },
+    {
+      "term": "order picking",
+      "weight": 1
+    },
+    {
+      "term": "Versand",
+      "weight": 1
+    },
+    {
+      "term": "shipping",
+      "weight": 1
+    },
+    {
+      "term": "Spedition",
+      "weight": 1
+    },
+    {
+      "term": "freight forwarding",
+      "weight": 1
+    },
+    {
+      "term": "Transport",
+      "weight": 0.5
+    },
+    {
+      "term": "Fuhrpark",
+      "weight": 1
+    },
+    {
+      "term": "fleet management",
+      "weight": 1
+    },
+    {
+      "term": "Disposition",
+      "weight": 1
+    },
+    {
+      "term": "dispatching",
+      "weight": 1
+    },
+    {
+      "term": "Tourenplanung",
+      "weight": 1
+    },
+    {
+      "term": "route planning",
+      "weight": 1
+    },
+    {
+      "term": "Einkauf",
+      "weight": 1
+    },
+    {
+      "term": "procurement",
+      "weight": 1
+    },
+    {
+      "term": "purchasing",
+      "weight": 1
+    },
+    {
+      "term": "Beschaffung",
+      "weight": 1
+    },
+    {
+      "term": "Materialwirtschaft",
+      "weight": 1
+    },
+    {
+      "term": "materials management",
+      "weight": 1
+    },
+    {
+      "term": "Bestandsmanagement",
+      "weight": 1
+    },
+    {
+      "term": "inventory management",
+      "weight": 1
+    },
+    {
+      "term": "Zoll",
+      "weight": 1
+    },
+    {
+      "term": "customs",
+      "weight": 1
+    },
+    {
+      "term": "Import",
+      "weight": 0.5
+    },
+    {
+      "term": "Export",
+      "weight": 0.5
+    },
+    {
+      "term": "Intralogistik",
+      "weight": 1
+    },
+    {
+      "term": "Gabelstapler",
+      "weight": 1
+    },
+    {
+      "term": "forklift",
+      "weight": 1
+    },
+    {
+      "term": "Staplerschein",
+      "weight": 1
+    },
+    {
+      "term": "WMS",
+      "weight": 1
+    },
+    {
+      "term": "SAP MM",
+      "weight": 1
+    },
+    {
+      "term": "SAP EWM",
+      "weight": 1
+    },
+    {
+      "term": "Kontraktlogistik",
+      "weight": 1
+    },
+    {
+      "term": "Paketdienst",
+      "weight": 1
+    },
+    {
+      "term": "parcel",
+      "weight": 1
+    },
+    {
+      "term": "KEP",
+      "weight": 1
+    },
+    {
+      "term": "Luftfracht",
+      "weight": 1
+    },
+    {
+      "term": "air freight",
+      "weight": 1
+    },
+    {
+      "term": "Seefracht",
+      "weight": 1
+    },
+    {
+      "term": "sea freight",
+      "weight": 1
+    },
+    {
+      "term": "LKW",
+      "weight": 1
+    },
+    {
+      "term": "Wareneingang",
+      "weight": 1
+    },
+    {
+      "term": "goods receipt",
+      "weight": 1
+    },
+    {
+      "term": "Warenausgang",
+      "weight": 1
+    },
+    {
+      "term": "Lieferkette",
+      "weight": 1
+    },
+    {
+      "term": "Demand Planning",
+      "weight": 1
+    },
+    {
+      "term": "Bedarfsplanung",
+      "weight": 1
+    },
+    {
+      "term": "Frachtführer",
+      "weight": 1
+    }
+  ],
+  "titles": [
+    "Fachkraft für Lagerlogistik",
+    "Fachlagerist",
+    "Fachlageristin",
+    "warehouse worker",
+    "Lagerist",
+    "Lageristin",
+    "Lagerarbeiter",
+    "Kommissionierer",
+    "order picker",
+    "Logistiker",
+    "logistics specialist",
+    "Logistikmanager",
+    "logistics manager",
+    "Supply Chain Manager",
+    "Disponent",
+    "Disponentin",
+    "dispatcher",
+    "Speditionskaufmann",
+    "Speditionskauffrau",
+    "Kaufmann für Spedition und Logistikdienstleistung",
+    "freight forwarder",
+    "Einkäufer",
+    "Einkäuferin",
+    "buyer",
+    "purchaser",
+    "Strategischer Einkäufer",
+    "procurement manager",
+    "Berufskraftfahrer",
+    "truck driver",
+    "LKW-Fahrer",
+    "Paketzusteller",
+    "courier",
+    "Lagerleiter",
+    "warehouse manager",
+    "Zollsachbearbeiter",
+    "Logistikleiter",
+    "Materialdisponent",
+    "Demand Planner",
+    "Logistiksachbearbeiter"
+  ],
+  "education": [
+    "Fachkraft für Lagerlogistik",
+    "Logistikmanagement",
+    "logistics management",
+    "Supply Chain Management",
+    "Kaufmann für Spedition",
+    "Kauffrau für Spedition",
+    "Fachwirt für Logistiksysteme",
+    "Logistikmeister",
+    "Gabelstaplerschein",
+    "Berufskraftfahrerqualifikation",
+    "APICS",
+    "CPIM",
+    "Einkaufsfachwirt",
+    "Fachkaufmann Einkauf"
+  ]
+}

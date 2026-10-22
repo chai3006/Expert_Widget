@@ -1,0 +1,306 @@
+{
+  "schemaVersion": 1,
+  "id": "creative-design",
+  "order": 290,
+  "sector": "public-media",
+  "label": {
+    "de": "Kreativwirtschaft & Design",
+    "en": "Creative industries & design"
+  },
+  "shortLabel": {
+    "de": "Design",
+    "en": "Design"
+  },
+  "description": "Graphic, UX, product and fashion design, photography, film, animation, games, music and the arts.",
+  "keywords": [
+    {
+      "term": "Grafikdesign",
+      "weight": 1
+    },
+    {
+      "term": "graphic design",
+      "weight": 1
+    },
+    {
+      "term": "Kommunikationsdesign",
+      "weight": 1
+    },
+    {
+      "term": "communication design",
+      "weight": 1
+    },
+    {
+      "term": "Mediengestaltung",
+      "weight": 1
+    },
+    {
+      "term": "Layout",
+      "weight": 1
+    },
+    {
+      "term": "Typografie",
+      "weight": 1
+    },
+    {
+      "term": "typography",
+      "weight": 1
+    },
+    {
+      "term": "Illustration",
+      "weight": 1
+    },
+    {
+      "term": "Fotografie",
+      "weight": 1
+    },
+    {
+      "term": "photography",
+      "weight": 1
+    },
+    {
+      "term": "Videoproduktion",
+      "weight": 1
+    },
+    {
+      "term": "video production",
+      "weight": 1
+    },
+    {
+      "term": "Filmproduktion",
+      "weight": 1
+    },
+    {
+      "term": "film production",
+      "weight": 1
+    },
+    {
+      "term": "Animation",
+      "weight": 1
+    },
+    {
+      "term": "Motion Design",
+      "weight": 1
+    },
+    {
+      "term": "3D-Visualisierung",
+      "weight": 1
+    },
+    {
+      "term": "UX",
+      "weight": 1
+    },
+    {
+      "term": "UI",
+      "weight": 1
+    },
+    {
+      "term": "User Experience",
+      "weight": 1
+    },
+    {
+      "term": "Interaction Design",
+      "weight": 1
+    },
+    {
+      "term": "Webdesign",
+      "weight": 1
+    },
+    {
+      "term": "web design",
+      "weight": 1
+    },
+    {
+      "term": "Produktdesign",
+      "weight": 1
+    },
+    {
+      "term": "product design",
+      "weight": 1
+    },
+    {
+      "term": "Industriedesign",
+      "weight": 1
+    },
+    {
+      "term": "industrial design",
+      "weight": 1
+    },
+    {
+      "term": "Modedesign",
+      "weight": 1
+    },
+    {
+      "term": "fashion design",
+      "weight": 1
+    },
+    {
+      "term": "Adobe",
+      "weight": 1
+    },
+    {
+      "term": "Photoshop",
+      "weight": 1
+    },
+    {
+      "term": "InDesign",
+      "weight": 1
+    },
+    {
+      "term": "After Effects",
+      "weight": 1
+    },
+    {
+      "term": "Premiere Pro",
+      "weight": 1
+    },
+    {
+      "term": "Figma",
+      "weight": 1
+    },
+    {
+      "term": "Blender",
+      "weight": 1
+    },
+    {
+      "term": "Cinema 4D",
+      "weight": 1
+    },
+    {
+      "term": "Corporate Design",
+      "weight": 1
+    },
+    {
+      "term": "Kunst",
+      "weight": 1
+    },
+    {
+      "term": "Atelier",
+      "weight": 1
+    },
+    {
+      "term": "Galerie",
+      "weight": 1
+    },
+    {
+      "term": "Musik",
+      "weight": 1
+    },
+    {
+      "term": "music",
+      "weight": 1
+    },
+    {
+      "term": "Theater",
+      "weight": 1
+    },
+    {
+      "term": "theatre",
+      "weight": 1
+    },
+    {
+      "term": "Bühne",
+      "weight": 1
+    },
+    {
+      "term": "Schauspiel",
+      "weight": 1
+    },
+    {
+      "term": "acting",
+      "weight": 1
+    },
+    {
+      "term": "Game Design",
+      "weight": 1
+    },
+    {
+      "term": "Spieleentwicklung",
+      "weight": 1
+    },
+    {
+      "term": "game development",
+      "weight": 1
+    },
+    {
+      "term": "Storyboard",
+      "weight": 1
+    },
+    {
+      "term": "Moodboard",
+      "weight": 1
+    }
+  ],
+  "titles": [
+    "Grafikdesigner",
+    "Grafikdesignerin",
+    "graphic designer",
+    "Mediengestalter",
+    "Mediengestalterin",
+    "media designer",
+    "Kommunikationsdesigner",
+    "UX Designer",
+    "UI Designer",
+    "UX/UI Designer",
+    "Product Designer",
+    "Produktdesigner",
+    "Industriedesigner",
+    "industrial designer",
+    "Webdesigner",
+    "web designer",
+    "Art Director",
+    "Creative Director",
+    "Illustratorin",
+    "Fotograf",
+    "Fotografin",
+    "photographer",
+    "Videograf",
+    "videographer",
+    "Cutter",
+    "Cutterin",
+    "video editor",
+    "Kameramann",
+    "camera operator",
+    "Animator",
+    "Motion Designer",
+    "3D Artist",
+    "Game Designer",
+    "Modedesigner",
+    "Modedesignerin",
+    "fashion designer",
+    "Schneider",
+    "Schneiderin",
+    "tailor",
+    "Musiker",
+    "Musikerin",
+    "musician",
+    "Schauspieler",
+    "Schauspielerin",
+    "actor",
+    "Künstler",
+    "Künstlerin",
+    "artist",
+    "Bühnenbildner",
+    "Tontechniker",
+    "sound engineer",
+    "Veranstaltungstechniker"
+  ],
+  "education": [
+    "Kommunikationsdesign",
+    "Grafikdesign",
+    "Mediengestalter Digital und Print",
+    "Mediendesign",
+    "Industriedesign",
+    "Produktdesign",
+    "Modedesign",
+    "Fotografie",
+    "Kunsthochschule",
+    "art school",
+    "Visual Communication",
+    "visuelle Kommunikation",
+    "Filmhochschule",
+    "Musikhochschule",
+    "Schauspielschule",
+    "Interaction Design",
+    "Bachelor of Arts in Design"
+  ]
+}

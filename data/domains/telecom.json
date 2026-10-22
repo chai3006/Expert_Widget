@@ -1,0 +1,134 @@
+{
+  "schemaVersion": 1,
+  "id": "telecom",
+  "order": 100,
+  "sector": "tech",
+  "label": {
+    "de": "Telekommunikation",
+    "en": "Telecom"
+  },
+  "shortLabel": {
+    "de": "Telekom",
+    "en": "Telecom"
+  },
+  "description": "Mobile and fixed networks, radio frequency, fibre and network technology.",
+  "keywords": [
+    {
+      "term": "Telekommunikation",
+      "weight": 1
+    },
+    {
+      "term": "telecommunications",
+      "weight": 1
+    },
+    {
+      "term": "telecom",
+      "weight": 1
+    },
+    {
+      "term": "Mobilfunk",
+      "weight": 1
+    },
+    {
+      "term": "mobile network",
+      "weight": 1
+    },
+    {
+      "term": "5G",
+      "weight": 1
+    },
+    {
+      "term": "6G",
+      "weight": 1
+    },
+    {
+      "term": "LTE",
+      "weight": 1
+    },
+    {
+      "term": "O-RAN",
+      "weight": 1
+    },
+    {
+      "term": "Funktechnik",
+      "weight": 1
+    },
+    {
+      "term": "radio frequency",
+      "weight": 1
+    },
+    {
+      "term": "RF",
+      "weight": 1
+    },
+    {
+      "term": "Hochfrequenz",
+      "weight": 1
+    },
+    {
+      "term": "Antenne",
+      "weight": 1
+    },
+    {
+      "term": "antenna",
+      "weight": 1
+    },
+    {
+      "term": "Glasfaser",
+      "weight": 1
+    },
+    {
+      "term": "fiber optic",
+      "weight": 1
+    },
+    {
+      "term": "fibre optic",
+      "weight": 1
+    },
+    {
+      "term": "Netzwerktechnik",
+      "weight": 1
+    },
+    {
+      "term": "3GPP",
+      "weight": 1
+    },
+    {
+      "term": "Basisstation",
+      "weight": 1
+    },
+    {
+      "term": "base station",
+      "weight": 1
+    },
+    {
+      "term": "Nachrichtentechnik",
+      "weight": 1
+    },
+    {
+      "term": "Signalverarbeitung",
+      "weight": 1
+    },
+    {
+      "term": "signal processing",
+      "weight": 1
+    }
+  ],
+  "titles": [
+    "Funknetzplaner",
+    "RF engineer",
+    "Telekommunikationstechniker",
+    "Hochfrequenzingenieur",
+    "Nachrichtentechniker",
+    "network planner",
+    "Netzplaner",
+    "Glasfasermonteur"
+  ],
+  "education": [
+    "Nachrichtentechnik",
+    "Informationstechnik",
+    "telecommunications engineering",
+    "Kommunikationstechnik",
+    "Hochfrequenztechnik"
+  ]
+}

@@ -1,0 +1,152 @@
+{
+  "schemaVersion": 1,
+  "id": "aerospace-defense",
+  "order": 60,
+  "sector": "industry",
+  "label": {
+    "de": "Luft- & Raumfahrt, Verteidigung",
+    "en": "Aerospace & defence"
+  },
+  "shortLabel": {
+    "de": "Luftfahrt",
+    "en": "Aerospace"
+  },
+  "description": "Aircraft, space, avionics and defence technology.",
+  "keywords": [
+    {
+      "term": "Luftfahrt",
+      "weight": 1
+    },
+    {
+      "term": "aviation",
+      "weight": 1
+    },
+    {
+      "term": "Raumfahrt",
+      "weight": 1
+    },
+    {
+      "term": "aerospace",
+      "weight": 1
+    },
+    {
+      "term": "spacecraft",
+      "weight": 1
+    },
+    {
+      "term": "Flugzeug",
+      "weight": 1
+    },
+    {
+      "term": "aircraft",
+      "weight": 1
+    },
+    {
+      "term": "Avionik",
+      "weight": 1
+    },
+    {
+      "term": "avionics",
+      "weight": 1
+    },
+    {
+      "term": "DO-178",
+      "weight": 1
+    },
+    {
+      "term": "DO-254",
+      "weight": 1
+    },
+    {
+      "term": "Satellit",
+      "weight": 1
+    },
+    {
+      "term": "satellite",
+      "weight": 1
+    },
+    {
+      "term": "Verteidigung",
+      "weight": 1
+    },
+    {
+      "term": "defence",
+      "weight": 1
+    },
+    {
+      "term": "defense",
+      "weight": 1
+    },
+    {
+      "term": "Rüstung",
+      "weight": 1
+    },
+    {
+      "term": "Wehrtechnik",
+      "weight": 1
+    },
+    {
+      "term": "Radar",
+      "weight": 1
+    },
+    {
+      "term": "Drohne",
+      "weight": 1
+    },
+    {
+      "term": "drone",
+      "weight": 1
+    },
+    {
+      "term": "UAV",
+      "weight": 1
+    },
+    {
+      "term": "Triebwerk",
+      "weight": 1
+    },
+    {
+      "term": "aero engine",
+      "weight": 1
+    },
+    {
+      "term": "Flugsteuerung",
+      "weight": 1
+    },
+    {
+      "term": "flight control",
+      "weight": 1
+    },
+    {
+      "term": "Bundeswehr",
+      "weight": 1
+    },
+    {
+      "term": "Rheinmetall",
+      "weight": 1
+    },
+    {
+      "term": "Hensoldt",
+      "weight": 1
+    }
+  ],
+  "titles": [
+    "Luftfahrtingenieur",
+    "aerospace engineer",
+    "Flugzeugmechaniker",
+    "aircraft mechanic",
+    "Fluggerätmechaniker",
+    "Avionikingenieur",
+    "avionics engineer",
+    "Raumfahrtingenieur",
+    "Systemingenieur Luftfahrt",
+    "Pilot"
+  ],
+  "education": [
+    "Luft- und Raumfahrttechnik",
+    "aerospace engineering",
+    "Luftfahrttechnik",
+    "aeronautical engineering",
+    "Raumfahrttechnik"
+  ]
+}

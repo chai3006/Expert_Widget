@@ -4,8 +4,6 @@
 import { eventDateLabel, lastUpdatedLabel, shortDateLabel } from '../../core/src/shared/format.js';
 import { orderCompanies, orderNews, watchlistKey } from '../../core/src/shared/ordering.js';
 import {
-  DOMAIN_LABELS,
-  DOMAIN_SHORT_LABELS,
   TAG_LABELS,
   tagMatchesFilter,
   type CompanyChip,
@@ -104,6 +102,12 @@ function store(key: string, value: string): void {
   } catch {
     /* only a convenience */
   }
+}
+
+/** A domain's name from the registry list in the view (the id when the domain is unknown). */
+function domainLabel(v: ViewModel, id: string, short = false): string {
+  const d = v.data.domains.find((x) => x.id === id);
+  return d ? (short ? d.shortLabel : d.label) : id;
 }
 
 // ---- Rendering -----------------------------------------------------------------------------
@@ -329,14 +333,14 @@ function renderDomainMix(v: ViewModel): HTMLElement {
   if (weights.length === 0) {
     toggle.append(h('span', { class: 'mix-note' }, 'No domain mix yet. Put one CV in the folder and press Refresh.'));
   } else {
-    const bar = h('span', { class: 'mix-bar', role: 'img', 'aria-label': weights.map((w) => `${DOMAIN_LABELS[w.domain]} ${w.weight}%`).join(', ') });
+    const bar = h('span', { class: 'mix-bar', role: 'img', 'aria-label': weights.map((w) => `${domainLabel(v, w.domain)} ${w.weight}%`).join(', ') });
     const line = h('span', { class: 'mix-line', 'aria-hidden': 'true' });
     weights.forEach((w, i) => {
       const seg = h('span', { class: `mix-${i + 1}` });
       seg.style.width = `${w.weight}%`;
       bar.append(seg);
       // Each name in the colour of its bar segment; the percentages are in the expanded details.
-      line.append(h('span', { class: `mix-text-${i + 1}` }, DOMAIN_SHORT_LABELS[w.domain]));
+      line.append(h('span', { class: `mix-text-${i + 1}` }, domainLabel(v, w.domain, true)));
     });
     toggle.append(bar, line);
   }
@@ -347,7 +351,7 @@ function renderDomainMix(v: ViewModel): HTMLElement {
     if (weights.length > 0 && v.data.profile) {
       const legend = h('ul', { class: 'legend' });
       weights.forEach((w, i) => {
-        legend.append(h('li', {}, h('span', { class: `swatch mix-${i + 1}` }), h('span', {}, DOMAIN_LABELS[w.domain]), h('span', { class: 'weight' }, `${w.weight}%`)));
+        legend.append(h('li', {}, h('span', { class: `swatch mix-${i + 1}` }), h('span', {}, domainLabel(v, w.domain)), h('span', { class: 'weight' }, `${w.weight}%`)));
       });
       details.append(legend, h('p', { class: 'muted small' }, `Based on your CV · ${v.data.profile.fileName}`));
     } else {

@@ -1,0 +1,345 @@
+{
+  "schemaVersion": 1,
+  "id": "education-research",
+  "order": 240,
+  "sector": "public-media",
+  "label": {
+    "de": "Bildung & Forschung",
+    "en": "Education & research"
+  },
+  "shortLabel": {
+    "de": "Bildung",
+    "en": "Education"
+  },
+  "description": "Schools, childcare, universities, adult education and research institutes.",
+  "keywords": [
+    {
+      "term": "Schule",
+      "weight": 1
+    },
+    {
+      "term": "school",
+      "weight": 1
+    },
+    {
+      "term": "Unterricht",
+      "weight": 1
+    },
+    {
+      "term": "teaching",
+      "weight": 1
+    },
+    {
+      "term": "Lehrkraft",
+      "weight": 1
+    },
+    {
+      "term": "Grundschule",
+      "weight": 1
+    },
+    {
+      "term": "primary school",
+      "weight": 1
+    },
+    {
+      "term": "Gymnasium",
+      "weight": 1
+    },
+    {
+      "term": "Realschule",
+      "weight": 1
+    },
+    {
+      "term": "Gesamtschule",
+      "weight": 1
+    },
+    {
+      "term": "Berufsschule",
+      "weight": 1
+    },
+    {
+      "term": "vocational school",
+      "weight": 1
+    },
+    {
+      "term": "Kindergarten",
+      "weight": 1
+    },
+    {
+      "term": "Kita",
+      "weight": 1
+    },
+    {
+      "term": "Kindertagesstätte",
+      "weight": 1
+    },
+    {
+      "term": "daycare",
+      "weight": 1
+    },
+    {
+      "term": "Pädagogik",
+      "weight": 1
+    },
+    {
+      "term": "pedagogy",
+      "weight": 1
+    },
+    {
+      "term": "Didaktik",
+      "weight": 1
+    },
+    {
+      "term": "Lehrplan",
+      "weight": 1
+    },
+    {
+      "term": "curriculum",
+      "weight": 1
+    },
+    {
+      "term": "Klassenleitung",
+      "weight": 1
+    },
+    {
+      "term": "Schüler",
+      "weight": 1
+    },
+    {
+      "term": "pupils",
+      "weight": 1
+    },
+    {
+      "term": "Nachhilfe",
+      "weight": 1
+    },
+    {
+      "term": "tutoring",
+      "weight": 1
+    },
+    {
+      "term": "Erwachsenenbildung",
+      "weight": 1
+    },
+    {
+      "term": "adult education",
+      "weight": 1
+    },
+    {
+      "term": "Volkshochschule",
+      "weight": 1
+    },
+    {
+      "term": "Hochschule",
+      "weight": 1
+    },
+    {
+      "term": "university",
+      "weight": 1
+    },
+    {
+      "term": "Universität",
+      "weight": 1
+    },
+    {
+      "term": "Forschung",
+      "weight": 1
+    },
+    {
+      "term": "research",
+      "weight": 1
+    },
+    {
+      "term": "Forschungsprojekt",
+      "weight": 1
+    },
+    {
+      "term": "research project",
+      "weight": 1
+    },
+    {
+      "term": "Publikation",
+      "weight": 1
+    },
+    {
+      "term": "publication",
+      "weight": 1
+    },
+    {
+      "term": "Dissertation",
+      "weight": 1
+    },
+    {
+      "term": "Doktorand",
+      "weight": 1
+    },
+    {
+      "term": "doctoral",
+      "weight": 1
+    },
+    {
+      "term": "Postdoc",
+      "weight": 1
+    },
+    {
+      "term": "Lehrstuhl",
+      "weight": 1
+    },
+    {
+      "term": "Drittmittel",
+      "weight": 1
+    },
+    {
+      "term": "third-party funding",
+      "weight": 1
+    },
+    {
+      "term": "DFG",
+      "weight": 1
+    },
+    {
+      "term": "Fraunhofer",
+      "weight": 1
+    },
+    {
+      "term": "Max-Planck",
+      "weight": 1
+    },
+    {
+      "term": "Helmholtz",
+      "weight": 1
+    },
+    {
+      "term": "Leibniz-Institut",
+      "weight": 1
+    },
+    {
+      "term": "peer review",
+      "weight": 1
+    },
+    {
+      "term": "Konferenzbeitrag",
+      "weight": 1
+    },
+    {
+      "term": "wissenschaftlich",
+      "weight": 1
+    },
+    {
+      "term": "scientific",
+      "weight": 1
+    },
+    {
+      "term": "Seminar",
+      "weight": 1
+    },
+    {
+      "term": "Vorlesung",
+      "weight": 1
+    },
+    {
+      "term": "lecture",
+      "weight": 1
+    },
+    {
+      "term": "Lehrauftrag",
+      "weight": 1
+    },
+    {
+      "term": "Elternarbeit",
+      "weight": 1
+    },
+    {
+      "term": "Frühpädagogik",
+      "weight": 1
+    },
+    {
+      "term": "early childhood education",
+      "weight": 1
+    }
+  ],
+  "titles": [
+    "Lehrer",
+    "Lehrerin",
+    "teacher",
+    "Lehrkraft",
+    "Grundschullehrer",
+    "Grundschullehrerin",
+    "Gymnasiallehrer",
+    "Studienrat",
+    "Studienrätin",
+    "Oberstudienrat",
+    "Lehramtsanwärter",
+    "Lehramtsanwärterin",
+    "Erzieher",
+    "Erzieherin",
+    "educator",
+    "Kindheitspädagoge",
+    "Kinderpfleger",
+    "Kinderpflegerin",
+    "Dozent",
+    "Dozentin",
+    "lecturer",
+    "Professor",
+    "Professorin",
+    "Wissenschaftlicher Mitarbeiter",
+    "Wissenschaftliche Mitarbeiterin",
+    "research associate",
+    "research assistant",
+    "Researcher",
+    "Research Scientist",
+    "Wissenschaftler",
+    "Wissenschaftlerin",
+    "scientist",
+    "Postdoktorand",
+    "postdoctoral researcher",
+    "Doktorand",
+    "Doktorandin",
+    "PhD student",
+    "PhD candidate",
+    "Schulleiter",
+    "Schulleiterin",
+    "headteacher",
+    "Nachhilfelehrer",
+    "Bildungsreferent",
+    "Studienberater",
+    "Kitaleitung"
+  ],
+  "education": [
+    "Lehramt",
+    "Lehramtsstudium",
+    "teacher training",
+    "Staatsexamen Lehramt",
+    "Referendariat",
+    "Vorbereitungsdienst",
+    "Erziehungswissenschaft",
+    "educational science",
+    "Staatlich anerkannter Erzieher",
+    "Staatlich anerkannte Erzieherin",
+    "Ausbildung zur Erzieherin",
+    "Ausbildung zum Erzieher",
+    "Kindheitspädagogik",
+    {
+      "term": "Promotion",
+      "weight": 0.5
+    },
+    {
+      "term": "PhD",
+      "weight": 0.5
+    },
+    {
+      "term": "Dr. rer. nat.",
+      "weight": 0.5
+    },
+    {
+      "term": "Dr. phil.",
+      "weight": 0.5
+    },
+    {
+      "term": "Doctor of Philosophy",
+      "weight": 0.5
+    },
+    "Habilitation",
+    "Master of Education"
+  ]
+}

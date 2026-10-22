@@ -1,0 +1,289 @@
+{
+  "schemaVersion": 1,
+  "id": "software-ai",
+  "order": 110,
+  "sector": "tech",
+  "label": {
+    "de": "IT, Software & KI",
+    "en": "IT, software & AI"
+  },
+  "shortLabel": {
+    "de": "IT",
+    "en": "IT"
+  },
+  "description": "Software development, IT operations and security, data and artificial intelligence.",
+  "keywords": [
+    {
+      "term": "Softwareentwicklung",
+      "weight": 1
+    },
+    {
+      "term": "software development",
+      "weight": 1
+    },
+    {
+      "term": "software engineer",
+      "weight": 1
+    },
+    {
+      "term": "Softwarearchitektur",
+      "weight": 1
+    },
+    {
+      "term": "software architecture",
+      "weight": 1
+    },
+    {
+      "term": "Python",
+      "weight": 1
+    },
+    {
+      "term": "Java",
+      "weight": 1
+    },
+    {
+      "term": "JavaScript",
+      "weight": 1
+    },
+    {
+      "term": "TypeScript",
+      "weight": 1
+    },
+    {
+      "term": "Cloud",
+      "weight": 1
+    },
+    {
+      "term": "AWS",
+      "weight": 1
+    },
+    {
+      "term": "Azure",
+      "weight": 1
+    },
+    {
+      "term": "Kubernetes",
+      "weight": 1
+    },
+    {
+      "term": "DevOps",
+      "weight": 1
+    },
+    {
+      "term": "Machine Learning",
+      "weight": 1
+    },
+    {
+      "term": "maschinelles Lernen",
+      "weight": 1
+    },
+    {
+      "term": "Deep Learning",
+      "weight": 1
+    },
+    {
+      "term": "künstliche Intelligenz",
+      "weight": 1
+    },
+    {
+      "term": "artificial intelligence",
+      "weight": 1
+    },
+    {
+      "term": "KI",
+      "weight": 1
+    },
+    {
+      "term": "AI",
+      "weight": 1
+    },
+    {
+      "term": "Data Science",
+      "weight": 1
+    },
+    {
+      "term": "Datenanalyse",
+      "weight": 1
+    },
+    {
+      "term": "data analytics",
+      "weight": 1
+    },
+    {
+      "term": "Computer Vision",
+      "weight": 1
+    },
+    {
+      "term": "Bildverarbeitung",
+      "weight": 1
+    },
+    {
+      "term": "NLP",
+      "weight": 1
+    },
+    {
+      "term": "LLM",
+      "weight": 1
+    },
+    {
+      "term": "TensorFlow",
+      "weight": 1
+    },
+    {
+      "term": "PyTorch",
+      "weight": 1
+    },
+    {
+      "term": "Microservices",
+      "weight": 1
+    },
+    {
+      "term": "Webentwicklung",
+      "weight": 1
+    },
+    {
+      "term": "web development",
+      "weight": 1
+    },
+    {
+      "term": "Backend",
+      "weight": 1
+    },
+    {
+      "term": "Frontend",
+      "weight": 1
+    },
+    {
+      "term": "Full Stack",
+      "weight": 1
+    },
+    {
+      "term": "SaaS",
+      "weight": 1
+    },
+    {
+      "term": "IT-Administration",
+      "weight": 1
+    },
+    {
+      "term": "Systemadministration",
+      "weight": 1
+    },
+    {
+      "term": "system administration",
+      "weight": 1
+    },
+    {
+      "term": "IT-Sicherheit",
+      "weight": 1
+    },
+    {
+      "term": "cyber security",
+      "weight": 1
+    },
+    {
+      "term": "Informationssicherheit",
+      "weight": 1
+    },
+    {
+      "term": "information security",
+      "weight": 1
+    },
+    {
+      "term": "SAP",
+      "weight": 1
+    },
+    {
+      "term": "Datenbank",
+      "weight": 1
+    },
+    {
+      "term": "database",
+      "weight": 1
+    },
+    {
+      "term": "SQL",
+      "weight": 1
+    },
+    {
+      "term": "Linux",
+      "weight": 1
+    },
+    {
+      "term": "IT-Support",
+      "weight": 1
+    },
+    {
+      "term": "Helpdesk",
+      "weight": 1
+    },
+    {
+      "term": "ERP",
+      "weight": 1
+    },
+    {
+      "term": "Netzwerkadministration",
+      "weight": 1
+    },
+    {
+      "term": "Git",
+      "weight": 1
+    },
+    {
+      "term": "Docker",
+      "weight": 1
+    }
+  ],
+  "titles": [
+    "Softwareentwickler",
+    "software developer",
+    "Software Engineer",
+    "Programmierer",
+    "programmer",
+    "Fachinformatiker",
+    "Data Scientist",
+    "Data Engineer",
+    "DevOps Engineer",
+    "Systemadministrator",
+    "system administrator",
+    "IT-Administrator",
+    "IT-Berater",
+    "IT consultant",
+    "Web Developer",
+    "Webentwickler",
+    "Frontend-Entwickler",
+    "Frontend Developer",
+    "Backend-Entwickler",
+    "Backend Developer",
+    "Full-Stack-Entwickler",
+    "Full Stack Developer",
+    "Machine Learning Engineer",
+    "IT-Projektleiter",
+    "Product Owner",
+    "Scrum Master",
+    "Softwarearchitekt",
+    "software architect",
+    "Cloud Engineer",
+    "IT-Sicherheitsexperte",
+    "security engineer",
+    "SAP-Berater",
+    "SAP consultant",
+    "Anwendungsentwickler",
+    "IT-Supporter"
+  ],
+  "education": [
+    "Informatik",
+    "computer science",
+    "Wirtschaftsinformatik",
+    "business informatics",
+    "Fachinformatiker",
+    "Medieninformatik",
+    "software engineering",
+    "Data Science",
+    "ITIL",
+    "CCNA",
+    "AWS Certified",
+    "Microsoft Certified",
+    "Professional Scrum Master"
+  ]
+}

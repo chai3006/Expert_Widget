@@ -1,0 +1,314 @@
+{
+  "schemaVersion": 1,
+  "id": "healthcare-nursing",
+  "order": 140,
+  "sector": "health",
+  "label": {
+    "de": "Gesundheit & Pflege",
+    "en": "Healthcare & nursing"
+  },
+  "shortLabel": {
+    "de": "Pflege",
+    "en": "Healthcare"
+  },
+  "description": "Hospitals, care homes, home care, medical practices, therapy and emergency services.",
+  "keywords": [
+    {
+      "term": "Pflege",
+      "weight": 0.5
+    },
+    {
+      "term": "nursing",
+      "weight": 1
+    },
+    {
+      "term": "Krankenpflege",
+      "weight": 1
+    },
+    {
+      "term": "Altenpflege",
+      "weight": 1
+    },
+    {
+      "term": "Intensivpflege",
+      "weight": 1
+    },
+    {
+      "term": "Pflegeheim",
+      "weight": 1
+    },
+    {
+      "term": "care home",
+      "weight": 1
+    },
+    {
+      "term": "nursing home",
+      "weight": 1
+    },
+    {
+      "term": "Krankenhaus",
+      "weight": 1
+    },
+    {
+      "term": "Klinik",
+      "weight": 1
+    },
+    {
+      "term": "hospital",
+      "weight": 1
+    },
+    {
+      "term": "clinic",
+      "weight": 1
+    },
+    {
+      "term": "Patient",
+      "weight": 1
+    },
+    {
+      "term": "patient care",
+      "weight": 1
+    },
+    {
+      "term": "Grundpflege",
+      "weight": 1
+    },
+    {
+      "term": "Behandlungspflege",
+      "weight": 1
+    },
+    {
+      "term": "Wundversorgung",
+      "weight": 1
+    },
+    {
+      "term": "wound care",
+      "weight": 1
+    },
+    {
+      "term": "Medikamentengabe",
+      "weight": 1
+    },
+    {
+      "term": "Pflegedokumentation",
+      "weight": 1
+    },
+    {
+      "term": "Pflegeplanung",
+      "weight": 1
+    },
+    {
+      "term": "ambulanter Pflegedienst",
+      "weight": 1
+    },
+    {
+      "term": "home care",
+      "weight": 1
+    },
+    {
+      "term": "Rettungsdienst",
+      "weight": 1
+    },
+    {
+      "term": "emergency medical services",
+      "weight": 1
+    },
+    {
+      "term": "Notaufnahme",
+      "weight": 1
+    },
+    {
+      "term": "emergency department",
+      "weight": 1
+    },
+    {
+      "term": "Anästhesie",
+      "weight": 1
+    },
+    {
+      "term": "anaesthesia",
+      "weight": 1
+    },
+    {
+      "term": "Physiotherapie",
+      "weight": 1
+    },
+    {
+      "term": "physiotherapy",
+      "weight": 1
+    },
+    {
+      "term": "Ergotherapie",
+      "weight": 1
+    },
+    {
+      "term": "occupational therapy",
+      "weight": 1
+    },
+    {
+      "term": "Logopädie",
+      "weight": 1
+    },
+    {
+      "term": "speech therapy",
+      "weight": 1
+    },
+    {
+      "term": "Arztpraxis",
+      "weight": 1
+    },
+    {
+      "term": "medical practice",
+      "weight": 1
+    },
+    {
+      "term": "Gesundheitswesen",
+      "weight": 1
+    },
+    {
+      "term": "Healthcare",
+      "weight": 1
+    },
+    {
+      "term": "klinisch",
+      "weight": 0.5
+    },
+    {
+      "term": "clinical",
+      "weight": 0.5
+    },
+    {
+      "term": "Geburtshilfe",
+      "weight": 1
+    },
+    {
+      "term": "midwifery",
+      "weight": 1
+    },
+    {
+      "term": "Geriatrie",
+      "weight": 1
+    },
+    {
+      "term": "geriatrics",
+      "weight": 1
+    },
+    {
+      "term": "Pädiatrie",
+      "weight": 1
+    },
+    {
+      "term": "paediatrics",
+      "weight": 1
+    },
+    {
+      "term": "Psychiatrie",
+      "weight": 1
+    },
+    {
+      "term": "psychiatry",
+      "weight": 1
+    },
+    {
+      "term": "Rehabilitation",
+      "weight": 1
+    },
+    {
+      "term": "Palliativ",
+      "weight": 1
+    },
+    {
+      "term": "palliative care",
+      "weight": 1
+    },
+    {
+      "term": "Vitalzeichen",
+      "weight": 1
+    },
+    {
+      "term": "vital signs",
+      "weight": 1
+    },
+    {
+      "term": "Hygienebeauftragte",
+      "weight": 1
+    },
+    {
+      "term": "Intensivstation",
+      "weight": 1
+    },
+    {
+      "term": "intensive care",
+      "weight": 1
+    }
+  ],
+  "titles": [
+    "Pflegefachkraft",
+    "Pflegefachfrau",
+    "Pflegefachmann",
+    "Krankenschwester",
+    "Krankenpfleger",
+    "Gesundheits- und Krankenpfleger",
+    "Gesundheits- und Krankenpflegerin",
+    "Altenpfleger",
+    "Altenpflegerin",
+    "Pflegehelfer",
+    "Pflegehelferin",
+    "Pflegeassistent",
+    "Stationsleitung",
+    "Pflegedienstleitung",
+    "registered nurse",
+    "nurse",
+    "Assistenzarzt",
+    "Assistenzärztin",
+    "Oberarzt",
+    "Oberärztin",
+    "Facharzt",
+    "Fachärztin",
+    "physician",
+    "medical doctor",
+    "Medizinische Fachangestellte",
+    "medical assistant",
+    "Physiotherapeut",
+    "physiotherapist",
+    "Ergotherapeut",
+    "occupational therapist",
+    "Logopäde",
+    "speech therapist",
+    "Notfallsanitäter",
+    "Rettungssanitäter",
+    "paramedic",
+    "Hebamme",
+    "midwife",
+    "Operationstechnischer Assistent",
+    "Anästhesietechnischer Assistent",
+    "Zahnmedizinische Fachangestellte",
+    "dental assistant",
+    "Zahnarzt",
+    "dentist",
+    "Hausarzt"
+  ],
+  "education": [
+    "Pflegeausbildung",
+    "Krankenpflegeausbildung",
+    "Altenpflegeausbildung",
+    "Ausbildung zur Pflegefachfrau",
+    "Ausbildung zum Pflegefachmann",
+    "Pflegewissenschaft",
+    "nursing science",
+    "Bachelor of Nursing",
+    "Humanmedizin",
+    "Studium der Medizin",
+    "Approbation als Arzt",
+    "Approbation als Ärztin",
+    "Staatsexamen Medizin",
+    "examinierte Pflegefachkraft",
+    "examinierter Krankenpfleger",
+    "Fachweiterbildung Intensivpflege",
+    "Praxisanleiter",
+    "Wundexperte",
+    "Physiotherapieausbildung",
+    "Ausbildung zum Notfallsanitäter",
+    "Zahnmedizin"
+  ]
+}

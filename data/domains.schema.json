@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:expert:data:DomainDefinition:1",
+  "title": "DomainDefinition",
+  "description": "One field of work (data/domains/<id>.json). The file name must equal the id. Adding a domain means adding one such file; test/domains.test.ts checks every file.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "id", "order", "sector", "label", "shortLabel", "description", "keywords", "titles", "education"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "id": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$" },
+    "order": { "type": "number", "description": "Position in lists and the tie-break order. Unique." },
+    "sector": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$", "description": "Broad sector for the fixed news searches (data/news.json)." },
+    "label": { "$ref": "#/$defs/text" },
+    "shortLabel": { "$ref": "#/$defs/text" },
+    "description": { "type": "string", "minLength": 1 },
+    "fallback": { "type": "boolean", "description": "Only the general domain." },
+    "keywords": { "$ref": "#/$defs/terms", "description": "Words of the field (German and English). Weak in a CV body, medium in a skills section; also used to classify news." },
+    "titles": { "$ref": "#/$defs/terms", "description": "Job titles. Strong signal in the experience section." },
+    "education": { "$ref": "#/$defs/terms", "description": "Degrees, vocational training and certificates. Strong signal in education and certificates." }
+  },
+  "$defs": {
+    "text": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["de", "en"],
+      "properties": { "de": { "type": "string", "minLength": 1 }, "en": { "type": "string", "minLength": 1 } }
+    },
+    "terms": {
+      "type": "array",
+      "items": {
+        "oneOf": [
+          { "type": "string", "minLength": 1 },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["term"],
+            "properties": { "term": { "type": "string", "minLength": 1 }, "weight": { "type": "number", "exclusiveMinimum": 0, "maximum": 3 } }
+          }
+        ]
+      }
+    }
+  }
+}

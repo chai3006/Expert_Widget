@@ -3,6 +3,7 @@
   "newsMaxAgeDays": 7,
   "maxItemsPerTag": 12,
   "hotkey": "CommandOrControl+Alt+E",
+  "cvAnalysis": { "halfLifeYears": 5, "currentRoleBoost": 1.5, "ignoreWords": [] },
   "sources": [
     {
       "id": "ingenieur-recruiting-tag",
@@ -82,97 +83,6 @@
     "googleNews": { "enabled": false }
   },
   "keywords": {
-    "domains": {
-      "automotive-emobility": [
-        "automotive", "Automobil", "Fahrzeug", "vehicle", "OEM", "Tier 1", "Tier-1", "AUTOSAR",
-        "Elektromobilität", "e-mobility", "electromobility", "electric vehicle", "Elektroauto", "E-Auto",
-        "BEV", "PHEV", "Antriebsstrang", "powertrain", "drivetrain", "ADAS", "Fahrerassistenz",
-        "autonomous driving", "autonomes Fahren", "Infotainment", "Karosserie", "Fahrwerk", "chassis",
-        "ISO 26262", "ASPICE", "Automotive SPICE", "Steuergerät", "ECU", "CAN-Bus", "CAN bus", "CAN FD",
-        "FlexRay", "Ladeinfrastruktur", "charging infrastructure", "Wallbox", "Traktionsbatterie",
-        "traction battery", "Elektromotor", "e-motor", "Autoindustrie", "Autobauer", "Zulieferer", "carmaker",
-        "Volkswagen", "VW", "Audi", "Porsche", "BMW", "Mercedes-Benz", "Mercedes", "PowerCo", "Bosch",
-        "Continental", "ZF Friedrichshafen", "Schaeffler", "Mahle", "Webasto", "Dräxlmaier", "Brose", "Kostal",
-        "Forvia", "HELLA", "IAV", "FEV", "EDAG", "Bertrandt", "Tesla"
-      ],
-      "semiconductors": [
-        "Halbleiter", "semiconductor", "Chipdesign", "chip design", "IC design", "ASIC", "VLSI", "Wafer",
-        "Lithografie", "lithography", "Reinraum", "cleanroom", "Leistungshalbleiter", "power semiconductor",
-        "SiC", "GaN", "Siliziumkarbid", "silicon carbide", "Mikroelektronik", "microelectronics", "Verilog",
-        "VHDL", "SystemVerilog", "Chipfabrik", "Chipfertigung", "foundry", "Mixed-Signal", "Halbleiterwerk"
-      ],
-      "embedded-iot": [
-        "embedded", "eingebettete Systeme", "Mikrocontroller", "microcontroller", "Firmware", "RTOS",
-        "FreeRTOS", "Zephyr", "Yocto", "IoT", "Internet of Things", "Internet der Dinge", "Sensorik",
-        "Cortex-M", "bare-metal", "Bootloader", "MISRA", "Gerätetreiber", "device driver", "FPGA",
-        "Hardware-in-the-Loop", "HIL", "Embedded Linux", "Elektronikentwicklung", "electronics design",
-        "Schaltungsentwicklung", "circuit design", "PCB", "Leiterplatte"
-      ],
-      "industrial-automation": [
-        "Automatisierungstechnik", "industrial automation", "Automatisierung", "automation", "SPS", "PLC",
-        "TIA Portal", "CODESYS", "SCADA", "Industrie 4.0", "Industry 4.0", "Robotik", "robotics", "Roboter",
-        "Antriebstechnik", "drive technology", "Prozessautomatisierung", "process automation", "OPC UA",
-        "PROFINET", "EtherCAT", "Feldbus", "fieldbus", "Leittechnik", "MES", "IEC 61131", "Fabrikautomation",
-        "factory automation", "Cobot"
-      ],
-      "energy-storage": [
-        "Energiespeicher", "energy storage", "Batteriespeicher", "battery storage", "Batterie", "battery",
-        "Batteriezelle", "battery cell", "Zellchemie", "cell chemistry", "Lithium-Ionen", "lithium-ion",
-        "Batteriemanagement", "battery management", "BMS", "Photovoltaik", "photovoltaic", "Solarenergie",
-        "Windenergie", "wind energy", "Windkraft", "wind power", "Stromnetz", "power grid", "Smart Grid",
-        "Wasserstoff", "hydrogen", "Brennstoffzelle", "fuel cell", "Elektrolyse", "electrolyser",
-        "electrolyzer", "Leistungselektronik", "power electronics", "Wechselrichter", "inverter",
-        "Energietechnik", "energy technology", "erneuerbare Energien", "renewable energy", "Wärmepumpe",
-        "heat pump", "Energiewende"
-      ],
-      "aerospace-defense": [
-        "Luftfahrt", "aviation", "Raumfahrt", "aerospace", "spacecraft", "Flugzeug", "aircraft", "Avionik",
-        "avionics", "DO-178", "DO-254", "Satellit", "satellite", "Verteidigung", "defence", "defense",
-        "Rüstung", "Wehrtechnik", "Radar", "Drohne", "drone", "UAV", "Triebwerk", "aero engine",
-        "Flugsteuerung", "flight control", "Bundeswehr", "Rheinmetall", "Hensoldt"
-      ],
-      "machinery-household": [
-        "Maschinenbau", "mechanical engineering", "Sondermaschinenbau", "special machinery",
-        "Werkzeugmaschine", "machine tool", "Hausgeräte", "household appliances", "home appliances",
-        "Haushaltsgeräte", "white goods", "Konstruktion", "design engineer", "SolidWorks", "Creo",
-        "Siemens NX", "Fertigungstechnik", "manufacturing engineering", "Hydraulik", "hydraulics",
-        "Pneumatik", "pneumatics", "Landtechnik", "agricultural machinery", "Baumaschine",
-        "construction machinery", "Verpackungsmaschine", "packaging machinery", "Getriebe", "gearbox",
-        "Maschinenbauer", "VDMA"
-      ],
-      "medtech": [
-        "Medizintechnik", "medical technology", "medical device", "Medizinprodukt", "MDR", "IEC 62304",
-        "ISO 13485", "FDA", "Diagnostik", "diagnostics", "Bildgebung", "medical imaging", "Implantat",
-        "implant", "In-vitro", "Healthcare", "Gesundheitswesen", "clinical", "klinisch", "Medizingerät"
-      ],
-      "rail-transport": [
-        "Bahntechnik", "railway", "rail", "Schienenfahrzeug", "rolling stock", "Eisenbahn", "Zugsicherung",
-        "train control", "ETCS", "CBTC", "Stellwerk", "interlocking", "Signaltechnik", "signalling",
-        "EN 50128", "EN 50126", "Straßenbahn", "tram", "Nahverkehr", "public transport", "Deutsche Bahn",
-        "Verkehrstechnik", "traffic engineering", "Logistik", "logistics"
-      ],
-      "telecom": [
-        "Telekommunikation", "telecommunications", "telecom", "Mobilfunk", "mobile network", "5G", "6G",
-        "LTE", "O-RAN", "Funktechnik", "radio frequency", "RF", "Hochfrequenz", "Antenne", "antenna",
-        "Glasfaser", "fiber optic", "fibre optic", "Netzwerktechnik", "3GPP", "Basisstation", "base station",
-        "Nachrichtentechnik", "Signalverarbeitung", "signal processing"
-      ],
-      "software-ai": [
-        "Softwareentwicklung", "software development", "software engineer", "Softwarearchitektur",
-        "software architecture", "Python", "Java", "JavaScript", "TypeScript", "Cloud", "AWS", "Azure",
-        "Kubernetes", "DevOps", "Machine Learning", "maschinelles Lernen", "Deep Learning",
-        "künstliche Intelligenz", "artificial intelligence", "KI", "AI", "Data Science", "Datenanalyse",
-        "data analytics", "Computer Vision", "Bildverarbeitung", "NLP", "LLM", "TensorFlow", "PyTorch",
-        "Microservices", "Webentwicklung", "web development", "Backend", "Frontend", "Full Stack", "SaaS"
-      ],
-      "civil-chemical": [
-        "Bauingenieurwesen", "civil engineering", "Bauingenieur", "Tragwerksplanung", "structural engineering",
-        "Hochbau", "Tiefbau", "Brückenbau", "BIM", "Chemieingenieur", "chemical engineering",
-        "Verfahrenstechnik", "process engineering", "Chemie", "chemistry", "chemical", "Pharma",
-        "pharmaceutical", "Polymer", "Kunststoff", "plastics", "Raffinerie", "refinery", "Anlagenbau",
-        "plant engineering", "Umwelttechnik", "environmental engineering", "Wasserwirtschaft", "Bauindustrie"
-      ]
-    },
     "tags": {
       "hiring_cuts": [
         "Stellenabbau", "Jobabbau", "Personalabbau", "Arbeitsplatzabbau", "Werksschließung", "Werkschließung",

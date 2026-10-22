@@ -1,6 +1,8 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { validateConfig, validateEmployers, validateWatchlist, type AppConfig, type EmployerSegment, type WatchlistEntry } from '../../packages/core/src/config.js';
+import type { DomainRegistry } from '../../packages/core/src/domains.js';
+import { loadDomainRegistry } from '../../packages/node/src/appData.js';
 
 export const ROOT = join(__dirname, '..', '..');
 export const FIXTURES = join(ROOT, 'test', 'fixtures');
@@ -9,14 +11,26 @@ export function defaultConfigJson(): Record<string, unknown> {
   return JSON.parse(readFileSync(join(ROOT, 'defaults', 'config.json'), 'utf8'));
 }
 
+let cachedRegistry: DomainRegistry | null = null;
+
+/** The domain registry from data/domains. */
+export function registry(): DomainRegistry {
+  if (!cachedRegistry) {
+    const result = loadDomainRegistry(join(ROOT, 'data', 'domains'));
+    if (!result.ok) throw new Error(result.errors.join('\n'));
+    cachedRegistry = result.value;
+  }
+  return cachedRegistry;
+}
+
 export function defaultConfig(): AppConfig {
-  const result = validateConfig(defaultConfigJson());
+  const result = validateConfig(defaultConfigJson(), registry());
   if (!result.ok) throw new Error(result.errors.join('\n'));
   return result.value;
 }
 
 export function defaultEmployers(): EmployerSegment[] {
-  const result = validateEmployers(JSON.parse(readFileSync(join(ROOT, 'defaults', 'employers.json'), 'utf8')));
+  const result = validateEmployers(JSON.parse(readFileSync(join(ROOT, 'defaults', 'employers.json'), 'utf8')), registry());
   if (!result.ok) throw new Error(result.errors.join('\n'));
   return result.value;
 }

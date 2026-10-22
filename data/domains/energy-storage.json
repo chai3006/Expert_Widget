@@ -1,0 +1,277 @@
+{
+  "schemaVersion": 1,
+  "id": "energy-storage",
+  "order": 50,
+  "sector": "energy-construction",
+  "label": {
+    "de": "Energie, Versorgung & Speicher",
+    "en": "Energy, utilities & storage"
+  },
+  "shortLabel": {
+    "de": "Energie",
+    "en": "Energy"
+  },
+  "description": "Energy supply and utilities, renewables, grids, batteries, hydrogen and energy storage.",
+  "keywords": [
+    {
+      "term": "Energiespeicher",
+      "weight": 1
+    },
+    {
+      "term": "energy storage",
+      "weight": 1
+    },
+    {
+      "term": "Batteriespeicher",
+      "weight": 1
+    },
+    {
+      "term": "battery storage",
+      "weight": 1
+    },
+    {
+      "term": "Batterie",
+      "weight": 1
+    },
+    {
+      "term": "battery",
+      "weight": 1
+    },
+    {
+      "term": "Batteriezelle",
+      "weight": 1
+    },
+    {
+      "term": "battery cell",
+      "weight": 1
+    },
+    {
+      "term": "Zellchemie",
+      "weight": 1
+    },
+    {
+      "term": "cell chemistry",
+      "weight": 1
+    },
+    {
+      "term": "Lithium-Ionen",
+      "weight": 1
+    },
+    {
+      "term": "lithium-ion",
+      "weight": 1
+    },
+    {
+      "term": "Batteriemanagement",
+      "weight": 1
+    },
+    {
+      "term": "battery management",
+      "weight": 1
+    },
+    {
+      "term": "BMS",
+      "weight": 1
+    },
+    {
+      "term": "Photovoltaik",
+      "weight": 1
+    },
+    {
+      "term": "photovoltaic",
+      "weight": 1
+    },
+    {
+      "term": "Solarenergie",
+      "weight": 1
+    },
+    {
+      "term": "Windenergie",
+      "weight": 1
+    },
+    {
+      "term": "wind energy",
+      "weight": 1
+    },
+    {
+      "term": "Windkraft",
+      "weight": 1
+    },
+    {
+      "term": "wind power",
+      "weight": 1
+    },
+    {
+      "term": "Stromnetz",
+      "weight": 1
+    },
+    {
+      "term": "power grid",
+      "weight": 1
+    },
+    {
+      "term": "Smart Grid",
+      "weight": 1
+    },
+    {
+      "term": "Wasserstoff",
+      "weight": 1
+    },
+    {
+      "term": "hydrogen",
+      "weight": 1
+    },
+    {
+      "term": "Brennstoffzelle",
+      "weight": 1
+    },
+    {
+      "term": "fuel cell",
+      "weight": 1
+    },
+    {
+      "term": "Elektrolyse",
+      "weight": 1
+    },
+    {
+      "term": "electrolyser",
+      "weight": 1
+    },
+    {
+      "term": "electrolyzer",
+      "weight": 1
+    },
+    {
+      "term": "Leistungselektronik",
+      "weight": 1
+    },
+    {
+      "term": "power electronics",
+      "weight": 1
+    },
+    {
+      "term": "Wechselrichter",
+      "weight": 1
+    },
+    {
+      "term": "inverter",
+      "weight": 1
+    },
+    {
+      "term": "Energietechnik",
+      "weight": 1
+    },
+    {
+      "term": "energy technology",
+      "weight": 1
+    },
+    {
+      "term": "erneuerbare Energien",
+      "weight": 1
+    },
+    {
+      "term": "renewable energy",
+      "weight": 1
+    },
+    {
+      "term": "Wärmepumpe",
+      "weight": 1
+    },
+    {
+      "term": "heat pump",
+      "weight": 1
+    },
+    {
+      "term": "Energiewende",
+      "weight": 1
+    },
+    {
+      "term": "Stadtwerke",
+      "weight": 1
+    },
+    {
+      "term": "Energieversorger",
+      "weight": 1
+    },
+    {
+      "term": "utility company",
+      "weight": 1
+    },
+    {
+      "term": "Netzbetreiber",
+      "weight": 1
+    },
+    {
+      "term": "grid operator",
+      "weight": 1
+    },
+    {
+      "term": "Energiewirtschaft",
+      "weight": 1
+    },
+    {
+      "term": "energy industry",
+      "weight": 1
+    },
+    {
+      "term": "Fernwärme",
+      "weight": 1
+    },
+    {
+      "term": "district heating",
+      "weight": 1
+    },
+    {
+      "term": "Kraftwerk",
+      "weight": 1
+    },
+    {
+      "term": "power plant",
+      "weight": 1
+    },
+    {
+      "term": "Netzleitstelle",
+      "weight": 1
+    },
+    {
+      "term": "Energieversorgung",
+      "weight": 1
+    },
+    {
+      "term": "energy supply",
+      "weight": 1
+    },
+    {
+      "term": "Wasserversorgung",
+      "weight": 1
+    },
+    {
+      "term": "water supply",
+      "weight": 1
+    }
+  ],
+  "titles": [
+    "Energieberater",
+    "energy consultant",
+    "Netzingenieur",
+    "grid engineer",
+    "Batterieingenieur",
+    "battery engineer",
+    "Projektentwickler Wind",
+    "Projektentwickler Photovoltaik",
+    "Solarteur",
+    "Kraftwerksingenieur",
+    "Energiemanager",
+    "energy manager",
+    "Energietechniker"
+  ],
+  "education": [
+    "Energietechnik",
+    "energy engineering",
+    "Elektrische Energietechnik",
+    "Regenerative Energien",
+    "renewable energy",
+    "Energiewirtschaft",
+    "Erneuerbare Energien"
+  ]
+}

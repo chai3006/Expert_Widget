@@ -1,0 +1,95 @@
+{
+  "schemaVersion": 1,
+  "id": "medtech",
+  "order": 80,
+  "sector": "health",
+  "label": {
+    "de": "Medizintechnik",
+    "en": "Medtech"
+  },
+  "shortLabel": {
+    "de": "Medizintechnik",
+    "en": "Medtech"
+  },
+  "description": "Medical devices, diagnostics and medical imaging.",
+  "keywords": [
+    {
+      "term": "Medizintechnik",
+      "weight": 1
+    },
+    {
+      "term": "medical technology",
+      "weight": 1
+    },
+    {
+      "term": "medical device",
+      "weight": 1
+    },
+    {
+      "term": "Medizinprodukt",
+      "weight": 1
+    },
+    {
+      "term": "MDR",
+      "weight": 1
+    },
+    {
+      "term": "IEC 62304",
+      "weight": 1
+    },
+    {
+      "term": "ISO 13485",
+      "weight": 1
+    },
+    {
+      "term": "FDA",
+      "weight": 1
+    },
+    {
+      "term": "Diagnostik",
+      "weight": 1
+    },
+    {
+      "term": "diagnostics",
+      "weight": 1
+    },
+    {
+      "term": "Bildgebung",
+      "weight": 1
+    },
+    {
+      "term": "medical imaging",
+      "weight": 1
+    },
+    {
+      "term": "Implantat",
+      "weight": 1
+    },
+    {
+      "term": "implant",
+      "weight": 1
+    },
+    {
+      "term": "In-vitro",
+      "weight": 1
+    },
+    {
+      "term": "Medizingerät",
+      "weight": 1
+    }
+  ],
+  "titles": [
+    "Medizintechniker",
+    "Medizintechnikingenieur",
+    "biomedical engineer",
+    "Servicetechniker Medizintechnik",
+    "clinical engineer",
+    "Medizinprodukteberater"
+  ],
+  "education": [
+    "Medizintechnik",
+    "biomedical engineering",
+    "Biomedizinische Technik",
+    "Medizinische Technik"
+  ]
+}

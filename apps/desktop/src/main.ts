@@ -17,7 +17,7 @@ import { ExpertEngine } from '../../../packages/core/src/engine.js';
 import { translateNew } from '../../../packages/core/src/refresh.js';
 import { BergamotTranslator, TRANSLATOR_WORKER, unpacked } from '../../../packages/node/src/translate/translator.js';
 import { FileStores } from '../../../packages/node/src/state/fileStores.js';
-import { ensureUserFiles, loadUserFiles, resolveHome, userFiles, type LoadedFiles } from '../../../packages/node/src/userFiles.js';
+import { ensureUserFiles, loadInputs, resolveHome, userFiles, type LoadedFiles } from '../../../packages/node/src/userFiles.js';
 import {
   AUTOSTART_FLAG,
   autostartLabel,
@@ -58,7 +58,7 @@ function loadFiles(): LoadedFiles {
       return { ok: false, error: `Cannot create ${files_().home}: ${err instanceof Error ? err.message : String(err)}`, cvFolder: join(files_().home, 'CV') };
     }
   }
-  const loaded = loadUserFiles(files_(), process.env, homedir());
+  const loaded = loadInputs(files_(), join(appRoot(), 'data', 'domains'), process.env, homedir());
   if (!MOCK) {
     try {
       mkdirSync(loaded.cvFolder, { recursive: true });

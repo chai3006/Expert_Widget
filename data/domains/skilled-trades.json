@@ -1,0 +1,288 @@
+{
+  "schemaVersion": 1,
+  "id": "skilled-trades",
+  "order": 270,
+  "sector": "industry",
+  "label": {
+    "de": "Handwerk",
+    "en": "Skilled trades & crafts"
+  },
+  "shortLabel": {
+    "de": "Handwerk",
+    "en": "Trades"
+  },
+  "description": "Electrical, plumbing and heating, carpentry, metalwork, vehicle repair, hairdressing and other crafts.",
+  "keywords": [
+    {
+      "term": "Handwerk",
+      "weight": 2
+    },
+    {
+      "term": "craft",
+      "weight": 1
+    },
+    {
+      "term": "trades",
+      "weight": 1
+    },
+    {
+      "term": "Handwerksbetrieb",
+      "weight": 1
+    },
+    {
+      "term": "Meisterbetrieb",
+      "weight": 1
+    },
+    {
+      "term": "Werkstatt",
+      "weight": 1
+    },
+    {
+      "term": "Montage",
+      "weight": 1
+    },
+    {
+      "term": "installation",
+      "weight": 1
+    },
+    {
+      "term": "Elektroinstallation",
+      "weight": 1
+    },
+    {
+      "term": "electrical installation",
+      "weight": 1
+    },
+    {
+      "term": "Sanitär",
+      "weight": 1
+    },
+    {
+      "term": "plumbing",
+      "weight": 1
+    },
+    {
+      "term": "Heizung",
+      "weight": 1
+    },
+    {
+      "term": "heating",
+      "weight": 1
+    },
+    {
+      "term": "SHK",
+      "weight": 1
+    },
+    {
+      "term": "Schreinerei",
+      "weight": 1
+    },
+    {
+      "term": "Tischlerei",
+      "weight": 1
+    },
+    {
+      "term": "carpentry",
+      "weight": 1
+    },
+    {
+      "term": "Zimmerei",
+      "weight": 1
+    },
+    {
+      "term": "Dachdeckerei",
+      "weight": 1
+    },
+    {
+      "term": "Malerbetrieb",
+      "weight": 1
+    },
+    {
+      "term": "Fliesen",
+      "weight": 1
+    },
+    {
+      "term": "tiling",
+      "weight": 1
+    },
+    {
+      "term": "Schweißen",
+      "weight": 1
+    },
+    {
+      "term": "welding",
+      "weight": 1
+    },
+    {
+      "term": "Schlosserei",
+      "weight": 1
+    },
+    {
+      "term": "Metallbau",
+      "weight": 1
+    },
+    {
+      "term": "metalwork",
+      "weight": 1
+    },
+    {
+      "term": "Kfz-Werkstatt",
+      "weight": 1
+    },
+    {
+      "term": "car repair",
+      "weight": 1
+    },
+    {
+      "term": "Reparatur",
+      "weight": 1
+    },
+    {
+      "term": "repair",
+      "weight": 1
+    },
+    {
+      "term": "Wartung",
+      "weight": 0.5
+    },
+    {
+      "term": "maintenance",
+      "weight": 0.5
+    },
+    {
+      "term": "Instandhaltung",
+      "weight": 1
+    },
+    {
+      "term": "Gesellenbrief",
+      "weight": 1
+    },
+    {
+      "term": "Meisterbrief",
+      "weight": 1
+    },
+    {
+      "term": "Kundendienst",
+      "weight": 1
+    },
+    {
+      "term": "Elektrik",
+      "weight": 1
+    },
+    {
+      "term": "Photovoltaikmontage",
+      "weight": 1
+    },
+    {
+      "term": "Friseursalon",
+      "weight": 1
+    },
+    {
+      "term": "hairdressing",
+      "weight": 1
+    },
+    {
+      "term": "CNC",
+      "weight": 1
+    },
+    {
+      "term": "Drehen",
+      "weight": 1
+    },
+    {
+      "term": "Fräsen",
+      "weight": 1
+    },
+    {
+      "term": "milling",
+      "weight": 1
+    },
+    {
+      "term": "Kfz-Mechatronik",
+      "weight": 1
+    },
+    {
+      "term": "Hausmeisterdienst",
+      "weight": 1
+    }
+  ],
+  "titles": [
+    "Elektriker",
+    "electrician",
+    "Elektroniker",
+    "Elektroniker für Energie- und Gebäudetechnik",
+    "Elektroinstallateur",
+    "Anlagenmechaniker",
+    "Installateur",
+    "plumber",
+    "Heizungsbauer",
+    "Tischler",
+    "Tischlerin",
+    "Schreiner",
+    "carpenter",
+    "joiner",
+    "Zimmerer",
+    "Dachdecker",
+    "roofer",
+    "Maler und Lackierer",
+    "Maler",
+    "painter",
+    "Lackierer",
+    "Fliesenleger",
+    "tiler",
+    "Maurer",
+    "bricklayer",
+    "Schweißer",
+    "welder",
+    "Schlosser",
+    "Metallbauer",
+    "Industriemechaniker",
+    "industrial mechanic",
+    "Mechaniker",
+    "mechanic",
+    "Kfz-Mechatroniker",
+    "Kfz-Mechaniker",
+    "car mechanic",
+    "Zerspanungsmechaniker",
+    "CNC-Fräser",
+    "CNC machinist",
+    "Dreher",
+    "Mechatroniker",
+    "mechatronics technician",
+    "Servicetechniker",
+    "service technician",
+    "Monteur",
+    "fitter",
+    "Friseur",
+    "Friseurin",
+    "hairdresser",
+    "Glaser",
+    "Klempner",
+    "Elektromeister",
+    "Handwerksmeister",
+    "master craftsman",
+    "Geselle",
+    "journeyman",
+    "Hausmeister",
+    "caretaker",
+    "Haustechniker"
+  ],
+  "education": [
+    "Gesellenbrief",
+    "Gesellenprüfung",
+    "Meisterbrief",
+    "Meisterprüfung",
+    "Meisterschule",
+    "Handwerksmeister",
+    "Ausbildung zum Elektroniker",
+    "Ausbildung zum Industriemechaniker",
+    "Ausbildung zum Kfz-Mechatroniker",
+    "Ausbildung zum Tischler",
+    "Ausbildung zum Anlagenmechaniker",
+    "Staatlich geprüfter Techniker",
+    "Schweißerprüfung",
+    "Elektrofachkraft",
+    "Handwerkskammer",
+    "SCC-Zertifikat"
+  ]
+}

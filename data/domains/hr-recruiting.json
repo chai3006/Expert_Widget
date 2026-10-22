@@ -1,0 +1,231 @@
+{
+  "schemaVersion": 1,
+  "id": "hr-recruiting",
+  "order": 260,
+  "sector": "business",
+  "label": {
+    "de": "Personal & Recruiting",
+    "en": "HR & recruiting"
+  },
+  "shortLabel": {
+    "de": "HR",
+    "en": "HR"
+  },
+  "description": "Human resources, recruiting, personnel development, payroll and staffing services.",
+  "keywords": [
+    {
+      "term": "Personalwesen",
+      "weight": 1
+    },
+    {
+      "term": "human resources",
+      "weight": 1
+    },
+    {
+      "term": "HR",
+      "weight": 1
+    },
+    {
+      "term": "Personalabteilung",
+      "weight": 1
+    },
+    {
+      "term": "HR department",
+      "weight": 1
+    },
+    {
+      "term": "Recruiting",
+      "weight": 2
+    },
+    {
+      "term": "Recruitment",
+      "weight": 1
+    },
+    {
+      "term": "Personalbeschaffung",
+      "weight": 1
+    },
+    {
+      "term": "talent acquisition",
+      "weight": 1
+    },
+    {
+      "term": "Active Sourcing",
+      "weight": 1
+    },
+    {
+      "term": "Bewerbermanagement",
+      "weight": 1
+    },
+    {
+      "term": "applicant tracking",
+      "weight": 1
+    },
+    {
+      "term": "Onboarding",
+      "weight": 1
+    },
+    {
+      "term": "Personalentwicklung",
+      "weight": 1
+    },
+    {
+      "term": "personnel development",
+      "weight": 1
+    },
+    {
+      "term": "Learning & Development",
+      "weight": 1
+    },
+    {
+      "term": "Arbeitsvertrag",
+      "weight": 1
+    },
+    {
+      "term": "employment contract",
+      "weight": 1
+    },
+    {
+      "term": "Entgeltabrechnung",
+      "weight": 1
+    },
+    {
+      "term": "payroll",
+      "weight": 1
+    },
+    {
+      "term": "Personalakte",
+      "weight": 1
+    },
+    {
+      "term": "Betriebsrat",
+      "weight": 1
+    },
+    {
+      "term": "works council",
+      "weight": 1
+    },
+    {
+      "term": "Employer Branding",
+      "weight": 1
+    },
+    {
+      "term": "Personalmarketing",
+      "weight": 1
+    },
+    {
+      "term": "Personalplanung",
+      "weight": 1
+    },
+    {
+      "term": "workforce planning",
+      "weight": 1
+    },
+    {
+      "term": "Zeitarbeit",
+      "weight": 1
+    },
+    {
+      "term": "temporary staffing",
+      "weight": 1
+    },
+    {
+      "term": "Personaldienstleistung",
+      "weight": 1
+    },
+    {
+      "term": "staffing",
+      "weight": 1
+    },
+    {
+      "term": "Headhunting",
+      "weight": 1
+    },
+    {
+      "term": "Executive Search",
+      "weight": 1
+    },
+    {
+      "term": "Personio",
+      "weight": 1
+    },
+    {
+      "term": "SAP HCM",
+      "weight": 1
+    },
+    {
+      "term": "Workday",
+      "weight": 1
+    },
+    {
+      "term": "SuccessFactors",
+      "weight": 1
+    },
+    {
+      "term": "Mitarbeitergespräche",
+      "weight": 1
+    },
+    {
+      "term": "Compensation & Benefits",
+      "weight": 1
+    },
+    {
+      "term": "compensation and benefits",
+      "weight": 1
+    },
+    {
+      "term": "Personalcontrolling",
+      "weight": 1
+    },
+    {
+      "term": "Personalauswahl",
+      "weight": 1
+    },
+    {
+      "term": "Bewerbungsgespräche",
+      "weight": 1
+    }
+  ],
+  "titles": [
+    "Personalreferent",
+    "Personalreferentin",
+    "HR Manager",
+    "HR Generalist",
+    "HR Business Partner",
+    "Personalleiter",
+    "Personalleiterin",
+    "head of HR",
+    "Personalsachbearbeiter",
+    "Personalsachbearbeiterin",
+    "HR Specialist",
+    "Recruiter",
+    "Recruiterin",
+    "Talent Acquisition Manager",
+    "Talent Acquisition Specialist",
+    "Personalberater",
+    "Personalberaterin",
+    "Personaldisponent",
+    "Personaldisponentin",
+    "Headhunter",
+    "Personalentwickler",
+    "HR Assistant",
+    "Sourcer",
+    "Entgeltabrechner",
+    "Lohn- und Gehaltsabrechner"
+  ],
+  "education": [
+    "Personalfachkaufmann",
+    "Personalfachkauffrau",
+    "Personalmanagement",
+    "human resource management",
+    "Human Resources Management",
+    "Personalreferent IHK",
+    "Personaldienstleistungskaufmann",
+    "Personaldienstleistungskauffrau",
+    "Arbeitspsychologie",
+    "Organisationspsychologie",
+    "Wirtschaftspsychologie",
+    "SHRM",
+    "CIPD"
+  ]
+}

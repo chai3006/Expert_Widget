@@ -1,0 +1,231 @@
+{
+  "schemaVersion": 1,
+  "id": "public-sector",
+  "order": 250,
+  "sector": "public-media",
+  "label": {
+    "de": "Öffentlicher Dienst",
+    "en": "Public sector"
+  },
+  "shortLabel": {
+    "de": "Öffentlich",
+    "en": "Public"
+  },
+  "description": "Federal, state and local administration, authorities, police, armed forces and public institutions.",
+  "keywords": [
+    {
+      "term": "öffentlicher Dienst",
+      "weight": 1
+    },
+    {
+      "term": "öffentlichen Dienst",
+      "weight": 1
+    },
+    {
+      "term": "public service",
+      "weight": 1
+    },
+    {
+      "term": "öffentliche Verwaltung",
+      "weight": 1
+    },
+    {
+      "term": "public administration",
+      "weight": 1
+    },
+    {
+      "term": "Behörde",
+      "weight": 1
+    },
+    {
+      "term": "public authority",
+      "weight": 1
+    },
+    {
+      "term": "Ministerium",
+      "weight": 1
+    },
+    {
+      "term": "ministry",
+      "weight": 1
+    },
+    {
+      "term": "Bundesagentur für Arbeit",
+      "weight": 1
+    },
+    {
+      "term": "Jobcenter",
+      "weight": 1
+    },
+    {
+      "term": "Landratsamt",
+      "weight": 1
+    },
+    {
+      "term": "Rathaus",
+      "weight": 1
+    },
+    {
+      "term": "Stadtverwaltung",
+      "weight": 1
+    },
+    {
+      "term": "Kommunalverwaltung",
+      "weight": 1
+    },
+    {
+      "term": "Kommune",
+      "weight": 1
+    },
+    {
+      "term": "municipality",
+      "weight": 1
+    },
+    {
+      "term": "Bundeswehr",
+      "weight": 1
+    },
+    {
+      "term": "Polizei",
+      "weight": 1
+    },
+    {
+      "term": "police",
+      "weight": 1
+    },
+    {
+      "term": "Feuerwehr",
+      "weight": 1
+    },
+    {
+      "term": "fire brigade",
+      "weight": 1
+    },
+    {
+      "term": "Beamter",
+      "weight": 1
+    },
+    {
+      "term": "civil servant",
+      "weight": 1
+    },
+    {
+      "term": "Verbeamtung",
+      "weight": 1
+    },
+    {
+      "term": "TVöD",
+      "weight": 1
+    },
+    {
+      "term": "TV-L",
+      "weight": 1
+    },
+    {
+      "term": "Besoldung",
+      "weight": 1
+    },
+    {
+      "term": "Bürgerservice",
+      "weight": 1
+    },
+    {
+      "term": "Bürgeramt",
+      "weight": 1
+    },
+    {
+      "term": "Haushaltsplanung",
+      "weight": 1
+    },
+    {
+      "term": "Vergaberecht",
+      "weight": 1
+    },
+    {
+      "term": "public procurement",
+      "weight": 1
+    },
+    {
+      "term": "E-Government",
+      "weight": 1
+    },
+    {
+      "term": "Landesverwaltung",
+      "weight": 1
+    },
+    {
+      "term": "Bundesverwaltung",
+      "weight": 1
+    },
+    {
+      "term": "Finanzamt",
+      "weight": 1
+    },
+    {
+      "term": "Jugendamt",
+      "weight": 1
+    },
+    {
+      "term": "Justizvollzug",
+      "weight": 1
+    },
+    {
+      "term": "Bundesamt",
+      "weight": 1
+    },
+    {
+      "term": "Landesamt",
+      "weight": 1
+    },
+    {
+      "term": "Ordnungsamt",
+      "weight": 1
+    }
+  ],
+  "titles": [
+    "Verwaltungsfachangestellte",
+    "Verwaltungsfachangestellter",
+    "Verwaltungswirt",
+    "Verwaltungswirtin",
+    "Beamter",
+    "Beamtin",
+    "Regierungsinspektor",
+    "Regierungsrat",
+    "Regierungsrätin",
+    "Amtsrat",
+    "Polizeibeamter",
+    "Polizeibeamtin",
+    "Polizeikommissar",
+    "Polizeikommissarin",
+    "police officer",
+    "Feuerwehrmann",
+    "Feuerwehrfrau",
+    "firefighter",
+    "Soldat",
+    "Soldatin",
+    "soldier",
+    "Berufssoldat",
+    "Zollbeamter",
+    "Bürgermeister",
+    "Bürgermeisterin",
+    "Finanzbeamter",
+    "Justizfachangestellte",
+    "Arbeitsvermittler",
+    "Arbeitsvermittlerin",
+    "Referent im Ministerium",
+    "Sachbearbeiter öffentlicher Dienst"
+  ],
+  "education": [
+    "Ausbildung zur Verwaltungsfachangestellten",
+    "Ausbildung zum Verwaltungsfachangestellten",
+    "Diplom-Verwaltungswirt",
+    "Verwaltungswissenschaft",
+    "Public Administration",
+    "Hochschule für öffentliche Verwaltung",
+    "Polizeiakademie",
+    "Laufbahnprüfung",
+    "Verwaltungslehrgang",
+    "Angestelltenlehrgang",
+    "Verwaltungsfachwirt"
+  ]
+}

@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { domainOrder, expandEnvVars, expandPath, parseJson, validateConfig, validateEmployers } from '../packages/core/src/config.js';
-import { defaultConfigJson, defaultEmployers } from './helpers/config.js';
+import { defaultConfigJson, defaultEmployers, registry } from './helpers/config.js';
 
 describe('config validation', () => {
   it('accepts the bundled default config', () => {
-    const result = validateConfig(defaultConfigJson());
+    const result = validateConfig(defaultConfigJson(), registry());
     expect(result.ok).toBe(true);
     if (result.ok) {
       expect(result.value.newsMaxAgeDays).toBe(7);
@@ -19,8 +19,9 @@ describe('config validation', () => {
     (raw.sources as Array<Record<string, unknown>>)[1].url = 'ftp://example.com';
     (raw.sources as Array<Record<string, unknown>>)[2].domains = ['automotive-emobility', 'cooking'];
     (raw.sources as Array<Record<string, unknown>>)[3].id = 'ingenieur-recruiting-tag';
-    (raw.keywords as Record<string, Record<string, unknown>>).domains.gardening = ['roses'];
-    const result = validateConfig(raw);
+    // Domain keywords live in data/domains; config.json may only add extra ones to known domains.
+    (raw.keywords as Record<string, Record<string, unknown>>).domains = { gardening: ['roses'] };
+    const result = validateConfig(raw, registry());
     expect(result.ok).toBe(false);
     if (!result.ok) {
       expect(result.errors).toContain('newsMaxAgeDays: must be a whole number between 1 and 365');
@@ -34,10 +35,10 @@ describe('config validation', () => {
   it('rejects a missing tag keyword list and non-object input', () => {
     const raw = defaultConfigJson();
     delete (raw.keywords as Record<string, Record<string, unknown>>).tags.hiring_cuts;
-    const result = validateConfig(raw);
+    const result = validateConfig(raw, registry());
     expect(!result.ok && result.errors).toContain('keywords.tags.hiring_cuts: missing');
-    expect(validateConfig([]).ok).toBe(false);
-    expect(validateConfig(null).ok).toBe(false);
+    expect(validateConfig([], registry()).ok).toBe(false);
+    expect(validateConfig(null, registry()).ok).toBe(false);
   });
 
   it('reports JSON syntax errors with a line number', () => {
@@ -80,9 +81,10 @@ describe('employers validation', () => {
   });
 
   it('reports bad entries', () => {
-    const result = validateEmployers({
-      segments: [{ domain: 'automotive-emobility', segment: 'X', companies: [{ name: 'A', careerUrl: 'javascript:alert(1)', lastVerified: 'yesterday' }] }],
-    });
+    const result = validateEmployers(
+      { segments: [{ domain: 'automotive-emobility', segment: 'X', companies: [{ name: 'A', careerUrl: 'javascript:alert(1)', lastVerified: 'yesterday' }] }] },
+      registry(),
+    );
     expect(result.ok).toBe(false);
     if (!result.ok) {
       expect(result.errors).toContain('employers.json segments[0].companies[0].careerUrl: must be an http or https URL');

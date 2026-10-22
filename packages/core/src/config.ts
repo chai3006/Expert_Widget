@@ -1,7 +1,8 @@
 // Loading and validation of config.json, employers.json and watchlist.json. Validation collects every problem with
 // its exact JSON path so the error screen can tell the user precisely what to fix.
 
-import { DOMAIN_IDS, isDomainId, type DomainId } from './shared/types.js';
+import type { DomainRegistry } from './domains.js';
+import type { DomainId } from './shared/types.js';
 import { isValidHotkey } from './hotkey.js';
 
 export const SOURCE_TOPICS = ['hiring', 'funded_startup', 'career_fair'] as const;
@@ -23,8 +24,23 @@ export interface SourceConfig {
   domains: 'all' | DomainId[];
 }
 
+/** How the CV is read (see the README, "How the domain mix is computed"). */
+export interface CvAnalysisConfig {
+  /** Years after which an old role counts half as much as the current one. */
+  halfLifeYears: number;
+  /** Extra weight of the current or most recent role. */
+  currentRoleBoost: number;
+  /** More words to ignore in every field, on top of the built-in list (e.g. "Projekt", "Team"). */
+  ignoreWords: string[];
+}
+
+export const DEFAULT_CV_ANALYSIS: CvAnalysisConfig = { halfLifeYears: 5, currentRoleBoost: 1.5, ignoreWords: [] };
+
 export interface AppConfig {
+  /** The domain registry the config was validated against (data/domains). */
+  domains: DomainRegistry;
   cvFolder: string;
+  cvAnalysis: CvAnalysisConfig;
   newsMaxAgeDays: number;
   maxItemsPerTag: number;
   /** Global show/hide hotkey, e.g. "CommandOrControl+Alt+E"; "" switches it off. */
@@ -36,7 +52,10 @@ export interface AppConfig {
     googleNews: { enabled: boolean };
   };
   keywords: {
-    /** Insertion order is the tie-break order for domains. */
+    /**
+     * Keywords per domain: the registry's keywords plus any extra ones from config.json, in
+     * registry order (the tie-break order). Used to classify news and by the keyword-only profiler.
+     */
     domains: Partial<Record<DomainId, string[]>>;
     tags: Record<ScoredTag, string[]>;
     fairExclude: string[];
@@ -113,7 +132,7 @@ function stringList(value: unknown, path: string, errors: string[]): string[] {
   return out;
 }
 
-export function validateConfig(raw: unknown): Validated<AppConfig> {
+export function validateConfig(raw: unknown, registry: DomainRegistry): Validated<AppConfig> {
   const errors: string[] = [];
   if (!isObject(raw)) return { ok: false, errors: ['config.json: the top level must be an object { ... }'] };
 
@@ -157,7 +176,7 @@ export function validateConfig(raw: unknown): Validated<AppConfig> {
       if (Array.isArray(s.domains)) {
         domains = [];
         s.domains.forEach((d, j) => {
-          if (isDomainId(d)) (domains as DomainId[]).push(d);
+          if (typeof d === 'string' && registry.has(d)) (domains as DomainId[]).push(d);
           else errors.push(`${p}.domains[${j}]: unknown domain "${String(d)}"`);
         });
       } else if (s.domains !== 'all') {
@@ -205,22 +224,23 @@ export function validateConfig(raw: unknown): Validated<AppConfig> {
     }
   }
 
-  const domainKeywords: Partial<Record<DomainId, string[]>> = {};
+  const extraKeywords: Partial<Record<DomainId, string[]>> = {};
   const tagKeywords = {} as Record<ScoredTag, string[]>;
   let fairExclude: string[] = [];
   if (!isObject(raw.keywords)) {
-    errors.push('keywords: must be an object with "domains" and "tags"');
+    errors.push('keywords: must be an object with "tags"');
   } else {
     const kw = raw.keywords;
-    if (!isObject(kw.domains)) {
-      errors.push('keywords.domains: must be an object mapping domain ids to keyword lists');
-    } else {
+    // Optional extra keywords per domain; the domain files in data/domains hold the real lists.
+    if (kw.domains !== undefined && !isObject(kw.domains)) {
+      errors.push('keywords.domains: must be an object mapping domain ids to extra keyword lists');
+    } else if (isObject(kw.domains)) {
       for (const [domain, list] of Object.entries(kw.domains)) {
-        if (!isDomainId(domain)) {
-          errors.push(`keywords.domains: unknown domain "${domain}". Known domains: ${DOMAIN_IDS.join(', ')}`);
+        if (!registry.has(domain)) {
+          errors.push(`keywords.domains: unknown domain "${domain}". Known domains: ${registry.ids.join(', ')}`);
           continue;
         }
-        domainKeywords[domain] = dedupeCaseInsensitive(stringList(list, `keywords.domains.${domain}`, errors));
+        extraKeywords[domain] = stringList(list, `keywords.domains.${domain}`, errors);
       }
     }
     if (!isObject(kw.tags)) {
@@ -237,11 +257,19 @@ export function validateConfig(raw: unknown): Validated<AppConfig> {
     if (kw.fairExclude !== undefined) fairExclude = stringList(kw.fairExclude, 'keywords.fairExclude', errors);
   }
 
+  const cvAnalysis = validateCvAnalysis(raw.cvAnalysis, errors);
+
   if (errors.length > 0) return { ok: false, errors };
+  const domainKeywords: Partial<Record<DomainId, string[]>> = {};
+  for (const d of registry.recognisable) {
+    domainKeywords[d.id] = dedupeCaseInsensitive([...d.keywords.map((k) => k.term), ...(extraKeywords[d.id] ?? [])]);
+  }
   return {
     ok: true,
     value: {
+      domains: registry,
       cvFolder: (raw.cvFolder as string).trim(),
+      cvAnalysis,
       newsMaxAgeDays: raw.newsMaxAgeDays as number,
       maxItemsPerTag: maxItemsPerTag as number,
       hotkey: (hotkey as string).trim(),
@@ -262,13 +290,34 @@ function dedupeCaseInsensitive(list: string[]): string[] {
   });
 }
 
-/** Domain order used for tie-breaks: as listed in keywords.domains, then the remaining enum order. */
-export function domainOrder(config: AppConfig): DomainId[] {
-  const listed = Object.keys(config.keywords.domains) as DomainId[];
-  return [...listed, ...DOMAIN_IDS.filter((d) => !listed.includes(d))];
+function validateCvAnalysis(raw: unknown, errors: string[]): CvAnalysisConfig {
+  if (raw === undefined) return { ...DEFAULT_CV_ANALYSIS };
+  if (!isObject(raw)) {
+    errors.push('cvAnalysis: must be an object');
+    return { ...DEFAULT_CV_ANALYSIS };
+  }
+  const out = { ...DEFAULT_CV_ANALYSIS };
+  if (raw.halfLifeYears !== undefined) {
+    if (typeof raw.halfLifeYears !== 'number' || raw.halfLifeYears < 0.5 || raw.halfLifeYears > 50) errors.push('cvAnalysis.halfLifeYears: must be a number between 0.5 and 50');
+    else out.halfLifeYears = raw.halfLifeYears;
+  }
+  if (raw.currentRoleBoost !== undefined) {
+    if (typeof raw.currentRoleBoost !== 'number' || raw.currentRoleBoost < 1 || raw.currentRoleBoost > 5) errors.push('cvAnalysis.currentRoleBoost: must be a number between 1 and 5');
+    else out.currentRoleBoost = raw.currentRoleBoost;
+  }
+  if (raw.ignoreWords !== undefined) out.ignoreWords = stringList(raw.ignoreWords, 'cvAnalysis.ignoreWords', errors);
+  for (const key of Object.keys(raw)) {
+    if (!['halfLifeYears', 'currentRoleBoost', 'ignoreWords'].includes(key)) errors.push(`cvAnalysis: unknown setting "${key}"`);
+  }
+  return out;
 }
 
-export function validateEmployers(raw: unknown): Validated<EmployerSegment[]> {
+/** Domain order used for tie-breaks: the registry order (data/domains, field "order"). */
+export function domainOrder(config: AppConfig): DomainId[] {
+  return config.domains.ids;
+}
+
+export function validateEmployers(raw: unknown, registry: DomainRegistry): Validated<EmployerSegment[]> {
   const errors: string[] = [];
   if (!isObject(raw) || !Array.isArray(raw.segments)) {
     return { ok: false, errors: ['employers.json: the top level must be an object with a "segments" list'] };
@@ -281,7 +330,7 @@ export function validateEmployers(raw: unknown): Validated<EmployerSegment[]> {
       return;
     }
     const before = errors.length;
-    if (!isDomainId(s.domain)) errors.push(`${p}.domain: unknown domain "${String(s.domain)}"`);
+    if (typeof s.domain !== 'string' || !registry.has(s.domain)) errors.push(`${p}.domain: unknown domain "${String(s.domain)}"`);
     if (typeof s.segment !== 'string' || s.segment.trim() === '') errors.push(`${p}.segment: must be a non-empty string`);
     const companies: CompanyEntry[] = [];
     if (!Array.isArray(s.companies)) {

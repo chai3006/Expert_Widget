@@ -17,8 +17,14 @@ const CV = [
   'Erika Beispiel',
   SECRET,
   'Berufserfahrung',
-  'Embedded-Softwareentwicklerin bei einem Automobilzulieferer: Steuergeräte, AUTOSAR, CAN-Bus, Firmware für Mikrocontroller, ISO 26262.',
-  'Batteriemanagement (BMS) für Traktionsbatterien, Elektromobilität.',
+  'seit 04/2021  Embedded-Softwareentwicklerin, Automobilzulieferer in Bayern',
+  'Entwicklung von Software für Steuergeräte nach AUTOSAR, Kommunikation über CAN-Bus und CAN FD.',
+  'Firmware für Mikrocontroller in der Elektromobilität, funktionale Sicherheit nach ISO 26262.',
+  'Batteriemanagement (BMS) für Traktionsbatterien, Test am Hardware-in-the-Loop-Prüfstand.',
+  '2017 - 2021  Softwareentwicklerin, Ingenieurdienstleister',
+  'Fahrerassistenz und Antriebsstrang für einen Fahrzeughersteller, MISRA C, Yocto.',
+  'Ausbildung',
+  '2012 - 2017  Studium Elektrotechnik, Technische Universität',
 ].join('\n');
 
 async function run(args: string[]): Promise<{ code: number; out: string }> {
@@ -42,8 +48,8 @@ describe('expert-cli', () => {
     expect(code).toBe(0);
     const data = JSON.parse(out);
     expect(schemaErrors('DomainProfile', data.profile)).toEqual([]);
-    expect(data.profile.weights[0].domain).toBe('automotive-emobility');
-    expect(data.employers[0].segments.length).toBeGreaterThan(0);
+    expect(data.profile.weights.map((w: { domain: string }) => w.domain).slice(0, 2).sort()).toEqual(['automotive-emobility', 'embedded-iot']);
+    expect(data.employers.find((d: { domain: string }) => d.domain === 'automotive-emobility').segments.length).toBeGreaterThan(0);
     expect(data.news).toEqual([]);
     expect(out).not.toContain('Musterstrasse');
     expect(out).not.toContain('Erika');

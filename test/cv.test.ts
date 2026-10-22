@@ -131,9 +131,12 @@ describe('CV folder', () => {
     const result = await new LocalCvProvider(undefined, () => 42).readProfile(config, dir);
     expect(result.ok).toBe(true);
     if (result.ok) {
-      expect(Object.keys(result.profile).sort()).toEqual(['computedAt', 'fileName', 'modifiedMs', 'weights']);
+      // Since the domain registry (Phase 2) the profile also keeps short evidence labels: terms
+      // from data/domains such as "AUTOSAR", never text copied from the CV.
+      expect(Object.keys(result.profile).sort()).toEqual(['computedAt', 'evidence', 'fileName', 'modifiedMs', 'notice', 'sizeBytes', 'source', 'weights']);
       expect(result.profile.fileName).toBe('cv.txt');
-      expect(JSON.stringify(result.profile)).not.toContain('AUTOSAR');
+      const stored = JSON.stringify(result.profile);
+      for (const cvText of ['Jane', 'Infineon', 'Stuttgart', 'eight years', 'test automation']) expect(stored).not.toContain(cvText);
     }
   });
 });

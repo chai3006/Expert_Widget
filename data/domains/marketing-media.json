@@ -1,0 +1,280 @@
+{
+  "schemaVersion": 1,
+  "id": "marketing-media",
+  "order": 210,
+  "sector": "public-media",
+  "label": {
+    "de": "Marketing, Medien & Kommunikation",
+    "en": "Marketing, media & communication"
+  },
+  "shortLabel": {
+    "de": "Marketing",
+    "en": "Marketing"
+  },
+  "description": "Marketing, advertising, public relations, journalism, publishing and broadcasting.",
+  "keywords": [
+    {
+      "term": "Marketing",
+      "weight": 2
+    },
+    {
+      "term": "Online-Marketing",
+      "weight": 1
+    },
+    {
+      "term": "digital marketing",
+      "weight": 1
+    },
+    {
+      "term": "Social Media",
+      "weight": 1
+    },
+    {
+      "term": "Content Marketing",
+      "weight": 1
+    },
+    {
+      "term": "SEO",
+      "weight": 1
+    },
+    {
+      "term": "SEA",
+      "weight": 1
+    },
+    {
+      "term": "Google Ads",
+      "weight": 1
+    },
+    {
+      "term": "Performance Marketing",
+      "weight": 1
+    },
+    {
+      "term": "Kampagne",
+      "weight": 1
+    },
+    {
+      "term": "campaign",
+      "weight": 1
+    },
+    {
+      "term": "Markenführung",
+      "weight": 1
+    },
+    {
+      "term": "brand management",
+      "weight": 1
+    },
+    {
+      "term": "Branding",
+      "weight": 1
+    },
+    {
+      "term": "Public Relations",
+      "weight": 1
+    },
+    {
+      "term": "PR",
+      "weight": 1
+    },
+    {
+      "term": "Pressearbeit",
+      "weight": 1
+    },
+    {
+      "term": "press relations",
+      "weight": 1
+    },
+    {
+      "term": "Unternehmenskommunikation",
+      "weight": 1
+    },
+    {
+      "term": "corporate communications",
+      "weight": 1
+    },
+    {
+      "term": "Öffentlichkeitsarbeit",
+      "weight": 1
+    },
+    {
+      "term": "Journalismus",
+      "weight": 1
+    },
+    {
+      "term": "journalism",
+      "weight": 1
+    },
+    {
+      "term": "Redaktion",
+      "weight": 1
+    },
+    {
+      "term": "editorial",
+      "weight": 1
+    },
+    {
+      "term": "Medien",
+      "weight": 1
+    },
+    {
+      "term": "media",
+      "weight": 1
+    },
+    {
+      "term": "Verlag",
+      "weight": 1
+    },
+    {
+      "term": "publishing",
+      "weight": 1
+    },
+    {
+      "term": "Rundfunk",
+      "weight": 1
+    },
+    {
+      "term": "broadcasting",
+      "weight": 1
+    },
+    {
+      "term": "Fernsehen",
+      "weight": 1
+    },
+    {
+      "term": "television",
+      "weight": 1
+    },
+    {
+      "term": "Hörfunk",
+      "weight": 1
+    },
+    {
+      "term": "Podcast",
+      "weight": 1
+    },
+    {
+      "term": "Newsletter",
+      "weight": 1
+    },
+    {
+      "term": "Copywriting",
+      "weight": 1
+    },
+    {
+      "term": "Texterstellung",
+      "weight": 1
+    },
+    {
+      "term": "Marktforschung",
+      "weight": 1
+    },
+    {
+      "term": "market research",
+      "weight": 1
+    },
+    {
+      "term": "Google Analytics",
+      "weight": 1
+    },
+    {
+      "term": "HubSpot",
+      "weight": 1
+    },
+    {
+      "term": "Influencer",
+      "weight": 1
+    },
+    {
+      "term": "Werbung",
+      "weight": 1
+    },
+    {
+      "term": "advertising",
+      "weight": 1
+    },
+    {
+      "term": "Werbeagentur",
+      "weight": 1
+    },
+    {
+      "term": "advertising agency",
+      "weight": 1
+    },
+    {
+      "term": "Mediaplanung",
+      "weight": 1
+    },
+    {
+      "term": "media planning",
+      "weight": 1
+    },
+    {
+      "term": "Produktmarketing",
+      "weight": 1
+    },
+    {
+      "term": "product marketing",
+      "weight": 1
+    },
+    {
+      "term": "Pressemitteilung",
+      "weight": 1
+    },
+    {
+      "term": "press release",
+      "weight": 1
+    }
+  ],
+  "titles": [
+    "Marketing Manager",
+    "Marketingmanager",
+    "Marketingreferent",
+    "Marketingreferentin",
+    "Marketing Specialist",
+    "Online Marketing Manager",
+    "Social Media Manager",
+    "Content Manager",
+    "SEO Manager",
+    "Brand Manager",
+    "PR-Referent",
+    "PR-Referentin",
+    "PR Manager",
+    "Pressesprecher",
+    "Pressesprecherin",
+    "press officer",
+    "Kommunikationsmanager",
+    "communications manager",
+    "Redakteur",
+    "Redakteurin",
+    "editor",
+    "Journalist",
+    "Journalistin",
+    "Texter",
+    "Texterin",
+    "copywriter",
+    "Mediaplaner",
+    "media planner",
+    "Marktforscher",
+    "Kaufmann für Marketingkommunikation",
+    "Medienkaufmann",
+    "Moderator",
+    "Moderatorin",
+    "Volontär"
+  ],
+  "education": [
+    "Kommunikationswissenschaft",
+    "communication studies",
+    "Medienwissenschaft",
+    "media studies",
+    "Journalistik",
+    "Publizistik",
+    "Medienmanagement",
+    "Kaufmann für Marketingkommunikation",
+    "Marketing Management",
+    "Online Marketing Manager IHK",
+    "Google Ads Zertifizierung",
+    "Volontariat",
+    "Marketingkommunikation"
+  ]
+}

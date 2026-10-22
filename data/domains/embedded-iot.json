@@ -1,0 +1,156 @@
+{
+  "schemaVersion": 1,
+  "id": "embedded-iot",
+  "order": 30,
+  "sector": "industry",
+  "label": {
+    "de": "Embedded & IoT",
+    "en": "Embedded & IoT"
+  },
+  "shortLabel": {
+    "de": "Embedded",
+    "en": "Embedded"
+  },
+  "description": "Embedded software, firmware, electronics design and the Internet of Things.",
+  "keywords": [
+    {
+      "term": "embedded",
+      "weight": 1
+    },
+    {
+      "term": "eingebettete Systeme",
+      "weight": 1
+    },
+    {
+      "term": "Mikrocontroller",
+      "weight": 1
+    },
+    {
+      "term": "microcontroller",
+      "weight": 1
+    },
+    {
+      "term": "Firmware",
+      "weight": 1
+    },
+    {
+      "term": "RTOS",
+      "weight": 1
+    },
+    {
+      "term": "FreeRTOS",
+      "weight": 1
+    },
+    {
+      "term": "Zephyr",
+      "weight": 1
+    },
+    {
+      "term": "Yocto",
+      "weight": 1
+    },
+    {
+      "term": "IoT",
+      "weight": 1
+    },
+    {
+      "term": "Internet of Things",
+      "weight": 1
+    },
+    {
+      "term": "Internet der Dinge",
+      "weight": 1
+    },
+    {
+      "term": "Sensorik",
+      "weight": 1
+    },
+    {
+      "term": "Cortex-M",
+      "weight": 1
+    },
+    {
+      "term": "bare-metal",
+      "weight": 1
+    },
+    {
+      "term": "Bootloader",
+      "weight": 1
+    },
+    {
+      "term": "MISRA",
+      "weight": 1
+    },
+    {
+      "term": "Gerätetreiber",
+      "weight": 1
+    },
+    {
+      "term": "device driver",
+      "weight": 1
+    },
+    {
+      "term": "FPGA",
+      "weight": 1
+    },
+    {
+      "term": "Hardware-in-the-Loop",
+      "weight": 1
+    },
+    {
+      "term": "HIL",
+      "weight": 1
+    },
+    {
+      "term": "Embedded Linux",
+      "weight": 1
+    },
+    {
+      "term": "Elektronikentwicklung",
+      "weight": 1
+    },
+    {
+      "term": "electronics design",
+      "weight": 1
+    },
+    {
+      "term": "Schaltungsentwicklung",
+      "weight": 1
+    },
+    {
+      "term": "circuit design",
+      "weight": 1
+    },
+    {
+      "term": "PCB",
+      "weight": 1
+    },
+    {
+      "term": "Leiterplatte",
+      "weight": 1
+    }
+  ],
+  "titles": [
+    "Embedded Software Engineer",
+    "Embedded-Softwareentwickler",
+    "Embedded-Entwickler",
+    "embedded developer",
+    "Firmware-Entwickler",
+    "firmware engineer",
+    "firmware developer",
+    "Hardwareentwickler",
+    "hardware engineer",
+    "Elektronikentwickler",
+    "electronics engineer",
+    "IoT-Entwickler",
+    "IoT engineer"
+  ],
+  "education": [
+    "Elektrotechnik",
+    "electrical engineering",
+    "Technische Informatik",
+    "computer engineering",
+    "Elektronik und Informationstechnik",
+    "Elektrotechnik und Informationstechnik"
+  ]
+}

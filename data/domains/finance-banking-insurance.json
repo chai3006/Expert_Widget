@@ -1,0 +1,266 @@
+{
+  "schemaVersion": 1,
+  "id": "finance-banking-insurance",
+  "order": 160,
+  "sector": "business",
+  "label": {
+    "de": "Finanzen, Banken & Versicherungen",
+    "en": "Finance, banking & insurance"
+  },
+  "shortLabel": {
+    "de": "Finanzen",
+    "en": "Finance"
+  },
+  "description": "Banks, savings banks, insurers, asset managers and financial services.",
+  "keywords": [
+    {
+      "term": "Bank",
+      "weight": 1
+    },
+    {
+      "term": "Banking",
+      "weight": 1
+    },
+    {
+      "term": "Sparkasse",
+      "weight": 1
+    },
+    {
+      "term": "Volksbank",
+      "weight": 1
+    },
+    {
+      "term": "Kreditinstitut",
+      "weight": 1
+    },
+    {
+      "term": "Finanzdienstleistung",
+      "weight": 1
+    },
+    {
+      "term": "financial services",
+      "weight": 1
+    },
+    {
+      "term": "Kredit",
+      "weight": 1
+    },
+    {
+      "term": "Kreditanalyse",
+      "weight": 1
+    },
+    {
+      "term": "credit analysis",
+      "weight": 1
+    },
+    {
+      "term": "Baufinanzierung",
+      "weight": 1
+    },
+    {
+      "term": "mortgage",
+      "weight": 1
+    },
+    {
+      "term": "Vermögensverwaltung",
+      "weight": 1
+    },
+    {
+      "term": "wealth management",
+      "weight": 1
+    },
+    {
+      "term": "asset management",
+      "weight": 1
+    },
+    {
+      "term": "Anlageberatung",
+      "weight": 1
+    },
+    {
+      "term": "investment advice",
+      "weight": 1
+    },
+    {
+      "term": "Wertpapier",
+      "weight": 1
+    },
+    {
+      "term": "securities",
+      "weight": 1
+    },
+    {
+      "term": "Risikomanagement",
+      "weight": 1
+    },
+    {
+      "term": "risk management",
+      "weight": 1
+    },
+    {
+      "term": "Treasury",
+      "weight": 1
+    },
+    {
+      "term": "Zahlungsverkehr",
+      "weight": 1
+    },
+    {
+      "term": "payments",
+      "weight": 1
+    },
+    {
+      "term": "Versicherung",
+      "weight": 1
+    },
+    {
+      "term": "insurance",
+      "weight": 1
+    },
+    {
+      "term": "Versicherer",
+      "weight": 1
+    },
+    {
+      "term": "insurer",
+      "weight": 1
+    },
+    {
+      "term": "Schadenregulierung",
+      "weight": 1
+    },
+    {
+      "term": "claims handling",
+      "weight": 1
+    },
+    {
+      "term": "Underwriting",
+      "weight": 1
+    },
+    {
+      "term": "Rückversicherung",
+      "weight": 1
+    },
+    {
+      "term": "reinsurance",
+      "weight": 1
+    },
+    {
+      "term": "BaFin",
+      "weight": 2
+    },
+    {
+      "term": "Basel III",
+      "weight": 1
+    },
+    {
+      "term": "MaRisk",
+      "weight": 1
+    },
+    {
+      "term": "Solvency II",
+      "weight": 1
+    },
+    {
+      "term": "FinTech",
+      "weight": 1
+    },
+    {
+      "term": "Investment Banking",
+      "weight": 1
+    },
+    {
+      "term": "Private Banking",
+      "weight": 1
+    },
+    {
+      "term": "Firmenkunden",
+      "weight": 1
+    },
+    {
+      "term": "corporate banking",
+      "weight": 1
+    },
+    {
+      "term": "Privatkunden",
+      "weight": 1
+    },
+    {
+      "term": "retail banking",
+      "weight": 1
+    },
+    {
+      "term": "Finanzanalyse",
+      "weight": 1
+    },
+    {
+      "term": "financial analysis",
+      "weight": 1
+    },
+    {
+      "term": "Bloomberg",
+      "weight": 1
+    },
+    {
+      "term": "Finanzberatung",
+      "weight": 1
+    },
+    {
+      "term": "financial advice",
+      "weight": 1
+    }
+  ],
+  "titles": [
+    "Bankkaufmann",
+    "Bankkauffrau",
+    "bank clerk",
+    "Bankberater",
+    "Bankberaterin",
+    "Kundenberater Bank",
+    "Finanzberater",
+    "financial advisor",
+    "Anlageberater",
+    "investment advisor",
+    "Kreditanalyst",
+    "credit analyst",
+    "Kreditsachbearbeiter",
+    "Firmenkundenberater",
+    "Privatkundenberater",
+    "Investment Banker",
+    "Portfolio Manager",
+    "Risikomanager",
+    "risk manager",
+    "Versicherungskaufmann",
+    "Versicherungskauffrau",
+    "Kaufmann für Versicherungen und Finanzen",
+    "Kauffrau für Versicherungen und Finanzen",
+    "insurance agent",
+    "Versicherungsmakler",
+    "insurance broker",
+    "Schadenregulierer",
+    "claims handler",
+    "Underwriter",
+    "Aktuar",
+    "actuary",
+    "Finanzanalyst",
+    "financial analyst",
+    "Treasurer",
+    "Filialleiter Bank"
+  ],
+  "education": [
+    "Ausbildung zum Bankkaufmann",
+    "Ausbildung zur Bankkauffrau",
+    "Bankfachwirt",
+    "Bankbetriebswirt",
+    "Finanzwirtschaft",
+    "Banking and Finance",
+    "Versicherungsfachwirt",
+    "Kaufmann für Versicherungen und Finanzen",
+    "Chartered Financial Analyst",
+    "CFA",
+    "Certified Financial Planner",
+    "Financial Risk Manager",
+    "Aktuar DAV",
+    "Sparkassenbetriebswirt"
+  ]
+}

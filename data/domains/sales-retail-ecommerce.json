@@ -1,0 +1,264 @@
+{
+  "schemaVersion": 1,
+  "id": "sales-retail-ecommerce",
+  "order": 200,
+  "sector": "trade",
+  "label": {
+    "de": "Vertrieb, Handel & E-Commerce",
+    "en": "Sales, retail & e-commerce"
+  },
+  "shortLabel": {
+    "de": "Vertrieb",
+    "en": "Sales"
+  },
+  "description": "Sales and account management, retail stores, wholesale, e-commerce and customer service.",
+  "keywords": [
+    {
+      "term": "Vertrieb",
+      "weight": 2
+    },
+    {
+      "term": "sales",
+      "weight": 1
+    },
+    {
+      "term": "Verkauf",
+      "weight": 1
+    },
+    {
+      "term": "Außendienst",
+      "weight": 1
+    },
+    {
+      "term": "field sales",
+      "weight": 1
+    },
+    {
+      "term": "Innendienst",
+      "weight": 1
+    },
+    {
+      "term": "inside sales",
+      "weight": 1
+    },
+    {
+      "term": "Key Account",
+      "weight": 1
+    },
+    {
+      "term": "Kundenakquise",
+      "weight": 1
+    },
+    {
+      "term": "Neukundengewinnung",
+      "weight": 1
+    },
+    {
+      "term": "new business",
+      "weight": 1
+    },
+    {
+      "term": "Umsatz",
+      "weight": 1
+    },
+    {
+      "term": "revenue",
+      "weight": 1
+    },
+    {
+      "term": "Einzelhandel",
+      "weight": 1
+    },
+    {
+      "term": "retail",
+      "weight": 1
+    },
+    {
+      "term": "Filiale",
+      "weight": 1
+    },
+    {
+      "term": "Kasse",
+      "weight": 1
+    },
+    {
+      "term": "Warenpräsentation",
+      "weight": 1
+    },
+    {
+      "term": "visual merchandising",
+      "weight": 1
+    },
+    {
+      "term": "Sortiment",
+      "weight": 1
+    },
+    {
+      "term": "assortment",
+      "weight": 1
+    },
+    {
+      "term": "E-Commerce",
+      "weight": 1
+    },
+    {
+      "term": "Onlineshop",
+      "weight": 1
+    },
+    {
+      "term": "online shop",
+      "weight": 1
+    },
+    {
+      "term": "Webshop",
+      "weight": 1
+    },
+    {
+      "term": "Shopify",
+      "weight": 1
+    },
+    {
+      "term": "Marktplatz",
+      "weight": 1
+    },
+    {
+      "term": "marketplace",
+      "weight": 1
+    },
+    {
+      "term": "Großhandel",
+      "weight": 1
+    },
+    {
+      "term": "wholesale",
+      "weight": 1
+    },
+    {
+      "term": "CRM",
+      "weight": 1
+    },
+    {
+      "term": "Salesforce",
+      "weight": 1
+    },
+    {
+      "term": "Angebotserstellung",
+      "weight": 1
+    },
+    {
+      "term": "Verkaufsgespräch",
+      "weight": 1
+    },
+    {
+      "term": "Kundenberatung",
+      "weight": 1
+    },
+    {
+      "term": "Kundenservice",
+      "weight": 1
+    },
+    {
+      "term": "customer service",
+      "weight": 1
+    },
+    {
+      "term": "Callcenter",
+      "weight": 1
+    },
+    {
+      "term": "call centre",
+      "weight": 1
+    },
+    {
+      "term": "Reklamation",
+      "weight": 1
+    },
+    {
+      "term": "Vertriebsgebiet",
+      "weight": 1
+    },
+    {
+      "term": "sales territory",
+      "weight": 1
+    },
+    {
+      "term": "Provision",
+      "weight": 1
+    },
+    {
+      "term": "Lebensmitteleinzelhandel",
+      "weight": 1
+    },
+    {
+      "term": "Modehandel",
+      "weight": 1
+    },
+    {
+      "term": "fashion retail",
+      "weight": 1
+    },
+    {
+      "term": "Category Management",
+      "weight": 1
+    },
+    {
+      "term": "Kundenbetreuung",
+      "weight": 1
+    },
+    {
+      "term": "account management",
+      "weight": 1
+    }
+  ],
+  "titles": [
+    "Verkäufer",
+    "Verkäuferin",
+    "sales assistant",
+    "shop assistant",
+    "Kaufmann im Einzelhandel",
+    "Kauffrau im Einzelhandel",
+    "Einzelhandelskaufmann",
+    "Einzelhandelskauffrau",
+    "retail salesperson",
+    "Filialleiter",
+    "Filialleiterin",
+    "store manager",
+    "Marktleiter",
+    "Vertriebsmitarbeiter",
+    "sales representative",
+    "Außendienstmitarbeiter",
+    "Vertriebsleiter",
+    "head of sales",
+    "sales manager",
+    "Key Account Manager",
+    "Account Manager",
+    "Account Executive",
+    "Vertriebsingenieur",
+    "sales engineer",
+    "Kundenberater",
+    "Kundenberaterin",
+    "customer advisor",
+    "E-Commerce Manager",
+    "Category Manager",
+    "Kassierer",
+    "Kassiererin",
+    "cashier",
+    "Kundenservicemitarbeiter",
+    "customer service representative",
+    "Business Development Manager",
+    "Vertriebsbeauftragter"
+  ],
+  "education": [
+    "Kaufmann im Einzelhandel",
+    "Kauffrau im Einzelhandel",
+    "Handelsfachwirt",
+    "Kaufmann im E-Commerce",
+    "Kauffrau im E-Commerce",
+    "Vertriebsmanagement",
+    "sales management",
+    "Kaufmann im Groß- und Außenhandel",
+    "Kauffrau im Groß- und Außenhandel",
+    "Handelsassistent",
+    "Verkäuferausbildung"
+  ]
+}

@@ -1,0 +1,185 @@
+{
+  "schemaVersion": 1,
+  "id": "consulting",
+  "order": 190,
+  "sector": "business",
+  "label": {
+    "de": "Beratung",
+    "en": "Consulting"
+  },
+  "shortLabel": {
+    "de": "Beratung",
+    "en": "Consulting"
+  },
+  "description": "Management, strategy, process and transformation consulting.",
+  "keywords": [
+    {
+      "term": "Unternehmensberatung",
+      "weight": 2
+    },
+    {
+      "term": "management consulting",
+      "weight": 1
+    },
+    {
+      "term": "Strategieberatung",
+      "weight": 1
+    },
+    {
+      "term": "strategy consulting",
+      "weight": 1
+    },
+    {
+      "term": "Managementberatung",
+      "weight": 1
+    },
+    {
+      "term": "consulting",
+      "weight": 1
+    },
+    {
+      "term": "Prozessberatung",
+      "weight": 1
+    },
+    {
+      "term": "process consulting",
+      "weight": 1
+    },
+    {
+      "term": "Transformation",
+      "weight": 1
+    },
+    {
+      "term": "Change Management",
+      "weight": 1
+    },
+    {
+      "term": "Business Case",
+      "weight": 1
+    },
+    {
+      "term": "Restrukturierung",
+      "weight": 1
+    },
+    {
+      "term": "restructuring",
+      "weight": 1
+    },
+    {
+      "term": "Operational Excellence",
+      "weight": 1
+    },
+    {
+      "term": "Lean Management",
+      "weight": 1
+    },
+    {
+      "term": "Six Sigma",
+      "weight": 1
+    },
+    {
+      "term": "Organisationsentwicklung",
+      "weight": 1
+    },
+    {
+      "term": "organisational development",
+      "weight": 1
+    },
+    {
+      "term": "Interim Management",
+      "weight": 1
+    },
+    {
+      "term": "Big Four",
+      "weight": 1
+    },
+    {
+      "term": "McKinsey",
+      "weight": 1
+    },
+    {
+      "term": "BCG",
+      "weight": 1
+    },
+    {
+      "term": "Boston Consulting",
+      "weight": 1
+    },
+    {
+      "term": "Bain",
+      "weight": 1
+    },
+    {
+      "term": "Roland Berger",
+      "weight": 1
+    },
+    {
+      "term": "Accenture",
+      "weight": 1
+    },
+    {
+      "term": "Deloitte",
+      "weight": 1
+    },
+    {
+      "term": "PwC",
+      "weight": 1
+    },
+    {
+      "term": "KPMG",
+      "weight": 1
+    },
+    {
+      "term": "Capgemini",
+      "weight": 1
+    },
+    {
+      "term": "Kundenprojekte",
+      "weight": 1
+    },
+    {
+      "term": "client projects",
+      "weight": 1
+    },
+    {
+      "term": "client engagement",
+      "weight": 1
+    },
+    {
+      "term": "Beratungsprojekte",
+      "weight": 1
+    },
+    {
+      "term": "Beratungsmandat",
+      "weight": 1
+    }
+  ],
+  "titles": [
+    "Unternehmensberater",
+    "Unternehmensberaterin",
+    "management consultant",
+    "Berater",
+    "Beraterin",
+    "consultant",
+    "Senior Consultant",
+    "Strategieberater",
+    "strategy consultant",
+    "Managementberater",
+    "Associate Consultant",
+    "Business Analyst",
+    "Prozessberater",
+    "Organisationsberater",
+    "Interim Manager",
+    "Engagement Manager"
+  ],
+  "education": [
+    "Master of Business Administration",
+    "MBA",
+    "Six Sigma Black Belt",
+    "Six Sigma Green Belt",
+    "Lean Six Sigma",
+    "PMP",
+    "PRINCE2",
+    "Unternehmensführung"
+  ]
+}

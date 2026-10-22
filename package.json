@@ -32,6 +32,7 @@
     },
     "files": [
       "dist/**/*",
+      "data/**/*",
       "defaults/**/*",
       "assets/**/*",
       "package.json",

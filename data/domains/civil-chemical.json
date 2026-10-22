@@ -1,0 +1,149 @@
+{
+  "schemaVersion": 1,
+  "id": "civil-chemical",
+  "order": 120,
+  "sector": "industry",
+  "label": {
+    "de": "Bau- & Chemieingenieurwesen",
+    "en": "Civil & chemical engineering"
+  },
+  "shortLabel": {
+    "de": "Bau/Chemie",
+    "en": "Civil/Chem"
+  },
+  "description": "Civil and structural engineering, chemical and process engineering, plant engineering.",
+  "keywords": [
+    {
+      "term": "Bauingenieurwesen",
+      "weight": 1
+    },
+    {
+      "term": "civil engineering",
+      "weight": 1
+    },
+    {
+      "term": "Bauingenieur",
+      "weight": 1
+    },
+    {
+      "term": "Tragwerksplanung",
+      "weight": 1
+    },
+    {
+      "term": "structural engineering",
+      "weight": 1
+    },
+    {
+      "term": "Hochbau",
+      "weight": 1
+    },
+    {
+      "term": "Tiefbau",
+      "weight": 1
+    },
+    {
+      "term": "Brückenbau",
+      "weight": 1
+    },
+    {
+      "term": "BIM",
+      "weight": 1
+    },
+    {
+      "term": "Chemieingenieur",
+      "weight": 1
+    },
+    {
+      "term": "chemical engineering",
+      "weight": 1
+    },
+    {
+      "term": "Verfahrenstechnik",
+      "weight": 1
+    },
+    {
+      "term": "process engineering",
+      "weight": 1
+    },
+    {
+      "term": "Chemie",
+      "weight": 1
+    },
+    {
+      "term": "chemistry",
+      "weight": 1
+    },
+    {
+      "term": "chemical",
+      "weight": 1
+    },
+    {
+      "term": "Polymer",
+      "weight": 1
+    },
+    {
+      "term": "Kunststoff",
+      "weight": 1
+    },
+    {
+      "term": "plastics",
+      "weight": 1
+    },
+    {
+      "term": "Raffinerie",
+      "weight": 1
+    },
+    {
+      "term": "refinery",
+      "weight": 1
+    },
+    {
+      "term": "Anlagenbau",
+      "weight": 1
+    },
+    {
+      "term": "plant engineering",
+      "weight": 1
+    },
+    {
+      "term": "Umwelttechnik",
+      "weight": 1
+    },
+    {
+      "term": "environmental engineering",
+      "weight": 1
+    },
+    {
+      "term": "Wasserwirtschaft",
+      "weight": 1
+    },
+    {
+      "term": "Bauindustrie",
+      "weight": 1
+    }
+  ],
+  "titles": [
+    "Bauingenieur",
+    "civil engineer",
+    "Chemieingenieur",
+    "chemical engineer",
+    "Verfahrensingenieur",
+    "process engineer",
+    "Verfahrenstechniker",
+    "Chemikant",
+    "Statiker",
+    "structural engineer",
+    "Tragwerksplaner",
+    "Anlagenbauingenieur"
+  ],
+  "education": [
+    "Bauingenieurwesen",
+    "civil engineering",
+    "Chemieingenieurwesen",
+    "chemical engineering",
+    "Verfahrenstechnik",
+    "process engineering",
+    "Chemie",
+    "chemistry"
+  ]
+}

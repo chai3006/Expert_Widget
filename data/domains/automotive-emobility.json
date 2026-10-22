@@ -1,0 +1,322 @@
+{
+  "schemaVersion": 1,
+  "id": "automotive-emobility",
+  "order": 10,
+  "sector": "industry",
+  "label": {
+    "de": "Automobil & E-Mobilität",
+    "en": "Automotive & e-mobility"
+  },
+  "shortLabel": {
+    "de": "Automobil",
+    "en": "Automotive"
+  },
+  "description": "Carmakers, automotive suppliers, e-mobility and charging infrastructure in Germany.",
+  "keywords": [
+    {
+      "term": "automotive",
+      "weight": 1
+    },
+    {
+      "term": "Automobil",
+      "weight": 1
+    },
+    {
+      "term": "Fahrzeug",
+      "weight": 1
+    },
+    {
+      "term": "vehicle",
+      "weight": 1
+    },
+    {
+      "term": "OEM",
+      "weight": 1
+    },
+    {
+      "term": "Tier 1",
+      "weight": 1
+    },
+    {
+      "term": "Tier-1",
+      "weight": 1
+    },
+    {
+      "term": "AUTOSAR",
+      "weight": 1
+    },
+    {
+      "term": "Elektromobilität",
+      "weight": 1
+    },
+    {
+      "term": "e-mobility",
+      "weight": 1
+    },
+    {
+      "term": "electromobility",
+      "weight": 1
+    },
+    {
+      "term": "electric vehicle",
+      "weight": 1
+    },
+    {
+      "term": "Elektroauto",
+      "weight": 1
+    },
+    {
+      "term": "E-Auto",
+      "weight": 1
+    },
+    {
+      "term": "BEV",
+      "weight": 1
+    },
+    {
+      "term": "PHEV",
+      "weight": 1
+    },
+    {
+      "term": "Antriebsstrang",
+      "weight": 1
+    },
+    {
+      "term": "powertrain",
+      "weight": 1
+    },
+    {
+      "term": "drivetrain",
+      "weight": 1
+    },
+    {
+      "term": "ADAS",
+      "weight": 1
+    },
+    {
+      "term": "Fahrerassistenz",
+      "weight": 1
+    },
+    {
+      "term": "autonomous driving",
+      "weight": 1
+    },
+    {
+      "term": "autonomes Fahren",
+      "weight": 1
+    },
+    {
+      "term": "Infotainment",
+      "weight": 1
+    },
+    {
+      "term": "Karosserie",
+      "weight": 1
+    },
+    {
+      "term": "Fahrwerk",
+      "weight": 1
+    },
+    {
+      "term": "chassis",
+      "weight": 1
+    },
+    {
+      "term": "ISO 26262",
+      "weight": 1
+    },
+    {
+      "term": "ASPICE",
+      "weight": 1
+    },
+    {
+      "term": "Automotive SPICE",
+      "weight": 1
+    },
+    {
+      "term": "Steuergerät",
+      "weight": 1
+    },
+    {
+      "term": "ECU",
+      "weight": 1
+    },
+    {
+      "term": "CAN-Bus",
+      "weight": 1
+    },
+    {
+      "term": "CAN bus",
+      "weight": 1
+    },
+    {
+      "term": "CAN FD",
+      "weight": 1
+    },
+    {
+      "term": "FlexRay",
+      "weight": 1
+    },
+    {
+      "term": "Ladeinfrastruktur",
+      "weight": 1
+    },
+    {
+      "term": "charging infrastructure",
+      "weight": 1
+    },
+    {
+      "term": "Wallbox",
+      "weight": 1
+    },
+    {
+      "term": "Traktionsbatterie",
+      "weight": 1
+    },
+    {
+      "term": "traction battery",
+      "weight": 1
+    },
+    {
+      "term": "Elektromotor",
+      "weight": 1
+    },
+    {
+      "term": "e-motor",
+      "weight": 1
+    },
+    {
+      "term": "Autoindustrie",
+      "weight": 1
+    },
+    {
+      "term": "Autobauer",
+      "weight": 1
+    },
+    {
+      "term": "Zulieferer",
+      "weight": 1
+    },
+    {
+      "term": "carmaker",
+      "weight": 1
+    },
+    {
+      "term": "Volkswagen",
+      "weight": 1
+    },
+    {
+      "term": "VW",
+      "weight": 1
+    },
+    {
+      "term": "Audi",
+      "weight": 1
+    },
+    {
+      "term": "Porsche",
+      "weight": 1
+    },
+    {
+      "term": "BMW",
+      "weight": 1
+    },
+    {
+      "term": "Mercedes-Benz",
+      "weight": 1
+    },
+    {
+      "term": "Mercedes",
+      "weight": 1
+    },
+    {
+      "term": "PowerCo",
+      "weight": 1
+    },
+    {
+      "term": "Bosch",
+      "weight": 1
+    },
+    {
+      "term": "Continental",
+      "weight": 1
+    },
+    {
+      "term": "ZF Friedrichshafen",
+      "weight": 1
+    },
+    {
+      "term": "Schaeffler",
+      "weight": 1
+    },
+    {
+      "term": "Mahle",
+      "weight": 1
+    },
+    {
+      "term": "Webasto",
+      "weight": 1
+    },
+    {
+      "term": "Dräxlmaier",
+      "weight": 1
+    },
+    {
+      "term": "Brose",
+      "weight": 1
+    },
+    {
+      "term": "Kostal",
+      "weight": 1
+    },
+    {
+      "term": "Forvia",
+      "weight": 1
+    },
+    {
+      "term": "HELLA",
+      "weight": 1
+    },
+    {
+      "term": "IAV",
+      "weight": 1
+    },
+    {
+      "term": "FEV",
+      "weight": 1
+    },
+    {
+      "term": "EDAG",
+      "weight": 1
+    },
+    {
+      "term": "Bertrandt",
+      "weight": 1
+    },
+    {
+      "term": "Tesla",
+      "weight": 1
+    }
+  ],
+  "titles": [
+    "Fahrzeugingenieur",
+    "Automobilingenieur",
+    "Kfz-Ingenieur",
+    "automotive engineer",
+    "vehicle engineer",
+    "Fahrwerksentwickler",
+    "Antriebsentwickler",
+    "ADAS engineer",
+    "Applikationsingenieur",
+    "Homologationsingenieur",
+    "Fahrzeugentwickler"
+  ],
+  "education": [
+    "Fahrzeugtechnik",
+    "Kraftfahrzeugtechnik",
+    "automotive engineering",
+    "vehicle engineering",
+    "Fahrzeugbau",
+    "Fahrzeugsystemtechnik"
+  ]
+}

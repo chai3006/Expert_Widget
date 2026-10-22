@@ -1,0 +1,268 @@
+{
+  "schemaVersion": 1,
+  "id": "hospitality-tourism",
+  "order": 230,
+  "sector": "trade",
+  "label": {
+    "de": "Gastgewerbe & Tourismus",
+    "en": "Hospitality & tourism"
+  },
+  "shortLabel": {
+    "de": "Gastro",
+    "en": "Hospitality"
+  },
+  "description": "Hotels, restaurants, catering, kitchens, travel agencies and tourism.",
+  "keywords": [
+    {
+      "term": "Gastronomie",
+      "weight": 2
+    },
+    {
+      "term": "gastronomy",
+      "weight": 1
+    },
+    {
+      "term": "Hotellerie",
+      "weight": 1
+    },
+    {
+      "term": "hospitality",
+      "weight": 1
+    },
+    {
+      "term": "Hotel",
+      "weight": 1
+    },
+    {
+      "term": "Restaurant",
+      "weight": 1
+    },
+    {
+      "term": "Küche",
+      "weight": 1
+    },
+    {
+      "term": "kitchen",
+      "weight": 1
+    },
+    {
+      "term": "Gastgewerbe",
+      "weight": 1
+    },
+    {
+      "term": "Catering",
+      "weight": 1
+    },
+    {
+      "term": "Bankett",
+      "weight": 1
+    },
+    {
+      "term": "banquet",
+      "weight": 1
+    },
+    {
+      "term": "Rezeption",
+      "weight": 1
+    },
+    {
+      "term": "reception",
+      "weight": 1
+    },
+    {
+      "term": "Front Office",
+      "weight": 1
+    },
+    {
+      "term": "Housekeeping",
+      "weight": 1
+    },
+    {
+      "term": "Reservierung",
+      "weight": 1
+    },
+    {
+      "term": "reservations",
+      "weight": 1
+    },
+    {
+      "term": "Tourismus",
+      "weight": 1
+    },
+    {
+      "term": "tourism",
+      "weight": 1
+    },
+    {
+      "term": "Reisebüro",
+      "weight": 1
+    },
+    {
+      "term": "travel agency",
+      "weight": 1
+    },
+    {
+      "term": "Reiseveranstalter",
+      "weight": 1
+    },
+    {
+      "term": "tour operator",
+      "weight": 1
+    },
+    {
+      "term": "Reiseleitung",
+      "weight": 1
+    },
+    {
+      "term": "Kreuzfahrt",
+      "weight": 1
+    },
+    {
+      "term": "cruise",
+      "weight": 1
+    },
+    {
+      "term": "Gästebetreuung",
+      "weight": 1
+    },
+    {
+      "term": "guest relations",
+      "weight": 1
+    },
+    {
+      "term": "Cocktail",
+      "weight": 1
+    },
+    {
+      "term": "Sommelier",
+      "weight": 1
+    },
+    {
+      "term": "Menü",
+      "weight": 1
+    },
+    {
+      "term": "à la carte",
+      "weight": 1
+    },
+    {
+      "term": "Frühstück",
+      "weight": 1
+    },
+    {
+      "term": "breakfast",
+      "weight": 1
+    },
+    {
+      "term": "HACCP",
+      "weight": 1
+    },
+    {
+      "term": "Lebensmittelhygiene",
+      "weight": 1
+    },
+    {
+      "term": "food hygiene",
+      "weight": 1
+    },
+    {
+      "term": "Mise en Place",
+      "weight": 1
+    },
+    {
+      "term": "Systemgastronomie",
+      "weight": 1
+    },
+    {
+      "term": "Opera PMS",
+      "weight": 1
+    },
+    {
+      "term": "Fidelio",
+      "weight": 1
+    },
+    {
+      "term": "Wellness",
+      "weight": 1
+    },
+    {
+      "term": "Speisekarte",
+      "weight": 1
+    },
+    {
+      "term": "Gäste",
+      "weight": 1
+    },
+    {
+      "term": "guests",
+      "weight": 1
+    }
+  ],
+  "titles": [
+    "Koch",
+    "Köchin",
+    "cook",
+    "chef",
+    "Küchenchef",
+    "Küchenchefin",
+    "head chef",
+    "Sous Chef",
+    "Souschef",
+    "Chef de Partie",
+    "Commis de Cuisine",
+    "Jungkoch",
+    "Beikoch",
+    "Küchenhilfe",
+    "kitchen assistant",
+    "Restaurantfachmann",
+    "Restaurantfachfrau",
+    "Kellner",
+    "Kellnerin",
+    "waiter",
+    "waitress",
+    "Servicekraft",
+    "Hotelfachmann",
+    "Hotelfachfrau",
+    "Hotelkaufmann",
+    "Rezeptionist",
+    "Rezeptionistin",
+    "receptionist",
+    "Hoteldirektor",
+    "hotel manager",
+    "Restaurantleiter",
+    "restaurant manager",
+    "F&B Manager",
+    "Barkeeper",
+    "bartender",
+    "Barista",
+    "Kaufmann für Tourismus und Freizeit",
+    "travel agent",
+    "Reiseverkehrskaufmann",
+    "Reiseleiter",
+    "tour guide",
+    "Fachmann für Systemgastronomie",
+    "Housekeeping Manager",
+    "Hausdame",
+    "room attendant",
+    "Eventmanager",
+    "event manager"
+  ],
+  "education": [
+    "Ausbildung zum Koch",
+    "Ausbildung zur Köchin",
+    "Kochausbildung",
+    "Hotelfachschule",
+    "Ausbildung zum Hotelfachmann",
+    "Ausbildung zur Hotelfachfrau",
+    "Ausbildung zum Restaurantfachmann",
+    "Tourismusmanagement",
+    "tourism management",
+    "Hotelmanagement",
+    "hospitality management",
+    "Hotelbetriebswirt",
+    "Küchenmeister",
+    "Kaufmann für Tourismus und Freizeit",
+    "Reiseverkehrskaufmann",
+    "Systemgastronomie"
+  ]
+}

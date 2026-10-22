@@ -17,7 +17,7 @@ import {
   startupMode,
   toggleAction,
 } from '../apps/desktop/src/windowBehaviour.js';
-import { defaultConfigJson } from './helpers/config.js';
+import { defaultConfigJson, registry } from './helpers/config.js';
 
 let dir: string;
 beforeEach(() => {
@@ -120,18 +120,18 @@ describe('global hotkey', () => {
   it('is CommandOrControl+Alt+E by default, configurable, and "" switches it off', () => {
     const raw = defaultConfigJson();
     expect(raw.hotkey).toBe('CommandOrControl+Alt+E');
-    const ok = validateConfig({ ...raw, hotkey: 'Ctrl+Shift+X' });
+    const ok = validateConfig({ ...raw, hotkey: 'Ctrl+Shift+X' }, registry());
     expect(ok.ok && ok.value.hotkey).toBe('Ctrl+Shift+X');
-    const off = validateConfig({ ...raw, hotkey: '' });
+    const off = validateConfig({ ...raw, hotkey: '' }, registry());
     expect(off.ok && off.value.hotkey).toBe('');
     const missing = { ...raw };
     delete missing.hotkey;
-    const fallback = validateConfig(missing);
+    const fallback = validateConfig(missing, registry());
     expect(fallback.ok && fallback.value.hotkey).toBe('CommandOrControl+Alt+E');
   });
 
   it('reports a malformed hotkey in config.json with its path', () => {
-    const bad = validateConfig({ ...defaultConfigJson(), hotkey: 'Strg+E' });
+    const bad = validateConfig({ ...defaultConfigJson(), hotkey: 'Strg+E' }, registry());
     expect(!bad.ok && bad.errors[0]).toMatch(/^hotkey: must be a key combination like "CommandOrControl\+Alt\+E"/);
   });
 
