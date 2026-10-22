@@ -4,13 +4,12 @@
 import { existsSync } from 'node:fs';
 import { join, sep } from 'node:path';
 import { Worker } from 'node:worker_threads';
+import { looksGerman } from '../../../core/src/language.js';
+import type { Translator } from '../../../core/src/ports.js';
 import type { WorkerMessage } from './worker.js';
 
-export interface Translator {
-  /** Translates German texts to English, same order. */
-  translate(texts: string[]): Promise<string[]>;
-  close(): Promise<void>;
-}
+export type { Translator };
+export { looksGerman };
 
 export const MODEL_FILES = ['model.deen.intgemm.alphas.bin', 'lex.50.50.deen.s2t.bin', 'vocab.deen.spm'] as const;
 
@@ -107,28 +106,4 @@ export class BergamotTranslator implements Translator {
     this.ready = null;
     if (worker) await worker.terminate();
   }
-}
-
-// ---- Which texts to translate ---------------------------------------------------------------
-
-const GERMAN = new Set(
-  'der die das den dem des und oder mit für von vom zu zum zur im ist sind ein eine einen einer eines auf bei nicht sich wird werden wurde über nach aus auch als noch nur mehr neue neuen neues bis ab um durch gegen ohne wie was wer wo hat haben kann soll dass'.split(' '),
-);
-// Words used in both languages ("in", "an", "will") are left out of both lists.
-const ENGLISH = new Set('the and of to for with is are on at by from as its it be has have new more over after into than that this which who'.split(' '));
-
-/**
- * True when a text looks German: more German than English function words, or umlauts/ß and at
- * least as many German as English function words. Short names (e.g. "VDI nachrichten Recruiting Tag Hamburg") stay as they are.
- */
-export function looksGerman(text: string): boolean {
-  const words = text.toLowerCase().match(/[\p{L}]+/gu) ?? [];
-  let de = 0;
-  let en = 0;
-  for (const w of words) {
-    if (GERMAN.has(w)) de++;
-    if (ENGLISH.has(w)) en++;
-  }
-  if (de > en) return true;
-  return de >= en && /[äöüß]/i.test(text) && words.length >= 3;
 }

@@ -7,7 +7,7 @@ import { extname, join } from 'node:path';
 export const CV_EXTENSIONS = ['.pdf', '.docx', '.txt'] as const;
 
 export type CvLookup =
-  | { kind: 'ok'; path: string; fileName: string; modifiedMs: number }
+  | { kind: 'ok'; path: string; fileName: string; modifiedMs: number; sizeBytes: number }
   | { kind: 'empty'; folder: string }
   | { kind: 'multiple'; folder: string; fileNames: string[] }
   | { kind: 'folder-error'; folder: string; reason: string };
@@ -28,7 +28,7 @@ export async function findCv(folder: string): Promise<CvLookup> {
     if (names.length > 1) return { kind: 'multiple', folder, fileNames: names };
     const path = join(folder, names[0]);
     const stat = await fs.stat(path);
-    return { kind: 'ok', path, fileName: names[0], modifiedMs: Math.round(stat.mtimeMs) };
+    return { kind: 'ok', path, fileName: names[0], modifiedMs: Math.round(stat.mtimeMs), sizeBytes: stat.size };
   } catch (err) {
     return { kind: 'folder-error', folder, reason: err instanceof Error ? err.message : String(err) };
   }

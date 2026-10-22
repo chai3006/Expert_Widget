@@ -1,43 +1,13 @@
-// Real implementations of the refresh providers: the local CV and the news providers (layers 1-3).
+// The news providers (layers 1-3). They fetch through the injected Fetcher and parse locally.
 
-import { GDELT_PROVIDER_ID, GOOGLE_NEWS_PROVIDER_ID, domainOrder, type AppConfig, type SourceConfig, type SourceTopic } from '../config.js';
-import { findCv, describeCvLookupProblem } from '../../../node/src/cv/cvFiles.js';
-import { RuleBasedCvProfiler, type CvProfiler } from '../cv/cvProfiler.js';
-import { CvReadError, extractCvText } from '../../../node/src/cv/extract.js';
+import { GDELT_PROVIDER_ID, GOOGLE_NEWS_PROVIDER_ID, type AppConfig, type SourceConfig, type SourceTopic } from '../config.js';
 import { ADAPTERS } from './adapters/index.js';
 import { gdeltCompanyUrl, gdeltUrl, googleNewsCompanyUrl, googleNewsUrl, parseGdelt, parseGoogleNews } from './adapters/search.js';
-import type { PoliteFetcher } from '../../../node/src/fetcher.js';
+import type { Fetcher } from '../ports.js';
 import type { DomainQuery, NewsProvider, ProviderQuery } from './provider.js';
 import type { ParsedItem } from './types.js';
 import { WatchlistMatcher } from './watchlist.js';
 import type { DomainId } from '../shared/types.js';
-import type { CvProvider, CvResult } from '../refresh.js';
-
-export class LocalCvProvider implements CvProvider {
-  constructor(
-    private readonly makeProfiler: (config: AppConfig) => CvProfiler = (c) => new RuleBasedCvProfiler(c.keywords.domains, domainOrder(c)),
-    private readonly now: () => number = Date.now,
-  ) {}
-
-  async readProfile(config: AppConfig, cvFolder: string): Promise<CvResult> {
-    const lookup = await findCv(cvFolder);
-    if (lookup.kind !== 'ok') return { ok: false, problem: describeCvLookupProblem(lookup) };
-
-    let text: string;
-    try {
-      text = await extractCvText(lookup.path);
-    } catch (err) {
-      const reason = err instanceof CvReadError ? err.message : 'an unexpected error occurred';
-      return { ok: false, problem: `Could not read ${lookup.fileName}: ${reason}.` };
-    }
-    const weights = await this.makeProfiler(config).computeWeights(text);
-    // The text goes out of scope here; only the derived weights are kept.
-    if (weights.length === 0) {
-      return { ok: false, problem: `None of the domain keywords in config.json appear in ${lookup.fileName}.` };
-    }
-    return { ok: true, profile: { fileName: lookup.fileName, modifiedMs: lookup.modifiedMs, weights, computedAt: this.now() } };
-  }
-}
 
 /** Layer 1: one configured source, read through its feed or HTML adapter. */
 export class FeedProvider implements NewsProvider {
@@ -49,7 +19,7 @@ export class FeedProvider implements NewsProvider {
 
   constructor(
     private readonly source: SourceConfig,
-    private readonly fetcher: PoliteFetcher,
+    private readonly fetcher: Fetcher,
   ) {
     this.id = source.id;
     this.name = source.name;
@@ -80,7 +50,7 @@ abstract class SearchProvider implements NewsProvider {
   abstract readonly name: string;
   abstract readonly layer: 2 | 3;
 
-  constructor(protected readonly fetcher: PoliteFetcher) {}
+  constructor(protected readonly fetcher: Fetcher) {}
 
   protected abstract url(q: DomainQuery, query: ProviderQuery): string;
   protected abstract companyUrl(name: string, query: ProviderQuery): string;
@@ -107,7 +77,7 @@ export class GdeltProvider extends SearchProvider {
   readonly layer = 2 as const;
 
   constructor(
-    fetcher: PoliteFetcher,
+    fetcher: Fetcher,
     private readonly maxRecords: number,
   ) {
     super(fetcher);
@@ -145,7 +115,7 @@ export class GoogleNewsProvider extends SearchProvider {
 }
 
 /** The enabled providers for this config, in the order of enabledProviders(). */
-export function buildProviders(config: AppConfig, fetcher: PoliteFetcher): NewsProvider[] {
+export function buildProviders(config: AppConfig, fetcher: Fetcher): NewsProvider[] {
   const providers: NewsProvider[] = config.sources.filter((s) => s.enabled).map((s) => new FeedProvider(s, fetcher));
   if (config.search.gdelt.enabled) providers.push(new GdeltProvider(fetcher, config.search.gdelt.maxRecords));
   if (config.search.googleNews.enabled) providers.push(new GoogleNewsProvider(fetcher));

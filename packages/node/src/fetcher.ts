@@ -4,29 +4,20 @@
 // - serialises requests per host with a minimum gap between them,
 // - caches responses and revalidates with ETag / Last-Modified.
 
-import { createHash } from 'node:crypto';
-import { existsSync, readFileSync } from 'node:fs';
-import { join } from 'node:path';
 import robotsParser from 'robots-parser';
-import { writeJsonAtomic } from './state/jsonStore.js';
+import { FetchError, type CachedResponse, type CachedRobots, type Fetcher, type HttpCache } from '../../core/src/ports.js';
+import { DiskHttpCache } from './httpCache.js';
 
-export type FetchErrorKind = 'offline' | 'timeout' | 'http' | 'robots' | 'too-large' | 'other';
-
-export class FetchError extends Error {
-  override name = 'FetchError';
-  constructor(
-    readonly kind: FetchErrorKind,
-    message: string,
-  ) {
-    super(message);
-  }
-}
+export { FetchError };
+export type { FetchErrorKind } from '../../core/src/ports.js';
 
 export type FetchLike = (input: string, init?: RequestInit) => Promise<Response>;
 
 export interface FetcherOptions {
   userAgent: string;
-  cacheDir: string;
+  /** Response and robots.txt cache. Either a cache, or a folder for the JSON file cache. */
+  cache?: HttpCache;
+  cacheDir?: string;
   fetchImpl: FetchLike;
   minIntervalMs?: number;
   /** Longer gaps for hosts that ask for them, e.g. { 'api.gdeltproject.org': 5500 }. */
@@ -35,20 +26,6 @@ export interface FetcherOptions {
   maxBytes?: number;
   now?: () => number;
   sleep?: (ms: number) => Promise<void>;
-}
-
-interface CachedResponse {
-  url: string;
-  etag: string | null;
-  lastModified: string | null;
-  fetchedAt: number;
-  body: string;
-}
-
-interface CachedRobots {
-  fetchedAt: number;
-  /** null: no robots.txt (everything allowed). */
-  body: string | null;
 }
 
 const ROBOTS_TTL_MS = 24 * 60 * 60 * 1000;
@@ -63,11 +40,13 @@ export function classifyNetworkError(err: unknown): FetchError {
   return new FetchError('other', e?.message ?? String(err));
 }
 
-function hash(s: string): string {
-  return createHash('sha1').update(s).digest('hex');
+/** A page after redirects: its final address and its text. */
+export interface FetchedPage {
+  finalUrl: string;
+  body: string;
 }
 
-export class PoliteFetcher {
+export class PoliteFetcher implements Fetcher {
   private readonly hostChains = new Map<string, Promise<unknown>>();
   private readonly lastRequestAt = new Map<string, number>();
   private readonly robotsMemo = new Map<string, CachedRobots>();
@@ -76,8 +55,11 @@ export class PoliteFetcher {
   private readonly maxBytes: number;
   private readonly now: () => number;
   private readonly sleep: (ms: number) => Promise<void>;
+  private readonly cache: HttpCache;
 
   constructor(private readonly opts: FetcherOptions) {
+    if (!opts.cache && !opts.cacheDir) throw new Error('PoliteFetcher needs a cache or a cacheDir');
+    this.cache = opts.cache ?? new DiskHttpCache(opts.cacheDir as string);
     this.minIntervalMs = opts.minIntervalMs ?? 2000;
     this.timeoutMs = opts.timeoutMs ?? 20000;
     this.maxBytes = opts.maxBytes ?? 5 * 1024 * 1024;
@@ -86,7 +68,12 @@ export class PoliteFetcher {
   }
 
   /** Fetches a page as text. Requests to the same host run one after another. */
-  getText(url: string): Promise<string> {
+  async getText(url: string): Promise<string> {
+    return (await this.getPage(url)).body;
+  }
+
+  /** Like getText, and also says where redirects ended (used to check company career links). */
+  getPage(url: string): Promise<FetchedPage> {
     const host = new URL(url).host;
     const previous = this.hostChains.get(host) ?? Promise.resolve();
     const run = previous.catch(() => undefined).then(() => this.fetchAllowed(url));
@@ -94,7 +81,7 @@ export class PoliteFetcher {
     return run;
   }
 
-  private async fetchAllowed(url: string): Promise<string> {
+  private async fetchAllowed(url: string): Promise<FetchedPage> {
     const robots = await this.robotsFor(url);
     if (robots !== null) {
       const parser = robotsParser(new URL('/robots.txt', url).toString(), robots);
@@ -107,15 +94,7 @@ export class PoliteFetcher {
 
   private async robotsFor(url: string): Promise<string | null> {
     const origin = new URL(url).origin;
-    const file = join(this.opts.cacheDir, 'robots', `${hash(origin)}.json`);
-    let cached = this.robotsMemo.get(origin);
-    if (!cached && existsSync(file)) {
-      try {
-        cached = JSON.parse(readFileSync(file, 'utf8')) as CachedRobots;
-      } catch {
-        cached = undefined;
-      }
-    }
+    const cached = this.robotsMemo.get(origin) ?? this.cache.getRobots(origin) ?? undefined;
     if (cached && this.now() - cached.fetchedAt < ROBOTS_TTL_MS) return cached.body;
 
     let body: string | null;
@@ -130,20 +109,12 @@ export class PoliteFetcher {
     }
     const entry = { fetchedAt: this.now(), body };
     this.robotsMemo.set(origin, entry);
-    writeJsonAtomic(file, entry);
+    this.cache.setRobots(origin, entry);
     return body;
   }
 
-  private async fetchWithCache(url: string): Promise<string> {
-    const file = join(this.opts.cacheDir, 'http', `${hash(url)}.json`);
-    let cached: CachedResponse | null = null;
-    if (existsSync(file)) {
-      try {
-        cached = JSON.parse(readFileSync(file, 'utf8')) as CachedResponse;
-      } catch {
-        cached = null;
-      }
-    }
+  private async fetchWithCache(url: string): Promise<FetchedPage> {
+    const cached = this.cache.getResponse(url);
     const headers: Record<string, string> = {};
     if (cached?.etag) headers['If-None-Match'] = cached.etag;
     if (cached?.lastModified) headers['If-Modified-Since'] = cached.lastModified;
@@ -154,19 +125,22 @@ export class PoliteFetcher {
     } catch (err) {
       throw classifyNetworkError(err);
     }
-    if (res.status === 304 && cached) return cached.body;
+    if (res.status === 304 && cached) return { finalUrl: cached.finalUrl ?? url, body: cached.body };
     if (res.status === 429) throw new FetchError('http', 'the server answered HTTP 429 (too many requests, try again later)');
     if (!res.ok) throw new FetchError('http', `the server answered HTTP ${res.status}`);
 
     const body = await this.readBody(res);
-    writeJsonAtomic(file, {
+    // Response.url is empty for responses made up in tests; the request URL stands in.
+    const finalUrl = res.url || url;
+    this.cache.setResponse(url, {
       url,
+      finalUrl,
       etag: res.headers.get('etag'),
       lastModified: res.headers.get('last-modified'),
       fetchedAt: this.now(),
       body,
     } satisfies CachedResponse);
-    return body;
+    return { finalUrl, body };
   }
 
   private async request(url: string, headers: Record<string, string>): Promise<Response> {

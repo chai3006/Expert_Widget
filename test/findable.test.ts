@@ -4,7 +4,7 @@ import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { isLinuxAutostartOn, linuxAutostartPath, quoteExecArg, setLinuxAutostart } from '../apps/desktop/src/autostart.js';
 import { validateConfig } from '../packages/core/src/config.js';
-import { AppStores } from '../packages/core/src/state/appState.js';
+import { FileStores as AppStores } from '../packages/node/src/state/fileStores.js';
 import {
   AUTOSTART_FLAG,
   autostartLabel,

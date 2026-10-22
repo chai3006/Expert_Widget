@@ -2,7 +2,7 @@
 // its exact JSON path so the error screen can tell the user precisely what to fix.
 
 import { DOMAIN_IDS, isDomainId, type DomainId } from './shared/types.js';
-import { isValidHotkey } from '../../../apps/desktop/src/windowBehaviour.js';
+import { isValidHotkey } from './hotkey.js';
 
 export const SOURCE_TOPICS = ['hiring', 'funded_startup', 'career_fair'] as const;
 export type SourceTopic = (typeof SOURCE_TOPICS)[number];
@@ -359,7 +359,7 @@ export function validateWatchlist(raw: unknown): Validated<WatchlistEntry[]> {
  * the home folder where it is not set, and backslashes become slashes outside Windows, so a
  * config.json written on Windows still works on a Mac or Linux PC.
  */
-export function expandPath(path: string, env: Record<string, string | undefined>, homeDir: string, platform: NodeJS.Platform): string {
+export function expandPath(path: string, env: Record<string, string | undefined>, homeDir: string, platform: string): string {
   let out = expandEnvVars(path, { USERPROFILE: homeDir, ...env });
   if (platform !== 'win32') {
     out = out

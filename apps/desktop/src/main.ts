@@ -12,10 +12,11 @@ import { DEFAULT_HOTKEY, isHttpUrl } from '../../../packages/core/src/config.js'
 import { MockCvProvider, mockProviders } from '../../../packages/core/src/mock/mockData.js';
 import { canonicalUrl, itemId } from '../../../packages/core/src/news/dedupe.js';
 import { PoliteFetcher } from '../../../packages/node/src/fetcher.js';
-import { HOST_INTERVALS_MS, LocalCvProvider, buildProviders } from '../../../packages/core/src/news/providers.js';
+import { HOST_INTERVALS_MS, buildProviders } from '../../../packages/core/src/news/providers.js';
+import { LocalCvProvider } from '../../../packages/node/src/cv/folderCvSource.js';
 import { runRefresh, translateNew } from '../../../packages/core/src/refresh.js';
 import { BergamotTranslator, TRANSLATOR_WORKER, unpacked } from '../../../packages/node/src/translate/translator.js';
-import { AppStores } from '../../../packages/core/src/state/appState.js';
+import { FileStores } from '../../../packages/node/src/state/fileStores.js';
 import { ensureUserFiles, loadUserFiles, resolveHome, userFiles, type LoadedFiles } from '../../../packages/node/src/userFiles.js';
 import { buildView, companyKey } from '../../../packages/core/src/view.js';
 import {
@@ -41,7 +42,7 @@ const SEEN_RETENTION_MS = 120 * 24 * 60 * 60 * 1000;
 let win: BrowserWindow | null = null;
 let tray: Tray | null = null;
 let quitting = false;
-let stores: AppStores;
+let stores: FileStores;
 let files: LoadedFiles;
 let messages: StatusMessage[] = [];
 let refreshing: Promise<ViewModel> | null = null;
@@ -598,7 +599,7 @@ if (!app.requestSingleInstanceLock()) {
 
   void app.whenReady().then(() => {
     app.setAppUserModelId('de.expertwidget.app');
-    stores = new AppStores(MOCK ? join(app.getPath('userData'), 'mock-state') : app.getPath('userData'));
+    stores = new FileStores(MOCK ? join(app.getPath('userData'), 'mock-state') : app.getPath('userData'));
     pruneSeen();
     files = loadFiles();
     // After a start at login the widget is the small button (no refresh either way).

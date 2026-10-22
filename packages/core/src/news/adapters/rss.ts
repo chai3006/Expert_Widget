@@ -2,7 +2,7 @@
 // content (content:encoded) is deliberately ignored. Entries missing a title, link or date are
 // passed on as they are, so the contract check fails the provider loudly instead of hiding it.
 
-import * as cheerio from 'cheerio';
+import * as cheerio from 'cheerio/slim';
 import type { ParsedItem, SourceAdapter } from '../types.js';
 import { absoluteUrl, cleanText, htmlToText, toIsoTimestamp, truncate } from '../text.js';
 

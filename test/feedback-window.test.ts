@@ -6,7 +6,7 @@ import { canonicalUrl, itemId } from '../packages/core/src/news/dedupe.js';
 import type { NewsProvider } from '../packages/core/src/news/provider.js';
 import type { ParsedItem } from '../packages/core/src/news/types.js';
 import { runRefresh, type CvProvider } from '../packages/core/src/refresh.js';
-import { AppStores } from '../packages/core/src/state/appState.js';
+import { FileStores as AppStores } from '../packages/node/src/state/fileStores.js';
 import { buildView } from '../packages/core/src/view.js';
 import { BUTTON_WINDOW, PANEL_WIDTH, clampInto, defaultButtonPosition, panelBounds, restoreButtonPosition } from '../apps/desktop/src/windowGeometry.js';
 import { defaultConfig } from './helpers/config.js';

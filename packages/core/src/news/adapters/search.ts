@@ -2,7 +2,8 @@
 // the answers. Queries contain only domain names' keyword lists and the signal keywords from the
 // config, or a watchlist company's name, never anything taken from the CV.
 
-import * as cheerio from 'cheerio';
+import * as cheerio from 'cheerio/slim';
+import { base64ToLatin1 } from '../../hash.js';
 import type { DomainId } from '../../shared/types.js';
 import type { AppConfig } from '../../config.js';
 import type { DomainQuery, ProviderQuery } from '../provider.js';
@@ -137,7 +138,7 @@ export function decodeGoogleNewsLink(link: string): string {
   const m = /news\.google\.com\/(?:rss\/)?articles\/([A-Za-z0-9_-]+)/.exec(link);
   if (!m) return link;
   try {
-    const bytes = Buffer.from(m[1].replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString('latin1');
+    const bytes = base64ToLatin1(m[1]);
     const found = /https?:\/\/[\x21-\x7e]+/.exec(bytes)?.[0];
     if (!found) return link;
     // The URL is followed by protobuf bytes; cut at the first character that cannot be in a URL.

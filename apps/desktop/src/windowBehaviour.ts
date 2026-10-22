@@ -3,6 +3,8 @@
 
 import type { WindowMode } from '../../../packages/core/src/shared/types.js';
 
+export { isValidHotkey } from '../../../packages/core/src/hotkey.js';
+
 /**
  * Command-line flag of the start-at-login entry, so a start at login can be recognised. macOS
  * login items cannot pass arguments, so there a start at login looks like any other start.
@@ -66,18 +68,6 @@ export function startupMode(argv: readonly string[], saved: WindowMode): WindowM
  */
 export function shouldApplyAutostartDefault(isPackaged: boolean, alreadyApplied: boolean): boolean {
   return isPackaged && !alreadyApplied;
-}
-
-const MODIFIERS = new Set(['ctrl', 'control', 'alt', 'shift', 'super', 'meta', 'cmdorctrl', 'commandorcontrol', 'altgr', 'option', 'cmd', 'command']);
-const KEY = /^([a-z0-9]|f([1-9]|1[0-9]|2[0-4])|space|tab|insert|delete|home|end|pageup|pagedown|up|down|left|right|plus|=|-|,|\.|\/|;|')$/i;
-
-/** An Electron accelerator such as "Ctrl+Alt+E": one or more modifiers, then one key. */
-export function isValidHotkey(value: string): boolean {
-  const parts = value.split('+').map((p) => p.trim());
-  if (parts.length < 2 || parts.some((p) => p === '')) return false;
-  const key = parts[parts.length - 1];
-  const mods = parts.slice(0, -1).map((m) => m.toLowerCase());
-  return mods.every((m) => MODIFIERS.has(m)) && new Set(mods).size === mods.length && KEY.test(key);
 }
 
 export type HotkeyState = { status: 'off' } | { status: 'active'; hotkey: string } | { status: 'taken'; hotkey: string };

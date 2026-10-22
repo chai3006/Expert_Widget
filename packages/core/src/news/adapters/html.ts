@@ -3,7 +3,7 @@
 // A matched entry missing its title or link is passed on with an empty field rather than skipped,
 // so the contract check reports the provider as failed (the layout has probably changed).
 
-import * as cheerio from 'cheerio';
+import * as cheerio from 'cheerio/slim';
 import type { ParsedItem, SourceAdapter } from '../types.js';
 import {
   absoluteUrl,

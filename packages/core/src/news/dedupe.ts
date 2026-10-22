@@ -1,6 +1,6 @@
 // Deduplication by canonical URL and by near-identical headlines.
 
-import { createHash } from 'node:crypto';
+import { sha1Hex } from '../hash.js';
 import { foldText } from '../text/keywords.js';
 
 const TRACKING_PARAMS = /^(utm_[a-z]+|fbclid|gclid|mc_cid|mc_eid|wt_mc|wt_zmc|at_medium|at_campaign)$/i;
@@ -25,7 +25,7 @@ export function canonicalUrl(url: string): string {
 
 /** Stable id for an item, used for "seen" state. */
 export function itemId(url: string): string {
-  return createHash('sha1').update(canonicalUrl(url)).digest('hex').slice(0, 16);
+  return sha1Hex(canonicalUrl(url)).slice(0, 16);
 }
 
 export function headlineTokens(headline: string): Set<string> {

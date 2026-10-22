@@ -1,10 +1,10 @@
-// Local state files in Electron's userData folder (or a sub-folder for mock mode).
-// Each file is versioned plain JSON; anything that does not look right is treated as corrupt.
+// The persisted state: what each document looks like, how a damaged one is recognised (the
+// sanitizers return null), and the set of stores a Refresh works on. Where the documents live is up
+// to the caller: JSON files (packages/node), memory (tests, CLI) or a database.
 
-import { join } from 'node:path';
+import { MemoryStore, type StateStore } from '../ports.js';
 import { NEWS_TAGS, isDomainId, type CvProfile, type NewsCard, type Theme, type WindowMode } from '../shared/types.js';
 import type { RawItem } from '../news/types.js';
-import { JsonStore } from '../../../node/src/state/jsonStore.js';
 
 export interface SourceCache {
   fetchedAt: number | null;
@@ -200,27 +200,42 @@ export function sanitizeHealth(v: unknown): HealthState | null {
   return { version: 1, providers };
 }
 
-export class AppStores {
-  readonly feed: JsonStore<FeedCache>;
-  readonly profile: JsonStore<ProfileState>;
-  readonly interactions: JsonStore<Interactions>;
-  readonly ui: JsonStore<UiState>;
-  readonly health: JsonStore<HealthState>;
+/** Empty state, as on a first start. */
+export const INITIAL_STATE = {
+  feed: (): FeedCache => ({ version: 1, lastUpdated: null, sources: {} }),
+  profile: (): ProfileState => ({ version: 1, profile: null, lastProblem: null }),
+  interactions: (): Interactions => ({ version: 1, visited: {}, seen: {}, removed: {}, useful: {} }),
+  ui: (): UiState => ({ version: 2, theme: 'day', mode: 'collapsed', button: null, autostartDefaultApplied: false }),
+  health: (): HealthState => ({ version: 1, providers: {} }),
+};
 
-  constructor(readonly dir: string) {
-    this.feed = new JsonStore(join(dir, 'feed-cache.json'), () => ({ version: 1, lastUpdated: null, sources: {} }), sanitizeFeedCache);
-    this.profile = new JsonStore(join(dir, 'profile.json'), () => ({ version: 1, profile: null, lastProblem: null }), sanitizeProfileState);
-    this.interactions = new JsonStore(join(dir, 'interactions.json'), () => ({ version: 1, visited: {}, seen: {}, removed: {}, useful: {} }), sanitizeInteractions);
-    this.ui = new JsonStore(join(dir, 'ui.json'), () => ({ version: 2, theme: 'day', mode: 'collapsed', button: null, autostartDefaultApplied: false }), sanitizeUiState);
-    this.health = new JsonStore(join(dir, 'health.json'), () => ({ version: 1, providers: {} }), sanitizeHealth);
-  }
+export const SANITIZERS = {
+  feed: sanitizeFeedCache,
+  profile: sanitizeProfileState,
+  interactions: sanitizeInteractions,
+  ui: sanitizeUiState,
+  health: sanitizeHealth,
+};
 
-  get httpCacheDir(): string {
-    return join(this.dir, 'http-cache');
-  }
+/** All state a Refresh and the view read and write. */
+export interface AppStores {
+  readonly feed: StateStore<FeedCache>;
+  readonly profile: StateStore<ProfileState>;
+  readonly interactions: StateStore<Interactions>;
+  readonly ui: StateStore<UiState>;
+  readonly health: StateStore<HealthState>;
+  /** Damaged documents that were set aside at start-up (shown once as a note). */
+  recoveredFiles(): string[];
+}
 
-  /** Files that were corrupt at start-up and moved aside. */
-  recoveredFiles(): string[] {
-    return [this.feed, this.profile, this.interactions, this.ui, this.health].flatMap((s) => (s.recoveredFrom ? [s.recoveredFrom] : []));
-  }
+/** Stores that live in memory only. */
+export function memoryStores(): AppStores {
+  return {
+    feed: new MemoryStore(INITIAL_STATE.feed()),
+    profile: new MemoryStore(INITIAL_STATE.profile()),
+    interactions: new MemoryStore(INITIAL_STATE.interactions()),
+    ui: new MemoryStore(INITIAL_STATE.ui()),
+    health: new MemoryStore(INITIAL_STATE.health()),
+    recoveredFiles: () => [],
+  };
 }

@@ -1,4 +1,4 @@
-import * as cheerio from 'cheerio';
+import * as cheerio from 'cheerio/slim';
 
 /** Strips tags and decodes entities from an HTML fragment, collapsing whitespace. */
 export function htmlToText(html: string): string {

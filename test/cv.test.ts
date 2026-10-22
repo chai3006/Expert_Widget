@@ -6,7 +6,7 @@ import { domainOrder } from '../packages/core/src/config.js';
 import { findCv } from '../packages/node/src/cv/cvFiles.js';
 import { computeDomainMix, RuleBasedCvProfiler } from '../packages/core/src/cv/cvProfiler.js';
 import { CvReadError, decodeText, extractCvText } from '../packages/node/src/cv/extract.js';
-import { LocalCvProvider } from '../packages/core/src/news/providers.js';
+import { LocalCvProvider } from '../packages/node/src/cv/folderCvSource.js';
 import type { DomainId } from '../packages/core/src/shared/types.js';
 import { defaultConfig, fixture } from './helpers/config.js';
 import { makeDocx, makePdf } from './helpers/docs.js';

@@ -18,9 +18,9 @@ import { checkContract, ContractError, type NewsProvider, type ProviderQuery } f
 import type { ParsedItem } from '../packages/core/src/news/types.js';
 import { GdeltProvider, GoogleNewsProvider } from '../packages/core/src/news/providers.js';
 import { SEARCH_MIN_GAP_MS, runRefresh, uncoveredDomains, type CvProvider } from '../packages/core/src/refresh.js';
-import { AppStores } from '../packages/core/src/state/appState.js';
+import { FileStores as AppStores } from '../packages/node/src/state/fileStores.js';
 import { buildView } from '../packages/core/src/view.js';
-import type { PoliteFetcher } from '../packages/node/src/fetcher.js';
+import type { Fetcher as PoliteFetcher } from '../packages/core/src/ports.js';
 import { defaultConfig, defaultEmployers, fixture } from './helpers/config.js';
 
 const config = defaultConfig();

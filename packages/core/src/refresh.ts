@@ -9,10 +9,10 @@ import type { CvProfile, DomainId, DomainWeight, StatusMessage } from './shared/
 import type { AppConfig } from './config.js';
 import { buildProviderQuery } from './news/adapters/search.js';
 import { canonicalUrl } from './news/dedupe.js';
-import { FetchError } from '../../node/src/fetcher.js';
 import { checkContract, type NewsProvider, type ProviderQuery } from './news/provider.js';
 import type { ParsedItem, RawItem } from './news/types.js';
-import { looksGerman, type Translator } from '../../node/src/translate/translator.js';
+import { looksGerman } from './language.js';
+import { FetchError, type Translator } from './ports.js';
 import type { AppStores, ProviderHealthRecord, SourceCache } from './state/appState.js';
 
 export type CvResult = { ok: true; profile: CvProfile } | { ok: false; problem: string };
