@@ -68,6 +68,9 @@ export function buildWatchlistView(
 
 export interface ViewInput {
   mock: boolean;
+  /** win32, darwin, linux or web. */
+  platform?: string;
+  canManageFolder?: boolean;
   config: AppConfig | null;
   employers: EmployerSegment[];
   watchlist: WatchlistEntry[];
@@ -90,6 +93,10 @@ export function buildView(input: ViewInput): ViewModel {
     messages: input.messages,
     cvFolder: input.cvFolder,
     cvStatus: null,
+    cvProblemKind: null,
+    platform: input.platform ?? 'web',
+    canManageFolder: input.canManageFolder ?? false,
+    watchlistSearch: uiState.watchlistSearch !== false,
     unseenCount: 0,
     mode: uiState.mode,
     hasData: false,
@@ -105,7 +112,7 @@ export function buildView(input: ViewInput): ViewModel {
   };
   if (input.configError || !config) return { ui, data };
 
-  const { lastProblem } = stores.profile.value;
+  const { lastProblem, lastProblemKind } = stores.profile.value;
   const profile = effectiveProfile(stores.profile.value);
   const weights = profile?.weights ?? [];
   const { visited, seen, removed, useful } = stores.interactions.value;
@@ -130,6 +137,7 @@ export function buildView(input: ViewInput): ViewModel {
     ui: {
       ...ui,
       cvStatus: lastProblem ? { level: 'warning', text: lastProblem } : null,
+      cvProblemKind: lastProblem ? (lastProblemKind ?? 'unreadable') : null,
       unseenCount: news.filter((n) => n.seenAt === null).length,
       hasData: profile !== null || stores.feed.value.lastUpdated !== null,
     },

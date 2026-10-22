@@ -136,8 +136,9 @@ export function validateConfig(raw: unknown, registry: DomainRegistry): Validate
   const errors: string[] = [];
   if (!isObject(raw)) return { ok: false, errors: ['config.json: the top level must be an object { ... }'] };
 
-  if (typeof raw.cvFolder !== 'string' || raw.cvFolder.trim() === '') {
-    errors.push('cvFolder: must be a non-empty folder path');
+  // "" (or the old default) means the CV folder next to config.json, in the Documents folder.
+  if (typeof raw.cvFolder !== 'string') {
+    errors.push('cvFolder: must be a folder path, or "" for the default');
   }
   if (!Number.isInteger(raw.newsMaxAgeDays) || (raw.newsMaxAgeDays as number) < 1 || (raw.newsMaxAgeDays as number) > 365) {
     errors.push('newsMaxAgeDays: must be a whole number between 1 and 365');

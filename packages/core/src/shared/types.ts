@@ -184,6 +184,14 @@ export interface UiView {
   cvFolder: string;
   /** Problem with the CV folder or file (none, several, unreadable). */
   cvStatus: StatusMessage | null;
+  /** The kind of that problem, for the welcome screen's help (see CvProblemKind in ports.ts). */
+  cvProblemKind: string | null;
+  /** win32, darwin, linux, or web for the Expert page; decides words such as "tray" or "menu bar". */
+  platform: string;
+  /** What this front end can do: open or choose the CV folder (desktop only). */
+  canManageFolder: boolean;
+  /** Watchlist company names are searched in the news (the only user-chosen terms sent). */
+  watchlistSearch: boolean;
   /** Unseen cards in the feed (removed ones are never in it); shown on the collapsed button. */
   unseenCount: number;
   mode: WindowMode;
@@ -213,6 +221,12 @@ export interface ExpertApi {
   setManualDomains(weights: DomainWeight[]): Promise<ViewModel>;
   /** Back to the domain mix computed from the CV. */
   clearManualDomains(): Promise<ViewModel>;
+  /** Opens the CV folder in Explorer, Finder or the file manager (desktop only). */
+  openCvFolder(): Promise<void>;
+  /** Lets the user pick another CV folder (desktop only); refreshes when one was chosen. */
+  chooseCvFolder(): Promise<ViewModel>;
+  /** Switches searching the news for watchlist company names on or off. */
+  setWatchlistSearch(on: boolean): Promise<ViewModel>;
   setMode(mode: WindowMode): Promise<void>;
   /** The X button: hides the widget to the tray; it keeps running. */
   hideWindow(): Promise<void>;

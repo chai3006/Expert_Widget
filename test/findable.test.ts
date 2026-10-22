@@ -44,10 +44,9 @@ describe('single instance', () => {
 });
 
 describe('start at login', () => {
-  it('uses each system\'s own name in the tray menu', () => {
-    expect(autostartLabel('win32')).toBe('Start with Windows');
-    expect(autostartLabel('darwin')).toBe('Open at Login');
-    expect(autostartLabel('linux')).toBe('Start at Login');
+  // Changed on purpose: one neutral label on every system instead of "Start with Windows".
+  it('uses the same neutral words in the tray menu on every system', () => {
+    for (const p of ['win32', 'darwin', 'linux'] as const) expect(autostartLabel(p)).toBe('Start at login');
   });
 
   it('on Linux, writes and removes an XDG autostart entry', () => {
@@ -97,7 +96,8 @@ describe('start with Windows', () => {
   it('older ui.json files without the flag still load', () => {
     writeFileSync(join(dir, 'ui.json'), JSON.stringify({ version: 2, theme: 'dark', mode: 'expanded', button: null }));
     const stores = new AppStores(dir);
-    expect(stores.ui.value).toEqual({ version: 2, theme: 'dark', mode: 'expanded', button: null, autostartDefaultApplied: false });
+    // cvFolder and watchlistSearch were added later; older files get the defaults.
+    expect(stores.ui.value).toEqual({ version: 2, theme: 'dark', mode: 'expanded', button: null, autostartDefaultApplied: false, cvFolder: null, watchlistSearch: true });
     expect(stores.recoveredFiles()).toEqual([]);
   });
 });

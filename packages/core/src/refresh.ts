@@ -12,10 +12,10 @@ import { canonicalUrl } from './news/dedupe.js';
 import { checkContract, type NewsProvider, type ProviderQuery } from './news/provider.js';
 import type { ParsedItem, RawItem } from './news/types.js';
 import { looksGerman } from './language.js';
-import { FetchError, type Translator } from './ports.js';
+import { FetchError, type CvProblemKind, type Translator } from './ports.js';
 import { effectiveProfile, type AppStores, type ProviderHealthRecord, type SourceCache } from './state/appState.js';
 
-export type CvResult = { ok: true; profile: CvProfile } | { ok: false; problem: string };
+export type CvResult = { ok: true; profile: CvProfile } | { ok: false; problem: string; kind?: CvProblemKind };
 
 export interface CvProvider {
   readProfile(config: AppConfig, cvFolder: string): Promise<CvResult>;
@@ -55,12 +55,16 @@ export async function runRefresh(deps: RefreshDeps): Promise<StatusMessage[]> {
   // 1. CV → domain mix. On failure keep the previous mix and say why.
   const cv = await deps.cv.readProfile(config, deps.cvFolder);
   const manual = stores.profile.value.manual ?? null;
+  const previous = stores.profile.value.profile;
   if (cv.ok) {
-    stores.profile.set({ version: 1, profile: cv.profile, lastProblem: null, manual });
+    stores.profile.set({ version: 1, profile: cv.profile, lastProblem: null, lastProblemKind: null, manual });
+    // A replaced CV (other name, size or modified time) replaces the old profile; say so once.
+    if (previous && isReplacedCv(previous, cv.profile)) {
+      messages.push({ level: 'info', text: `Read your new CV ${cv.profile.fileName}. The domain mix was computed again.` });
+    }
   } else {
-    const previous = stores.profile.value.profile;
     const problem = previous ? `${cv.problem} Keeping the domain mix from ${previous.fileName}.` : cv.problem;
-    stores.profile.set({ version: 1, profile: previous, lastProblem: problem, manual });
+    stores.profile.set({ version: 1, profile: previous, lastProblem: problem, lastProblemKind: cv.kind ?? 'unreadable', manual });
   }
   // Domains chosen by hand win over the CV until the user goes back to the automatic result.
   const weights = effectiveProfile(stores.profile.value)?.weights ?? [];
@@ -153,6 +157,11 @@ export async function runRefresh(deps: RefreshDeps): Promise<StatusMessage[]> {
     });
   }
   return messages;
+}
+
+/** A different file, or the same file changed: name, size or modified time differ. */
+export function isReplacedCv(before: CvProfile, after: CvProfile): boolean {
+  return before.fileName !== after.fileName || before.modifiedMs !== after.modifiedMs || (before.sizeBytes !== undefined && after.sizeBytes !== undefined && before.sizeBytes !== after.sizeBytes);
 }
 
 /** Feeds keep their first items; searches keep their first items per domain query and per company. */

@@ -11,11 +11,9 @@ export { isValidHotkey } from '../../../packages/core/src/hotkey.js';
  */
 export const AUTOSTART_FLAG = '--autostart';
 
-/** The tray menu's start-at-login entry, in each system's own words. */
-export function autostartLabel(platform: NodeJS.Platform): string {
-  if (platform === 'win32') return 'Start with Windows';
-  if (platform === 'darwin') return 'Open at Login';
-  return 'Start at Login';
+/** The tray menu's start-at-login entry: the same neutral words on every system. */
+export function autostartLabel(_platform: NodeJS.Platform): string {
+  return 'Start at login';
 }
 
 /** A hotkey as the user knows it: "CommandOrControl+Alt+E" is "Ctrl+Alt+E" on Windows, "Cmd+Option+E" on a Mac. */

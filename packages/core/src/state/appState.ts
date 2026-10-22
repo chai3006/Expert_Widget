@@ -2,7 +2,7 @@
 // sanitizers return null), and the set of stores a Refresh works on. Where the documents live is up
 // to the caller: JSON files (packages/node), memory (tests, CLI) or a database.
 
-import { MemoryStore, type StateStore } from '../ports.js';
+import { MemoryStore, type CvProblemKind, type StateStore } from '../ports.js';
 import { NEWS_TAGS, isDomainId, type CvProfile, type DomainEvidenceView, type DomainWeight, type NewsCard, type Theme, type WindowMode } from '../shared/types.js';
 import type { RawItem } from '../news/types.js';
 
@@ -33,6 +33,8 @@ export interface ProfileState {
   profile: CvProfile | null;
   /** Last CV problem (no file, several files, unreadable), shown again after a restart. */
   lastProblem: string | null;
+  /** Its kind, so the UI can show the right help (see CvProblemKind). */
+  lastProblemKind?: CvProblemKind | null;
   /** Set when the user chose the domains by hand. Missing in files written before that existed. */
   manual?: ManualDomains | null;
 }
@@ -90,6 +92,10 @@ export interface UiState {
   button: ButtonPosition | null;
   /** Start at login was switched on once by default (installed app only). */
   autostartDefaultApplied: boolean;
+  /** A CV folder the user chose with "Choose another folder"; wins over config.json. */
+  cvFolder?: string | null;
+  /** Searching the news for watchlist company names (the only user-chosen search terms). Missing: on. */
+  watchlistSearch?: boolean;
 }
 
 export interface ProviderHealthRecord {
@@ -163,6 +169,7 @@ function sanitizeWeights(v: unknown): DomainWeight[] {
 }
 
 const EVIDENCE_KINDS = ['title', 'education', 'certification', 'skill', 'keyword'];
+const CV_PROBLEM_KINDS = ['no-file', 'multiple', 'unsupported', 'password', 'scanned', 'empty', 'too-large', 'locked', 'no-permission', 'unreadable'] as const;
 
 function sanitizeEvidence(v: unknown): DomainEvidenceView[] {
   if (!Array.isArray(v)) return [];
@@ -194,7 +201,8 @@ export function sanitizeProfileState(v: unknown): ProfileState | null {
   }
   const m = v.manual;
   const manual = isObj(m) && typeof m.setAt === 'number' && sanitizeWeights(m.weights).length > 0 ? { weights: sanitizeWeights(m.weights), setAt: m.setAt } : null;
-  return { version: 1, profile, lastProblem: typeof v.lastProblem === 'string' ? v.lastProblem : null, manual };
+  const kind = typeof v.lastProblemKind === 'string' && (CV_PROBLEM_KINDS as readonly string[]).includes(v.lastProblemKind) ? (v.lastProblemKind as CvProblemKind) : null;
+  return { version: 1, profile, lastProblem: typeof v.lastProblem === 'string' ? v.lastProblem : null, lastProblemKind: kind, manual };
 }
 
 const isStrOrNull = (v: unknown) => v === null || typeof v === 'string';
@@ -237,7 +245,15 @@ export function sanitizeUiState(v: unknown): UiState | null {
     isObj(b) && typeof b.x === 'number' && Number.isFinite(b.x) && typeof b.y === 'number' && Number.isFinite(b.y)
       ? { x: b.x, y: b.y, displayId: typeof b.displayId === 'number' ? b.displayId : null }
       : null;
-  return { version: 2, theme, mode, button, autostartDefaultApplied: v.autostartDefaultApplied === true };
+  return {
+    version: 2,
+    theme,
+    mode,
+    button,
+    autostartDefaultApplied: v.autostartDefaultApplied === true,
+    cvFolder: typeof v.cvFolder === 'string' && v.cvFolder.trim() !== '' ? v.cvFolder : null,
+    watchlistSearch: v.watchlistSearch !== false,
+  };
 }
 
 export function sanitizeHealth(v: unknown): HealthState | null {

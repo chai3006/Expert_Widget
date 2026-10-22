@@ -62,7 +62,20 @@ export interface CvDocument {
   text: string;
 }
 
-export type CvReadResult = { ok: true; document: CvDocument } | { ok: false; problem: string };
+/** Why the CV could not be read; each has its own plain message with the next step. */
+export type CvProblemKind =
+  | 'no-file'
+  | 'multiple'
+  | 'unsupported'
+  | 'password'
+  | 'scanned'
+  | 'empty'
+  | 'too-large'
+  | 'locked'
+  | 'no-permission'
+  | 'unreadable';
+
+export type CvReadResult = { ok: true; document: CvDocument } | { ok: false; problem: string; kind?: CvProblemKind };
 
 /** Where the CV comes from: a folder on this computer, or text handed over by a local caller. */
 export interface CvSource {

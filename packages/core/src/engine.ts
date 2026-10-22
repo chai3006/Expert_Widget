@@ -51,6 +51,10 @@ export interface EngineDeps {
   onChange?(): void;
   /** Domain labels for the contracts. */
   labelOf?(domain: string): string;
+  /** win32, darwin, linux, or web (the default) for the Expert page. */
+  platform?: string;
+  /** The front end can open and choose the CV folder (desktop app). */
+  canManageFolder?: boolean;
 }
 
 export class ExpertEngine {
@@ -117,6 +121,8 @@ export class ExpertEngine {
     const inputs = this.inputs;
     return buildView({
       mock: this.deps.mock ?? false,
+      platform: this.deps.platform,
+      canManageFolder: this.deps.canManageFolder,
       config: inputs.ok ? inputs.config : null,
       employers: inputs.ok ? inputs.employers : [],
       watchlist: inputs.ok ? inputs.watchlist : [],
@@ -193,6 +199,15 @@ export class ExpertEngine {
   /** Back to the mix computed from the CV. */
   clearManualDomains(): void {
     this.deps.stores.profile.update((p) => ({ ...p, manual: null }));
+  }
+
+  /** Watchlist company names are searched in the news unless the user switched it off. */
+  get watchlistSearch(): boolean {
+    return this.deps.stores.ui.value.watchlistSearch !== false;
+  }
+
+  setWatchlistSearch(on: boolean): void {
+    this.deps.stores.ui.update((u) => ({ ...u, watchlistSearch: on }));
   }
 
   // ---- Contracts ---------------------------------------------------------------------------

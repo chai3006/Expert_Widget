@@ -20,7 +20,7 @@ export class ProfilingCvProvider implements CvProvider {
 
   async readProfile(config: AppConfig, cvFolder: string): Promise<CvResult> {
     const read = await this.sourceFor(cvFolder).read();
-    if (!read.ok) return { ok: false, problem: read.problem };
+    if (!read.ok) return { ok: false, problem: read.problem, ...(read.kind ? { kind: read.kind } : {}) };
     const { fileName, modifiedMs, sizeBytes, text } = read.document;
     const profiler = this.makeProfiler(config);
     if (profiler.analyse) {

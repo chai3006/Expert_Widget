@@ -6,23 +6,29 @@ import type { AppConfig } from '../../../core/src/config.js';
 import { ProfilingCvProvider } from '../../../core/src/cv/cvProvider.js';
 import type { CvProfiler } from '../../../core/src/cv/cvProfiler.js';
 import type { CvReadResult, CvSource } from '../../../core/src/ports.js';
-import { describeCvLookupProblem, findCv } from './cvFiles.js';
-import { CvReadError, extractCvText } from './extract.js';
+import { describeCvLookupProblem, findCv, lookupProblemKind } from './cvFiles.js';
+import { CvReadError, NEXT_STEP, extractCvText } from './extract.js';
 
 export class FolderCvSource implements CvSource {
   constructor(readonly folder: string) {}
 
   async read(): Promise<CvReadResult> {
     const lookup = await findCv(this.folder);
-    if (lookup.kind !== 'ok') return { ok: false, problem: describeCvLookupProblem(lookup) };
+    if (lookup.kind !== 'ok') return { ok: false, problem: describeCvLookupProblem(lookup), kind: lookupProblemKind(lookup) };
     try {
       const text = await extractCvText(lookup.path);
       return { ok: true, document: { fileName: lookup.fileName, modifiedMs: lookup.modifiedMs, sizeBytes: lookup.sizeBytes, text } };
     } catch (err) {
-      const reason = err instanceof CvReadError ? err.message : 'an unexpected error occurred';
-      return { ok: false, problem: `Could not read ${lookup.fileName}: ${reason}.` };
+      return problemFor(lookup.fileName, err);
     }
   }
+}
+
+/** "Could not read cv.pdf: the PDF is protected with a password. Save a copy without …" */
+function problemFor(fileName: string, err: unknown): CvReadResult {
+  const kind = err instanceof CvReadError ? err.kind : 'unreadable';
+  const reason = err instanceof CvReadError ? err.message : 'an unexpected error occurred';
+  return { ok: false, problem: `Could not read ${fileName}: ${reason}. ${NEXT_STEP[kind]}`, kind };
 }
 
 /** The CV in the given folder, profiled with the rules in config.json. */
@@ -48,8 +54,7 @@ export class FileCvSource implements CvSource {
       const text = await extractCvText(this.path);
       return { ok: true, document: { fileName, modifiedMs: Math.round(stat.mtimeMs), sizeBytes: stat.size, text } };
     } catch (err) {
-      const reason = err instanceof CvReadError ? err.message : 'an unexpected error occurred';
-      return { ok: false, problem: `Could not read ${fileName}: ${reason}.` };
+      return problemFor(fileName, err);
     }
   }
 }

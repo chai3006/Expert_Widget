@@ -16,6 +16,9 @@ const api: ExpertApi = {
   setTheme: (theme: Theme) => ipcRenderer.invoke('ui:theme', theme),
   setManualDomains: (weights: DomainWeight[]) => ipcRenderer.invoke('profile:manual', weights),
   clearManualDomains: () => ipcRenderer.invoke('profile:automatic'),
+  openCvFolder: () => ipcRenderer.invoke('cv:open-folder'),
+  chooseCvFolder: () => ipcRenderer.invoke('cv:choose-folder'),
+  setWatchlistSearch: (on: boolean) => ipcRenderer.invoke('search:watchlist', on),
   setMode: (mode: WindowMode) => ipcRenderer.invoke('window:mode', mode),
   hideWindow: () => ipcRenderer.invoke('window:hide'),
   // Fire-and-forget messages: pointer moves are frequent and need no answer.

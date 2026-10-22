@@ -174,7 +174,7 @@ describe('CV text extraction', () => {
   it('rejects an empty file', async () => {
     const path = join(dir, 'cv.txt');
     writeFileSync(path, '');
-    await expect(extractCvText(path)).rejects.toThrow(new CvReadError('the file is empty'));
+    await expect(extractCvText(path)).rejects.toThrow(new CvReadError('the file is empty', 'empty'));
   });
 
   it('rejects an unreadable PDF and DOCX with a clear reason', async () => {

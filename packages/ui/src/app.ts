@@ -252,8 +252,8 @@ function renderHeader(v: ViewModel): HTMLElement {
         class: 'icon-button',
         type: 'button',
         'data-focus-key': 'hide',
-        'aria-label': 'Hide to the tray (the widget keeps running)',
-        title: 'Hide to the tray. Bring it back with the tray icon or the hotkey.',
+        'aria-label': `Hide to the ${trayName(v)} (the widget keeps running)`,
+        title: `Hide to the ${trayName(v)}. Bring it back with the ${trayName(v)} icon or the hotkey.`,
         onclick: () => void api.hideWindow(),
       },
       icon('close'),
@@ -277,28 +277,75 @@ function renderBody(v: ViewModel): HTMLElement {
     return scroll;
   }
 
-  scroll.append(renderStatus(v));
-
-  if (!v.ui.hasData) {
-    scroll.append(
-      h(
-        'section',
-        { class: 'card empty' },
-        h('h2', {}, 'Press Refresh to load'),
-        h('p', { class: 'muted' }, 'Put your CV (.pdf, .docx or .txt, German or English) in this folder:'),
-        h('p', { class: 'path' }, v.ui.cvFolder),
-      ),
-    );
-    return scroll;
-  }
+  // Until a CV has been read, the welcome screen explains where it goes; the problem is shown there.
+  const welcome = !v.data.profile;
+  scroll.append(renderStatus(v, welcome));
+  if (welcome) scroll.append(renderWelcome(v));
+  if (!v.ui.hasData) return scroll;
 
   scroll.append(renderDomainMix(v), renderEmployers(v), renderWatchlist(v), renderNews(v));
   return scroll;
 }
 
-function renderStatus(v: ViewModel): HTMLElement {
+/** "tray" on Windows and Linux, "menu bar" on a Mac. */
+function trayName(v: ViewModel): string {
+  return v.ui.platform === 'darwin' ? 'menu bar' : 'tray';
+}
+
+/**
+ * First run, and whenever no CV could be read: where the CV goes, in plain words, with buttons to
+ * open or change the folder. Neutral for every field of work.
+ */
+function renderWelcome(v: ViewModel): HTMLElement {
+  const problem = v.ui.cvStatus;
+  return h(
+    'section',
+    { class: 'card welcome', 'aria-labelledby': 'welcome-title' },
+    h('h2', { id: 'welcome-title' }, problem ? 'Your CV could not be read yet' : 'Welcome to Expert'),
+    h('p', {}, 'Expert reads your CV on this computer, works out your fields of work, and shows employers and news for them in Germany.'),
+    problem ? h('p', { class: `message ${problem.level}`, role: 'alert' }, problem.text) : null,
+    h('h3', { class: 'welcome-step' }, '1. Put your CV in this folder'),
+    h('p', { class: 'path', 'data-focus-key': 'cv-path' }, v.ui.cvFolder),
+    v.ui.canManageFolder
+      ? h(
+          'div',
+          { class: 'mix-actions' },
+          h('button', { class: 'link-button', type: 'button', 'data-focus-key': 'open-folder', onclick: () => void api.openCvFolder() }, 'Open CV folder'),
+          h('button', { class: 'link-button', type: 'button', 'data-focus-key': 'choose-folder', onclick: () => void api.chooseCvFolder().then(setView) }, 'Choose another folder'),
+        )
+      : null,
+    h('p', { class: 'muted small' }, 'One file only: PDF, Word (.docx) or text (.txt), in German or English. A scanned PDF without text cannot be read.'),
+    h('h3', { class: 'welcome-step' }, '2. Press Refresh'),
+    h(
+      'div',
+      { class: 'mix-actions' },
+      h(
+        'button',
+        {
+          class: 'refresh-button',
+          type: 'button',
+          'data-focus-key': 'welcome-refresh',
+          'aria-busy': v.ui.refreshing ? 'true' : 'false',
+          onclick: () => {
+            if (!view?.ui.refreshing) void api.refresh().then(setView);
+          },
+        },
+        icon('refresh'),
+        v.ui.refreshing ? 'Refreshing…' : 'Refresh',
+      ),
+    ),
+    h(
+      'p',
+      { class: 'privacy-note' },
+      h('strong', {}, 'Your CV stays on your computer. '),
+      'Its text is never sent anywhere. The news searches use the same general search words for everyone; only the names of companies you put on your watchlist are sent as search words (you can switch that off in the Watchlist section).',
+    ),
+  );
+}
+
+function renderStatus(v: ViewModel, welcome = false): HTMLElement {
   const box = h('div', { class: 'status', role: 'status', 'aria-live': 'polite' });
-  if (v.ui.cvStatus) box.append(h('p', { class: `message ${v.ui.cvStatus.level}` }, v.ui.cvStatus.text));
+  if (v.ui.cvStatus && !welcome) box.append(h('p', { class: `message ${v.ui.cvStatus.level}` }, v.ui.cvStatus.text));
   for (const m of v.ui.messages) box.append(h('p', { class: `message ${m.level}` }, m.text));
   return box;
 }

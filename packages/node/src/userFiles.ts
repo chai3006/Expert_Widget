@@ -1,5 +1,6 @@
-// The user-editable files live next to the CV folder, by default in
-// Documents/ExpertWidget in the home folder (config.json, employers.json, watchlist.json, CV\).
+// The user-editable files live next to the CV folder, by default in ExpertWidget in the user's
+// Documents folder as the system names it (Electron's app.getPath('documents'), which follows a
+// moved or OneDrive-redirected Documents folder): config.json, employers.json, watchlist.json, CV/.
 // Missing files are created from the bundled defaults on first run.
 
 import { copyFileSync, existsSync, mkdirSync, readFileSync } from 'node:fs';
@@ -28,9 +29,29 @@ export function userFiles(home: string): UserFiles {
   return { home, configPath: join(home, 'config.json'), employersPath: join(home, 'employers.json'), watchlistPath: join(home, 'watchlist.json') };
 }
 
-/** EXPERT_WIDGET_HOME overrides the location (useful for testing a second setup). */
-export function resolveHome(env: Record<string, string | undefined>, homeDir: string): string {
-  return env.EXPERT_WIDGET_HOME ? resolve(env.EXPERT_WIDGET_HOME) : join(homeDir, 'Documents', 'ExpertWidget');
+/**
+ * The folder with the user's files. EXPERT_WIDGET_HOME overrides it (useful for testing a second
+ * setup). Earlier versions used <home>/Documents/ExpertWidget; where that differs from the real
+ * Documents folder and already has a config.json, it stays in use so nothing is lost.
+ */
+export function resolveHome(env: Record<string, string | undefined>, documentsDir: string, homeDir?: string): string {
+  if (env.EXPERT_WIDGET_HOME) return resolve(env.EXPERT_WIDGET_HOME);
+  const home = join(documentsDir, 'ExpertWidget');
+  if (homeDir) {
+    const legacy = join(homeDir, 'Documents', 'ExpertWidget');
+    if (resolve(legacy) !== resolve(home) && !existsSync(join(home, 'config.json')) && existsSync(join(legacy, 'config.json'))) return legacy;
+  }
+  return home;
+}
+
+/** The cvFolder value of earlier default config files; it means the default folder too. */
+export const LEGACY_DEFAULT_CV_FOLDER = '~/Documents/ExpertWidget/CV';
+
+/** The CV folder: config.json's cvFolder, or the CV folder next to config.json when it is "" or the old default. */
+export function cvFolderFor(files: UserFiles, setting: string, env: Record<string, string | undefined>, homeDir: string, platform: NodeJS.Platform = process.platform): string {
+  const value = setting.trim();
+  if (value === '' || value === LEGACY_DEFAULT_CV_FOLDER) return join(files.home, 'CV');
+  return resolve(expandPath(value, env, homeDir, platform));
 }
 
 export type LoadedFiles =
@@ -67,7 +88,7 @@ export function loadUserFiles(
   const config = validateConfig(configJson.value, registry);
   if (!config.ok) return { ok: false, error: `${files.configPath} has problems:\n\n${config.errors.join('\n')}`, cvFolder: fallbackCv };
 
-  const cvFolder = resolve(expandPath(config.value.cvFolder, env, homeDir, platform));
+  const cvFolder = cvFolderFor(files, config.value.cvFolder, env, homeDir, platform);
 
   const employersText = read(files.employersPath);
   if (!employersText.ok) return { ok: false, error: employersText.error, cvFolder };

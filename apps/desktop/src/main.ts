@@ -1,7 +1,7 @@
 // Electron main process: window, tray, IPC, and the Refresh button's work.
 // All network access and file reading happens here, never in the renderer.
 
-import { BrowserWindow, Menu, Tray, app, globalShortcut, ipcMain, nativeImage, net, screen, shell, type IpcMainEvent, type IpcMainInvokeEvent } from 'electron';
+import { BrowserWindow, Menu, Tray, app, dialog, globalShortcut, ipcMain, nativeImage, net, screen, shell, type IpcMainEvent, type IpcMainInvokeEvent } from 'electron';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { dirname, join } from 'node:path';
@@ -47,7 +47,7 @@ let engine: ExpertEngine;
 const appRoot = () => app.getAppPath();
 const defaultsDir = () => join(appRoot(), 'defaults');
 // Mock mode reads the bundled defaults (no CV, no user files) and keeps its own state folder.
-const files_ = () => userFiles(MOCK ? defaultsDir() : resolveHome(process.env, homedir()));
+const files_ = () => userFiles(MOCK ? defaultsDir() : resolveHome(process.env, app.getPath('documents'), homedir()));
 const indexHtml = () => join(__dirname, '..', '..', '..', 'ui', 'packages', 'ui', 'src', 'index.html');
 
 function loadFiles(): LoadedFiles {
@@ -58,7 +58,10 @@ function loadFiles(): LoadedFiles {
       return { ok: false, error: `Cannot create ${files_().home}: ${err instanceof Error ? err.message : String(err)}`, cvFolder: join(files_().home, 'CV') };
     }
   }
-  const loaded = loadInputs(files_(), join(appRoot(), 'data', 'domains'), process.env, homedir());
+  const inputs = loadInputs(files_(), join(appRoot(), 'data', 'domains'), process.env, homedir());
+  // A folder chosen with "Choose another folder" wins over config.json.
+  const chosen = stores.ui.value.cvFolder;
+  const loaded = chosen && !MOCK ? { ...inputs, cvFolder: chosen } : inputs;
   if (!MOCK) {
     try {
       mkdirSync(loaded.cvFolder, { recursive: true });
@@ -141,6 +144,8 @@ function createEngine(): ExpertEngine {
     now: Date.now,
     mock: MOCK,
     onChange: pushView,
+    platform: process.platform,
+    canManageFolder: !MOCK,
   });
 }
 
@@ -500,6 +505,28 @@ function registerIpc(): void {
   });
   handle('profile:automatic', () => {
     engine.clearManualDomains();
+    return currentView();
+  });
+  handle('cv:open-folder', async () => {
+    const folder = engine.current.cvFolder;
+    try {
+      mkdirSync(folder, { recursive: true });
+    } catch {
+      /* openPath reports the problem */
+    }
+    const error = await shell.openPath(folder);
+    if (error) console.warn(`[cv] could not open ${folder}: ${error}`);
+  });
+  handle('cv:choose-folder', async () => {
+    const result = win
+      ? await dialog.showOpenDialog(win, { title: 'Choose the folder with your CV', defaultPath: engine.current.cvFolder, properties: ['openDirectory', 'createDirectory'] })
+      : { canceled: true, filePaths: [] as string[] };
+    if (result.canceled || result.filePaths.length === 0) return currentView();
+    stores.ui.update((ui) => ({ ...ui, cvFolder: result.filePaths[0] }));
+    return refresh();
+  });
+  handle('search:watchlist', (on) => {
+    if (typeof on === 'boolean') engine.setWatchlistSearch(on);
     return currentView();
   });
   handle('shell:open', (url) => openExternalSafe(url));
