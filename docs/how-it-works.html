@@ -174,7 +174,7 @@ code, .file { font: 13px var(--mono); background: color-mix(in srgb, var(--ink) 
       <div class="decision">
         <div class="q">Exactly one CV, and could it be read?</div>
         <div class="branches">
-          <div class="branch go"><span class="lab">Yes</span><br>Counts the keywords from <span class="file">config.json</span> in the CV and works out your <b>domain mix</b>, e.g. Automotive 60 %, Energy storage 40 %. Up to 4 domains. The CV text is then thrown away.</div>
+          <div class="branch go"><span class="lab">Yes</span><br>Reads the CV&rsquo;s sections, job titles, education and dates against the 31 fields in <span class="file">data/domains</span> and works out your <b>domain mix</b>, e.g. Healthcare 70 %, Social work 30 %. Up to 4 domains; your current role counts most. The CV text is then thrown away.</div>
           <div class="branch alt"><span class="lab">No</span><br>Keeps the domain mix from last time and tells you why ("No CV found", "more than one CV", "scanned PDF").</div>
         </div>
       </div>
@@ -193,7 +193,7 @@ code, .file { font: 13px var(--mono); background: color-mix(in srgb, var(--ink) 
         <p class="cap"><span class="step-no">2</span>Fetch news, both at the same time</p>
         <div class="lanes">
           <div class="node net"><span class="where">internet</span><span class="t">News sites</span><span class="d">ingenieur.de, startbase, Munich Startup, messen.de, produktion.de and others from <span class="file">config.json</span>. <b>Every Refresh.</b> Only sites that fit your domains.</span></div>
-          <div class="node net"><span class="where">internet</span><span class="t">GDELT news search</span><span class="d">One search per domain in your mix, using only keywords from <span class="file">config.json</span>, and one per watchlist company, by its name. Never your CV. <b>At most every 15 minutes.</b> In between, its last results are reused.</span></div>
+          <div class="node net"><span class="where">internet</span><span class="t">GDELT news search</span><span class="d">Seven fixed searches by broad topic, the same for everyone (from <span class="file">data/news.json</span>), and one per watchlist company, by its name (can be switched off). Never your CV, and not your domain mix either: the results are filtered on this PC. <b>At most every 15 minutes.</b> In between, its last results are reused.</span></div>
         </div>
       </div>
       <div class="arrow"></div>
@@ -202,7 +202,7 @@ code, .file { font: 13px var(--mono); background: color-mix(in srgb, var(--ink) 
         <div class="q">Did GDELT find something for every domain?</div>
         <div class="branches">
           <div class="branch go"><span class="lab">Yes</span><br>Carry on.</div>
-          <div class="branch net"><span class="lab">No</span><br>If the Google News fallback is switched on (it is <b>off</b> by default), search Google News for the missing domains only.</div>
+          <div class="branch net"><span class="lab">No</span><br>If the Google News fallback is switched on (it is <b>off</b> by default), search Google News for the topics GDELT left empty.</div>
         </div>
       </div>
       <div class="arrow"></div>

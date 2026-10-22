@@ -1,350 +1,250 @@
 # Expert Widget
 
-A small standalone desktop widget for Windows, macOS and Linux, for personal use. It reads your CV from a local folder,
-works out your domain mix, and shows matching engineering employers in Germany (with career-page
-links) plus a news feed of hiring signals, funded startups and career fairs. It sits on the screen
-as a small round button and opens into a panel docked to the right edge.
+A desktop widget for job seekers in Germany, for every field of work. It has three tasks:
 
-It changes only when you press **Refresh**: no refresh at start-up, no timer.
+1. **Read your CV and find your fields.** You put one CV (German or English, PDF, Word or text) in
+   a folder. The widget reads it on your computer and works out your domain mix (up to 4 of 31
+   fields, in whole percentages), giving your current role the most weight.
+2. **Show employers for those fields**: career pages of top companies, suppliers, service and
+   staffing companies in Germany, from a checked starter list.
+3. **Show news for those fields in Germany**: hiring growth, hiring cuts, funded startups and
+   career fairs.
 
-**New here?** Open these two pages in your browser (double-click them after cloning):
+It sits on the screen as a small round button and opens into a panel docked to the right edge. It
+changes only when you press **Refresh**: no refresh at start-up, no timer. The same code can also
+run as an **Expert page** inside a web dashboard (see `docs/EXPERT_PAGE_INTEGRATION.md`).
 
-- [`docs/installation.html`](docs/installation.html): installing step by step, with the installer or from the code
-- [`docs/how-it-works.html`](docs/how-it-works.html): what the widget does at start-up and on Refresh
+**Tested on:** Windows 11 only. macOS and Linux are supported in the code, the build config and the
+CI workflow, but **no person has run the widget on a Mac or a Linux PC yet**. Do not rely on them
+until someone has.
 
-## Requirements
+More pages: [`docs/installation.html`](docs/installation.html) (installing step by step) and
+[`docs/how-it-works.html`](docs/how-it-works.html) (what happens on Refresh). Both were written for
+the earlier engineering-only version and are not yet updated for all fields.
 
-- Windows 10 or 11, a recent macOS, or a Linux desktop with a tray (GNOME needs the
-  AppIndicator extension, which Ubuntu ships)
-- Node.js 20 or newer (developed with Node 24.19) and npm
+## Privacy
 
-Windows is where the widget is developed and tested. macOS and Linux are supported in the code and
-the build config but have not been tried on a real machine yet; see "macOS and Linux" below.
+- **Your CV stays on your computer.** Its text is read in memory, turned into domain weights, and
+  dropped. It is never stored, logged, sent anywhere, or given to an AI service. What is kept: the
+  file name, size and modified time, the domain weights, and short evidence labels (terms from the
+  domain list such as "Pflegefachkraft" plus dates such as "2021 to now").
+- **The news requests are the same for everyone.** Every enabled news feed is fetched, and the
+  GDELT search (and Google News, if switched on) is asked the same seven broad topic queries for
+  every user, whatever the CV says. Your domain mix only filters and ranks the results on your
+  computer. `test/privacy.test.ts` checks that a nurse's, an engineer's and a lawyer's CV produce
+  exactly the same requests.
+- **Watchlist names are the only words of yours that are sent.** Each company on your watchlist is
+  searched by its name. Switch this off in the Watchlist section ("Searching the news for these
+  names") or with `"search": { "watchlist": false }` in `config.json`.
+- **No AI at runtime.** The app makes no AI calls and needs no key. AI is used only by maintainers
+  to propose company lists, which are then checked automatically (`docs/COMPANY_DIRECTORY.md`).
+- Requests identify themselves, obey robots.txt, are spaced per host (5.5 s for GDELT), cached, and
+  made only when you press Refresh (GDELT at most every 15 minutes).
 
-## Setup
+## Install and build
 
-```powershell
+Needs Node.js 20 or newer (developed with Node 24) and npm.
+
+```sh
 npm install
 npm run dev:mock    # full UI with built-in mock data, no network, no CV needed
-npm run dev         # real data; opens DevTools in a separate window
+npm start           # real data
 ```
 
 | Script | What it does |
 |---|---|
-| `npm run dev` | Compile and start with real data, DevTools open |
-| `npm run dev:mock` | Compile and start with mock data (separate state folder, no network) |
-| `npm start` | Compile and start with real data |
-| `npm test` | Unit tests (no network: sources are tested against saved pages) |
-| `npm run typecheck` | Type-check main, renderer and tests |
-| `npm run build` | Build the installer for the system you are on into `release/` |
-| `npm run build:win` / `build:mac` / `build:linux` | Build for one system: NSIS installer (Windows), `.dmg` for Apple silicon and Intel (macOS), AppImage and `.deb` (Linux). Build each on its own system, see "macOS and Linux" |
-| `npm run check-links` | Check every career URL in `defaults/employers.json` and every website in `defaults/watchlist.json` (add `-- --write` to record `lastVerified`, `-- --file <path>` / `-- --watchlist <path>` for other files) |
-| `npm run check-sources` | Call every news provider once with a test query and print status, item count and a sample headline (`-- --config <path>`, `-- --domains a,b`) |
+| `npm run dev` / `dev:mock` / `start` | Compile and start (DevTools open / mock data / plain) |
+| `npm test` | Unit tests (no network; sources are tested against saved pages) |
+| `npm run typecheck` | Type-check core (without Node or DOM types), Node, desktop, UI, tests and tools |
+| `npm run build` | Installer for the system you are on, into `release/` |
+| `npm run build:win` / `build:mac` / `build:linux` | NSIS installer / `.dmg` for the Mac's own CPU / AppImage and `.deb` |
+| `npm run cli -- --cv <file> --json` | `expert-cli`: the pipeline without Electron (see below) |
+| `npm run check-sources` | Call every news provider once and print status and a sample |
+| `npm run check-links` | Check the links in your own `employers.json` and `watchlist.json` |
+| `npm run directory:generate` / `directory:verify` / `directory:review` | Company directory tooling (maintainers) |
 | `npm run icons` | Regenerate the app and tray icons |
 
-`npm run compile` (part of `dev`, `start` and `build`) also downloads the offline translation model
-once into `assets/translation/deen/` and checks its SHA-256 hashes (see
-`assets/translation/README.md`). Without it the widget works, just without English translations.
+`npm run compile` downloads the offline German→English translation model once
+(`assets/translation/README.md`). Without it the widget works, without translations.
 
-Electron 44 downloads its binary on first start. If `npm run dev` says it is downloading Electron,
-let it finish once.
+**Build each installer on its own system** (the CI workflow does this, one runner per system and
+per Mac CPU type): PDF reading needs a native module per system and CPU.
+
+| System | Installer | Not signed: what you see | Known limits |
+|---|---|---|---|
+| Windows 10/11 x64 | `Expert Widget Setup <version>.exe` | SmartScreen: **More info › Run anyway** | none known; Windows on ARM has no PDF module |
+| macOS (Apple silicon, Intel) | `.dmg` | First start blocked: **System Settings › Privacy & Security › Open Anyway** | untested; the hotkey is Control+Option+E; macOS asks once for access to Documents |
+| Linux x64 | AppImage, `.deb` | none | untested; needs a tray (GNOME: AppIndicator extension), otherwise right-click the widget for the menu; runs under XWayland; global hotkeys may not work on Wayland |
 
 ## Using the widget
 
-- **Collapsed** (how it starts): a round **E** button, always on top, with a badge counting unseen
-  news. Drag it anywhere, on any screen. **Double-click** it (or focus it and press **Enter** or
-  **Space**) to expand.
-- **Expanded**: a 420px panel, full height, docked to the right edge of the screen the button is on.
-  The **–** button in the header collapses it back to the button at its last position.
-- The state (collapsed or expanded), the button position and its screen are remembered. If that
-  screen is gone at the next start, the button comes back on the main screen. Refresh never changes
-  the state.
-- Tray menu (right-click): Show/Hide, Expand/Collapse, Refresh now, Start with Windows (Open at
-  Login on macOS, Start at Login on Linux), Quit.
-  Left-clicking the tray icon shows or hides the widget. Only one instance runs at a time. See
-  "I can't find the widget" below.
-- **Refresh** reads the CV, recomputes the domain mix, updates employers, fetches the news sources
-  and updates the **Updated** time in the Domain mix card. If the PC is offline or a source fails, cached data stays and a
-  short message says so.
-- Click a company chip to open its career page in your browser. It is then marked *visited* and
-  moves to the end of its segment. Click a news card to open the article; it becomes *Seen* and
-  sinks to the bottom.
-- **Watchlist** (between Employers and News feed): the companies in `watchlist.json`, whatever your
-  CV says. A chip opens the company's website and is then marked *visited*, like an employer. A
-  company without a website shows *no link* until you add one. The small **news** pill next to
-  each chip counts the new cards in the News feed that name the company; click it to show only
-  those (click again, or **Show all news**, to go back). Those cards carry a **Watchlist** label
-  and come first in the feed.
-- **Thumbs down** on a card removes it at once ("Removed from your feed · Undo"). A removed article
-  never comes back, also not after Refresh (it is remembered by its address). **Thumbs up** keeps a
-  card: it stays on every Refresh, also after it is older than `newsMaxAgeDays` or its fair date has
-  passed. Press it again to undo.
-- **English news**: German headlines and summaries are translated to English on this PC during
-  Refresh (no internet service, no key; the Firefox Translations engine and a 17 MB German→English
-  model ship with the app). The small **EN** switch next to "News feed" flips between English and
-  the original texts; hovering a translated headline shows the original. Keyword matching always
-  uses the original text. Machine translation can be clumsy ("Arbeitsplätze" sometimes becomes
-  "workstations"); the article itself opens in its original language.
-- Under the news filters, **Sources: N of M working** opens the list of providers with their last
-  result. A provider that failed three Refreshes in a row is marked *needs attention*.
-- The compact **Domain mix** card shows the mix as a thin bar with short names and the time of the
-  last Refresh ("Updated today, 07:12"). Click it for the full domain names and the CV file name.
-- The sun/moon button switches day and dark mode.
-
-## I can't find the widget
-
-The widget keeps running until you choose **Quit** in its tray menu. The **×** button, Alt+F4 and
-closing it from the taskbar only hide it.
-
-- **Tray icon:** a teal **E** at the bottom right of the taskbar. If you do not see it, click the
-  small **^** arrow (hidden icons). **Left-click** the icon to show or hide the widget;
-  **right-click** for the menu (Show/Hide, Expand/Collapse, Refresh now, Start with Windows, Quit).
-  Tip: drag the icon from the hidden-icons area onto the taskbar to keep it visible.
-- **Hotkey:** **Ctrl+Alt+E** (**Cmd+Option+E** on a Mac) shows or hides the widget from anywhere.
-  Change it with `"hotkey"` in `config.json` (for example `"Ctrl+Shift+X"`, or `""` for none). If
-  another program already uses it, the tray menu says so.
-- **Start menu / desktop:** start **Expert** again. If it is already running, no second copy opens;
-  the running widget comes to the front, expanded.
-- **Start with Windows:** on by default after installation (toggle it in the tray menu). After a
-  restart the widget appears as the small round button; nothing is refreshed until you press
-  Refresh.
-
-## macOS and Linux
-
-The tray and start-at-login behave as each system expects:
-
-- **macOS:** the **E** sits in the menu bar at the top right, not in the Dock. Click it to show or
-  hide the widget, right-click (or Ctrl-click) for the menu. Opening the app again from Launchpad
-  or Finder brings the widget to the front, expanded. **Open at Login** uses the system's login
-  items. macOS cannot tell the widget it was started at login, so it then opens as it was left.
-- **Linux:** many desktops only open the tray menu on a click, so **Show / Hide** is its first
-  entry. **Start at Login** writes `~/.config/autostart/expert-widget.desktop`. The widget runs
-  under X11 (XWayland on Wayland desktops) because Wayland does not let it place its button or dock
-  its panel. The installed app does this by itself; when running from the code on Wayland, start it
-  with `npx electron . --ozone-platform=x11`.
-
-**Build each installer on its own system** (or in CI with one runner per system). PDF reading
-uses a native module, and `npm install` only fetches it for the system it runs on, so a Linux build
-made on Windows could not read PDF CVs.
-
-The app is not code-signed. On macOS, the first start of the `.dmg` app is blocked: open
-**System Settings › Privacy & Security** and choose **Open Anyway**. Windows SmartScreen may
-likewise ask you to confirm (**More info › Run anyway**).
+- **First start:** a welcome screen names the CV folder, with **Open CV folder** and **Choose
+  another folder** buttons. Put one CV there and press **Refresh**.
+- **Collapsed:** a round **E** button, always on top, with a badge counting unseen news. Drag it
+  anywhere; double-click (or Enter/Space) to expand.
+- **Expanded:** a 420 px panel docked to the right edge. **–** collapses it. **×** hides it to the
+  tray (menu bar on a Mac); on Linux it collapses to the button instead, because many Linux desktops
+  show no tray icon.
+- **Domain mix** card: the mix as a bar. Click it for the percentages, the evidence for each domain
+  ("Pflegefachkraft · current role · 2020 to now"), which CV file was read and when, and **Adjust
+  domains** to choose up to 4 domains by hand ("Set manually"; **Back to automatic result** undoes
+  it). If no field can be recognised (very short CV, another language, nothing matching), the
+  widget says so, uses **General** (news for all fields) and offers to choose domains.
+- **Employers for you:** the starter list for each domain in your mix, by tier (top companies, tier
+  1, tier 2, service providers, SMEs, startups), with **Show more** for long lists. Click a company
+  to open its career page; it is then marked *visited*. Domains without a list yet say so.
+- **Watchlist:** the companies in `watchlist.json`, whatever your CV says, with a count of their
+  news.
+- **News feed:** filters All / Hiring / Startups / Fairs, an **EN** switch for the translations made
+  on your computer, thumbs up (keep) and thumbs down (remove for good). **Sources: N of M working**
+  lists each provider's last result.
+- **Can't find it?** The tray icon (a teal E; on a Mac in the menu bar), the hotkey **Ctrl+Alt+E**
+  (Control+Option+E on a Mac), or starting the app again (it comes to the front). **Start at login**
+  is on by default after installing; switch it in the tray menu. Right-clicking the widget opens the
+  same menu.
 
 ## Your files
 
-On first start the widget creates `Documents/ExpertWidget` in your home folder
-(`%USERPROFILE%\Documents\ExpertWidget\` on Windows, `~/Documents/ExpertWidget/` on macOS and Linux):
+The widget keeps your files in **ExpertWidget** in your Documents folder (the system's Documents
+folder, also when it is moved or synced by OneDrive; earlier versions used `<home>/Documents`, and
+an existing folder there keeps being used):
 
 ```
-Documents\ExpertWidget\
-  CV\              put exactly one CV here (.pdf, .docx or .txt, German or English)
-  config.json      settings, sources and keyword lists
-  employers.json   employer segments and career links
+ExpertWidget/
+  CV/              exactly one CV: .pdf, .docx or .txt, German or English
+  config.json      settings (all optional additions; the lists ship in data/)
+  employers.json   companies of your own, added after the starter list
   watchlist.json   companies you keep an eye on
 ```
 
-Edit the JSON files with any text editor, save, and press Refresh. If a file is invalid, the
-widget shows the exact problem (file, path inside the JSON, what is expected) instead of
-crashing.
+Edit, save, press Refresh. A broken file shows the exact problem instead of crashing.
 
-### The CV stays on this PC
-
-The CV is read and scored in the main process. Its text is never stored and never sent anywhere,
-not even as part of a search: news and career lookups use only fixed source URLs. Only the result
-is kept: file name, modified time and domain weights.
-
-If the folder has no CV or more than one, the widget says so and names the folder. If the CV cannot
-be read (locked, damaged, a scanned PDF without text), the previous domain mix stays and the reason
-is shown.
+**CV problems** each have a plain message and a next step: no file, several files, an unsupported
+type (.doc, .odt, images…), a password-protected PDF, a scanned PDF without text, almost no text,
+a file over 20 MB, a file open in another program, no permission for the folder. A replaced CV
+(other name, size or modified time) is noticed on Refresh and replaces the old profile.
 
 ### config.json
 
 | Key | Meaning |
 |---|---|
-| `cvFolder` | CV folder. Default `~/Documents/ExpertWidget/CV` (`~` is your home folder, on every system). `%VARIABLES%` are expanded everywhere, `$VARIABLES` on macOS and Linux. A Windows path with `%USERPROFILE%` and backslashes still works on a Mac or Linux PC. |
-| `newsMaxAgeDays` | News older than this is hidden (default 7). Career fairs are hidden after their event date instead. |
-| `hotkey` | Show/hide hotkey from anywhere, default `"CommandOrControl+Alt+E"` (Ctrl on Windows and Linux, Cmd on macOS); `""` for none. Older configs with `"Ctrl+Alt+E"` keep working. |
-| `maxItemsPerTag` | Most cards per group (hiring signals, funded startups, career fairs). Default 12. |
-| `sources` | News sources (layer 1), see below |
-| `search.gdelt` | `{ "enabled": true, "maxRecords": 75 }`: GDELT news search (layer 2) |
-| `search.googleNews` | `{ "enabled": false }`: Google News search (layer 3, fallback). Off by default, see SOURCES.md |
-| `keywords.domains` | Keyword list per domain, German and English. Used to score the CV and to match news to domains. **The order of the domains is the tie-break order.** |
-| `keywords.tags` | Keywords for `hiring_cuts`, `hiring_growth` and `funded_startup` |
-| `keywords.fairExclude` | Career fairs whose name contains one of these are skipped (apprenticeship and school-leaver fairs) |
+| `cvFolder` | `""` (default): the `CV` folder next to `config.json`. Or a path; `~`, `%VAR%` and (macOS/Linux) `$VAR` are expanded. "Choose another folder" in the app overrides it. |
+| `cvAnalysis` | `{ "halfLifeYears": 5, "currentRoleBoost": 1.5, "ignoreWords": [] }`, see "How the domain mix is computed" |
+| `newsMaxAgeDays` | Hide news older than this (default 7). Fairs disappear after their date. |
+| `maxItemsPerTag` | Most cards per group (default 12) |
+| `hotkey` | `"default"` (Ctrl+Alt+E; Control+Option+E on a Mac), a combination such as `"Ctrl+Shift+X"`, or `""` for none |
+| `search` | `{ "gdelt": { "enabled": true, "maxRecords": 75 }, "googleNews": { "enabled": false }, "watchlist": true }` |
+| `sources` | `[{ "id": "munich-startup", "enabled": true }]` switches a built-in source on or off; an entry with a new id and every field adds a source of your own |
+| `keywords` | Extra words: `{ "domains": { "<id>": [...] }, "tags": { "hiring_growth": [...] }, "fairExclude": [...] }`, added to the lists in `data/` |
 
-Domain ids: `automotive-emobility`, `semiconductors`, `embedded-iot`, `industrial-automation`,
-`energy-storage`, `aerospace-defense`, `machinery-household`, `medtech`, `rail-transport`,
-`telecom`, `software-ai`, `civil-chemical`.
+Older `config.json` files with the full keyword and source lists keep working: built-in sources
+only take their `enabled` setting from them, and the keyword lists are added to the shipped ones.
 
-**How keywords match:** case-insensitive; umlauts are folded (ä = ae, ö = oe, ü = ue, ß = ss);
-keywords of 6 or more characters also match inside longer words ("Batterie" matches
-"Batteriezelle"); shorter keywords and acronyms (ECU, PLC, KI) must stand alone as a word.
+### employers.json and watchlist.json
 
-**Domain mix:** each domain's share of all keyword hits in the CV. Domains below 5 % are dropped,
-at most 4 are kept, and the shares are re-normalised to whole numbers summing to 100.
+`employers.json`: `{ "segments": [{ "domain": "<id>", "segment": "My list", "companies": [{ "name": "…", "careerUrl": "https://…" }] }] }`.
+Your companies appear after the starter list, without duplicates.
 
-**News providers:** every source is a provider behind one interface (`NewsProvider` in
-`src/main/news/provider.ts`), and all of them feed one list:
+`watchlist.json`: `{ "companies": [{ "name": "…", "website": "", "note": "" }] }`. A news item
+counts for a company when it names it exactly as a whole word.
 
-1. **Layer 1**: the sources' own RSS/Atom feeds, or a small HTML adapter where there is no feed.
-2. **Layer 2**: GDELT DOC 2.0 search, no key. One query per domain in your mix, built from that
-   domain's keyword list and the hiring/funding keywords, German-language sources in Germany, the
-   last `newsMaxAgeDays` days, at most 75 articles.
-3. **Layer 3**: Google News RSS search, no key, unofficial. Only asked for domains where GDELT found
-   nothing or failed.
+## How the domain mix is computed
 
-Layers 2 and 3 also search once per watchlist company, by the company name alone (any country and
-language), within the same limits: 5.5 s between GDELT requests, at most every 15 minutes, 15
-minutes' pause after "too many requests". Each extra company adds about 5.5 s to a Refresh that
-asks GDELT. Names shorter than 4 characters, or with characters other than letters, digits,
-spaces and hyphens, are not searched; news from the feeds still matches them.
+The CV is split into its sections (Berufserfahrung / Work experience, Ausbildung / Education,
+Kenntnisse / Skills, Zertifikate / Certifications, Projekte / Projects, Sprachen / Languages) and,
+in experience and education, into entries with their dates ("01/2020 – heute", "2016 - 2020",
+"seit März 2021", "Jan 2019 – Present"). Each domain in `data/domains` scores points:
 
-The search queries contain only words from `config.json` and the names in `watchlist.json`, never
-anything from your CV (although they do reveal which domains are in your mix). Results are merged and de-duplicated (a feed's copy wins
-over a search hit), then classified with the same rules. Each provider's response is checked: an
-item without a title, link or date (fairs may lack a date) marks that provider as failed for this
-Refresh.
-
-**News selection:** each item gets a tag (cuts, growth, funded, fair) and a domain (the domain
-with most keyword hits, or "All domains"). Items for domains outside your mix are not shown.
-Hiring signals and funded startups are shared out in proportion to your domain weights; general
-hiring news fills free slots; general startup news is shown only when none matches your domains.
-Nothing is padded with unrelated items.
-
-**Watchlist news:** an item that names a watchlist company (the exact name as a whole word in the
-headline or summary; case and umlaut spelling do not matter, so "Celus" counts for CELUS but
-"Celusion" does not) gets a **Watchlist** label. It keeps the tag the rules above give it, comes
-first in the feed and is not shared out by domain weight (at most `maxItemsPerTag` per group still
-applies). If it is about a fair, expo, webinar, conference, meetup or other event of the company, it
-is tagged **Career fair**, with the event date when the source gives one and "Date to be
-confirmed" otherwise. An item that names the company but is not a hiring, funding or event signal
-is not shown.
-
-### employers.json
-
-```json
-{
-  "segments": [
-    {
-      "domain": "automotive-emobility",
-      "segment": "OEMs and battery",
-      "companies": [
-        { "name": "Mercedes-Benz", "careerUrl": "https://group.mercedes-benz.com/karriere", "lastVerified": "2026-10-10" }
-      ]
-    }
-  ]
-}
-```
-
-Only segments for domains in your CV mix are shown, highest weight first. A domain in your mix with
-no segments is simply left out. `lastVerified` is the date a link last answered
-successfully in `npm run check-links`. Leave it empty for new entries.
-
-### watchlist.json
-
-```json
-{
-  "companies": [
-    { "name": "CELUS", "website": "https://www.celus.io/about", "note": "", "addedAt": "2026-10-11", "lastVerified": "" },
-    { "name": "Hefex Labs", "website": "", "note": "Website to be added.", "addedAt": "2026-10-11", "lastVerified": "" }
-  ]
-}
-```
-
-**To watch another company, add an entry to `watchlist.json`, save, and press Refresh.** Nothing
-else needs changing. `name` is required and is what news is matched against, so use the name the
-company goes by in the press. `website` may stay `""` until you know it; the chip then says
-*no link*. `note` is shown when you hover the chip. `addedAt` and `lastVerified` are dates like
-`2026-10-11`, or empty; `lastVerified` is set by `npm run check-links -- --write`. A new or
-renamed company is searched at the next Refresh, even within the 15-minute gap.
-
-## Adding a news source
-
-1. Look for a feed first: `<link rel="alternate" type="application/rss+xml">` in the page, or paths
-   like `/feed/`, `/rss`. If there is one, add a source with `"adapter": "rss"`:
-
-   ```json
-   {
-     "id": "my-source",
-     "topic": "hiring",
-     "name": "My Source",
-     "url": "https://example.com/feed/",
-     "adapter": "rss",
-     "enabled": true,
-     "domains": "all"
-   }
-   ```
-
-   `topic` is `hiring`, `funded_startup` or `career_fair`. `domains` is `"all"` or a list of
-   domain ids. A source limited to domains is only fetched when your mix contains one of them, and
-   lends its domain to items that no keyword matched.
-
-2. Without a feed, write an adapter: a function `(html, pageUrl) => ParsedItem[]` in
-   `src/main/news/adapters/html.ts` that reads only headlines, short teasers, dates and links.
-   Register it in `src/main/news/adapters/index.ts` and in `ADAPTER_IDS` in `src/main/config.ts`.
-   Save a copy of the page under `test/fixtures/sources/` and add a test in
-   `test/adapters.test.ts` and to the contract list in `test/providers.test.ts`. Pass entries with
-   a missing title or link on with an empty field instead of skipping them, so the contract check
-   reports a changed layout instead of hiding it.
-3. Run `npm run check-sources` to try it live, and document it in `SOURCES.md`.
-
-A different kind of provider (another search service, or later a paid news API) implements
-`NewsProvider` (`id`, `name`, `layer`, `topic`, `domains`, `fetch(query)`) and is added in
-`buildProviders` in `src/main/providers.ts` and in `enabledProviders` in `src/main/config.ts`.
-
-Fetching is polite: a clear User-Agent, robots.txt is obeyed, requests to one host are at least
-2 seconds apart (5.5 seconds for GDELT, which asks for one request every 5 seconds), responses are cached and revalidated (ETag / Last-Modified), and every source is
-fetched at most once per Refresh. The searches (GDELT, Google News) are asked at most every 15
-minutes however often Refresh is pressed, and wait 15 minutes after "too many requests"; in between,
-their last results are shown. A new domain mix asks them again at once. Only headline, a short excerpt (max. 200 characters), date,
-source and link are stored. Full article text is never stored.
-
-## Local state
-
-Stored in Electron's `userData` folder (`%APPDATA%\Expert Widget\` on Windows,
-`~/Library/Application Support/Expert Widget/` on macOS, `~/.config/Expert Widget/` on Linux) as plain JSON, written via temp file
-and rename:
-
-| File | Contents |
+| Signal | Points per hit |
 |---|---|
-| `feed-cache.json` | Items per source, Last updated time |
-| `profile.json` | CV file name, modified time, domain weights, last CV problem |
-| `interactions.json` | Visited companies (employers and watchlist, kept apart), seen news ids, removed articles (thumbs down, by address), useful cards (thumbs up, the whole card) |
-| `ui.json` | Theme, collapsed or expanded, button position and screen |
-| `health.json` | Last result of each news provider and how many Refreshes in a row it failed |
-| `http-cache\` | Cached responses and robots.txt |
+| job title in an experience entry | 6 × entry weight |
+| degree, training or certificate | 4 (education entries × education weight) |
+| domain word in a skills or certificates list | 2 (each word once) |
+| domain word in an experience entry | 1 × entry weight (each word at most 3 times) |
+| job title in the profile or header | 3 |
+| domain word anywhere else | 0.5 (each word at most twice) |
 
-A damaged file is renamed to `<name>.corrupt-<time>.json` and the widget starts fresh. Mock mode
-uses the sub-folder `mock-state\` so mock data never mixes with real data.
+**Entry weight** (current and previous experience):
+
+```
+recency  = 0.5 ^ (years since the role ended / halfLifeYears)     a current role has ended "now"
+duration = min(1, 0.5 + years in the role / 4)
+weight   = recency × duration × (currentRoleBoost for the current or most recent role, else 1)
+```
+
+Undated entries count 0.6. Education fades half as fast. `halfLifeYears` (default 5) and
+`currentRoleBoost` (default 1.5) are set in `config.json` `cvAnalysis`. A CV without any known
+heading is read as one block (titles 4, education 3, words 1).
+
+Matching: case and umlaut spelling do not matter (ä = ae); words of 6+ letters also match inside
+compounds; plurals and female forms with an umlaut are found ("Pflegefachkräfte", "Köchin"); short
+words take German and English endings; job titles must start at a word ("Controller" is not found
+in "Microcontroller"). Words every CV has ("Projekt", "Team", "Kommunikation", …) never count; add
+your own in `cvAnalysis.ignoreWords`.
+
+Then: each domain's share of all points, domains under 5 % dropped, at most 4 kept, whole numbers
+summing to 100, ties in registry order. Under 30 words, another language, or under 3 points in all:
+the **General** domain with a note.
+
+## Adding a domain, a source or a company
+
+- **A domain:** add `data/domains/<id>.json` (format: `data/domains.schema.json`: labels in German
+  and English, a one-sentence description, a `sector` from `data/news.json`, keywords with weights,
+  job titles, education patterns). Nothing else changes; `npm test` checks every file.
+- **A news source:** add it to `data/sources.json` (RSS preferred; HTML adapters live in
+  `packages/core/src/news/adapters/`). Check robots.txt and the site's terms first and document
+  both in `SOURCES.md`. Users can add their own in `config.json` `sources`.
+- **A company:** see `docs/COMPANY_DIRECTORY.md` (format, verification, generator, review).
+
+## expert-cli and the local service
+
+```sh
+npm run compile
+node dist/packages/cli/src/cli.js --cv ./Lebenslauf.pdf --no-network          # short summary
+node dist/packages/cli/src/cli.js --cv ./Lebenslauf.pdf --json                 # data payload
+node dist/packages/cli/src/cli.js serve --cv ./Lebenslauf.pdf                  # local API for the Expert page
+```
+
+`--config <dir>` uses that folder's `config.json`, `employers.json` and `watchlist.json`;
+`--state <dir>` keeps state between runs. The service (`serve`) listens on 127.0.0.1 only and
+needs its token on every request; see `docs/EXPERT_PAGE_INTEGRATION.md`.
 
 ## Project layout
 
 ```
-src/main/          Electron main process (window, tray, IPC, refresh, window geometry)
-  cv/              CV file lookup, text extraction, CvProfiler (rule-based)
-  news/            providers and contract, fetcher, adapters (feeds, HTML, GDELT, Google News),
-                   Classifier (rule-based), dedupe, expiry, distribution
-  state/           JSON state files
-  translate/       offline German→English translation (worker thread + Translator seam)
-  mock/            mock data for dev:mock
-src/renderer/      HTML, CSS and the UI script (no framework)
-src/shared/        types, date labels, ordering rules used by both sides
-defaults/          config.json and employers.json copied to Documents on first start
-test/              unit tests and saved source pages
-scripts/           build helpers, check-links, check-sources, icon generator
+packages/core/     pure TypeScript: types, contracts, config validation, domain registry, CV profiler,
+                   news rules and adapters (parsing only), refresh pipeline, view, engine.
+                   No Electron, DOM, files or network (checked by test/boundaries.test.ts and tsconfig.core.json)
+packages/node/     Node adapters: CV text extraction, JSON state files, HTTP cache, polite fetcher, translator
+packages/ui/       the UI (no framework); widget.ts for the desktop, expertPage.ts (<expert-page>) for web pages
+packages/cli/      expert-cli and the local service
+apps/desktop/      the Electron shell: main process, preload, tray, window, start at login
+contracts/         JSON Schemas with schemaVersion: DomainProfile, EmployerDirectory, CompanySignal, NewsItem, SourceHealth, UserFeedback
+data/              domains/, news.json (topics, signal words), sources.json, employers/
+defaults/          the files copied to ExpertWidget on first start
+tools/             company-directory (maintainer tooling with the Claude API)
+examples/          expert-page/: a page that mounts <expert-page>
+docs/              guides; AI_PROFILER_DESIGN.md (an optional later AI profiler, not implemented)
 ```
 
-`CvProfiler` (`src/main/cv/cvProfiler.ts`) and `Classifier` (`src/main/news/classifier.ts`) are
-the seams for AI-based replacements later. This version makes no AI calls and needs no API key.
+The packages are folders compiled by the root `tsconfig` files, not npm workspaces yet, so
+packaging stays unchanged.
 
-## Development aids
+## Local state
 
-Only active when running from source (never in the installed app):
+In Electron's `userData` folder (`%APPDATA%\Expert Widget\`, `~/Library/Application Support/Expert Widget/`,
+`~/.config/Expert Widget/`), plain JSON written via temp file and rename: `feed-cache.json`,
+`profile.json` (file name, size, modified time, weights, evidence, a manual choice, the last CV
+problem), `interactions.json`, `ui.json` (theme, window, chosen CV folder, watchlist search
+switch), `health.json`, `http-cache/`. A damaged file is set aside as
+`<name>.corrupt-<time>.json`. Mock mode uses `mock-state/`.
 
-- `EXPERT_WIDGET_HOME=<folder>` uses another folder instead of `Documents\ExpertWidget`.
-- `EXPERT_WIDGET_USER_DATA=<folder>` uses a throw-away state folder.
-- `EXPERT_WIDGET_CAPTURE=<file.png>` saves an image of the window after start-up;
-  `EXPERT_WIDGET_CAPTURE_JS` runs a snippet in the page first (for example to scroll).
+## Development aids (from source only)
 
-Renderer console output is forwarded to the terminal.
+`EXPERT_WIDGET_HOME=<folder>` (another ExpertWidget folder), `EXPERT_WIDGET_USER_DATA=<folder>`
+(throw-away state), `EXPERT_WIDGET_CAPTURE=<file.png>` with optional `EXPERT_WIDGET_CAPTURE_JS`
+(save an image of the window after start-up).
+
+## Licence
+
+Not decided yet (`package.json` says UNLICENSED). The repository is private.
