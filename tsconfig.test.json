@@ -3,5 +3,12 @@
   "compilerOptions": {
     "noEmit": true
   },
-  "include": ["packages/core/src/**/*.ts", "packages/node/src/**/*.ts", "packages/cli/src/**/*.ts", "apps/desktop/src/**/*.ts", "test/**/*.ts"]
+  "include": [
+    "packages/core/src/**/*.ts",
+    "packages/node/src/**/*.ts",
+    "packages/cli/src/**/*.ts",
+    "apps/desktop/src/**/*.ts",
+    "test/**/*.ts",
+    "tools/**/*.ts"
+  ]
 }

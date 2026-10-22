@@ -12,3 +12,12 @@ Thumbs.db
 
 # Offline translation model, downloaded by scripts/get-translation-model.mjs
 assets/translation/deen/
+
+# Company directory tooling: compiled output and its caches (LLM answers, HTTP)
+dist-tools/
+tools/company-directory/.cache/
+
+# Never commit secrets
+.env
+.env.*
+*.corrupt-*.json

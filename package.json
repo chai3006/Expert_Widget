@@ -17,11 +17,15 @@
     "build:mac": "npm run compile && electron-builder --mac",
     "build:linux": "npm run compile && electron-builder --linux",
     "test": "vitest run",
-    "typecheck": "tsc -p tsconfig.core.json && tsc -p tsconfig.main.json --noEmit && tsc -p tsconfig.renderer.json --noEmit && tsc -p tsconfig.test.json --noEmit",
+    "typecheck": "tsc -p tsconfig.core.json && tsc -p tsconfig.main.json --noEmit && tsc -p tsconfig.renderer.json --noEmit && tsc -p tsconfig.test.json --noEmit && tsc -p tsconfig.tools.json --noEmit",
     "check-links": "node scripts/check-links.mjs",
     "check-sources": "npm run compile && node scripts/check-sources.mjs",
     "icons": "node scripts/make-icons.mjs",
-    "cli": "node dist/packages/cli/src/cli.js"
+    "cli": "node dist/packages/cli/src/cli.js",
+    "directory:build": "tsc -p tsconfig.tools.json",
+    "directory:generate": "npm run directory:build && node dist-tools/tools/company-directory/src/cli.js generate",
+    "directory:verify": "npm run directory:build && node dist-tools/tools/company-directory/src/cli.js verify",
+    "directory:review": "npm run directory:build && node dist-tools/tools/company-directory/src/cli.js review"
   },
   "build": {
     "appId": "de.expertwidget.app",
