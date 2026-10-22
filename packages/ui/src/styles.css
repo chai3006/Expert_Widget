@@ -17,7 +17,8 @@
   font-display: swap;
 }
 
-:root {
+:root,
+:host {
   --page: #f6f5f1;
   --card: #ffffff;
   --border: #e3e0d6;
@@ -72,7 +73,8 @@
   color-scheme: light;
 }
 
-:root[data-theme='dark'] {
+:root[data-theme='dark'],
+:host([data-theme='dark']) {
   --page: #12181d;
   --card: #1b2329;
   --border: #2d373f;
@@ -146,7 +148,8 @@ body {
   height: 100vh;
 }
 
-:root[data-mode='expanded'] .app {
+:root[data-mode='expanded'] .app,
+:host([data-mode='expanded']) .app {
   background: var(--page);
   border-left: 1px solid var(--border);
 }
@@ -1247,4 +1250,27 @@ a {
 
 .starter-note {
   margin: -4px 0 0;
+}
+
+/* ---- Expert page: the same UI inside a web page (custom element <expert-page>, Shadow DOM) ---- */
+
+:host {
+  display: block;
+  color: var(--text);
+  font-family: var(--font-ui);
+  font-size: 14px;
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+}
+
+:host([data-display='page']) .app {
+  height: auto;
+  min-height: 480px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+:host([data-display='page']) .scroll {
+  overflow: visible;
 }

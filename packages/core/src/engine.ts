@@ -211,6 +211,10 @@ export class ExpertEngine {
     this.deps.stores.ui.update((u) => ({ ...u, watchlistSearch: on }));
   }
 
+  setTheme(theme: 'day' | 'dark'): void {
+    this.deps.stores.ui.update((u) => ({ ...u, theme }));
+  }
+
   // ---- Contracts ---------------------------------------------------------------------------
 
   private label(domain: string): string {

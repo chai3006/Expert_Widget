@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Expert page example</title>
+    <style>
+      /* A plain stand-in for "some dashboard": a header, a sidebar and a content area. */
+      body { margin: 0; font-family: system-ui, sans-serif; background: #eef0f3; color: #17222b; }
+      header { padding: 14px 24px; background: #17222b; color: #fff; font-weight: 600; }
+      main { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; padding: 16px; max-width: 760px; margin: 0 auto; }
+      .hint { font-size: 14px; color: #5b6470; }
+      code { background: #fff; padding: 1px 4px; border-radius: 4px; }
+    </style>
+    <!-- Served by `expert-cli serve` at /example/; the UI files come from the same service at /ui/. -->
+    <script type="module" src="/ui/packages/ui/src/expertPage.js"></script>
+  </head>
+  <body>
+    <header>Example dashboard</header>
+    <main>
+      <p class="hint" id="hint" hidden>
+        Open this page with the link that <code>expert-cli serve</code> prints, which ends in
+        <code>#token=…</code>. The token stays in the address fragment and is never sent to a server.
+      </p>
+      <expert-page id="expert"></expert-page>
+    </main>
+    <script type="module">
+      const token = new URLSearchParams(location.hash.slice(1)).get('token');
+      const el = document.getElementById('expert');
+      if (!token) document.getElementById('hint').hidden = false;
+      else {
+        el.setAttribute('api', location.origin);
+        el.setAttribute('token', token);
+      }
+    </script>
+  </body>
+</html>

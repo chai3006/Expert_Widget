@@ -13,6 +13,7 @@ import { existsSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { ExpertEngine } from '../../core/src/engine.js';
+import { startService } from './serve.js';
 import { buildProviders, HOST_INTERVALS_MS } from '../../core/src/news/providers.js';
 import { MemoryHttpCache } from '../../core/src/ports.js';
 import { ProfilingCvProvider } from '../../core/src/cv/cvProvider.js';
@@ -25,15 +26,23 @@ import { findAppRoot } from '../../node/src/appData.js';
 import { loadInputs as loadInputFiles, type LoadedFiles, type UserFiles } from '../../node/src/userFiles.js';
 
 export const USAGE = `Usage: expert-cli --cv <file> [--config <dir>] [--state <dir>] [--no-network] [--json]
+       expert-cli serve --cv <file> [--port 4317] [--allow-origin <origin>]... [--config <dir>] [--state <dir>] [--no-network]
 
   --cv <file>      the CV (.pdf, .docx or .txt, German or English); read on this computer only
   --config <dir>   folder with config.json, employers.json, watchlist.json (default: bundled defaults)
   --state <dir>    keep state and HTTP cache in this folder between runs (default: memory only)
   --no-network     do not fetch news; only the domain mix and the employers
   --json           print the data payload as JSON (default: a short text summary)
+
+  serve            run the local Expert service on 127.0.0.1 for the Expert page (see docs/EXPERT_PAGE_INTEGRATION.md)
+  --port <n>       port of the service (default 4317; 0 picks a free one)
+  --allow-origin   a web origin allowed to call the service, e.g. http://localhost:3000 (repeatable)
 `;
 
 export interface CliOptions {
+  serve: boolean;
+  port: number;
+  allowOrigins: string[];
   cv: string;
   config: string | null;
   state: string | null;
@@ -42,8 +51,12 @@ export interface CliOptions {
 }
 
 export function parseArgs(argv: readonly string[]): CliOptions | { error: string } {
-  const opts: CliOptions = { cv: '', config: null, state: null, network: true, json: false };
+  const opts: CliOptions = { serve: false, port: 4317, allowOrigins: [], cv: '', config: null, state: null, network: true, json: false };
   for (let i = 0; i < argv.length; i++) {
+    if (i === 0 && argv[0] === 'serve') {
+      opts.serve = true;
+      continue;
+    }
     const a = argv[i];
     const value = () => {
       const v = argv[++i];
@@ -56,7 +69,21 @@ export function parseArgs(argv: readonly string[]): CliOptions | { error: string
       else if (a === '--state') opts.state = value();
       else if (a === '--no-network') opts.network = false;
       else if (a === '--json') opts.json = true;
-      else return { error: `unknown option ${a}` };
+      else if (a === '--port' && opts.serve) {
+        const n = Number(value());
+        if (!Number.isInteger(n) || n < 0 || n > 65535) return { error: '--port must be a whole number from 0 to 65535' };
+        opts.port = n;
+      } else if (a === '--allow-origin' && opts.serve) {
+        const o = value();
+        let parsed: URL | null = null;
+        try {
+          parsed = new URL(o);
+        } catch {
+          parsed = null;
+        }
+        if (!parsed || parsed.origin !== o) return { error: `--allow-origin must be an origin like http://localhost:3000 (got "${o}")` };
+        opts.allowOrigins.push(o);
+      } else return { error: `unknown option ${a}` };
     } catch (err) {
       return { error: (err as Error).message };
     }
@@ -164,11 +191,32 @@ export async function main(argv: readonly string[], out: (s: string) => void = (
     return 2;
   }
   const { engine } = createCliEngine(opts);
+  if (opts.serve) return serve(engine, opts, out);
   await engine.refresh();
   const data = payload(engine, Date.now());
   out(opts.json ? `${JSON.stringify(data, null, 2)}\n` : summary(data));
   if (data.configError) return 2;
   return data.profile ? 0 : 1;
+}
+
+/** Runs until the process is stopped (Ctrl+C). */
+async function serve(engine: ExpertEngine, opts: CliOptions, out: (s: string) => void): Promise<number> {
+  const service = await startService({
+    engine,
+    port: opts.port,
+    allowOrigins: opts.allowOrigins,
+    uiDir: join(APP_ROOT, 'dist', 'ui'),
+    exampleDir: join(APP_ROOT, 'examples', 'expert-page'),
+  });
+  out(`Expert service on ${service.url} (this computer only).\n`);
+  out(`Token (send as "Authorization: Bearer <token>"; keep it private):\n  ${service.token}\n`);
+  out(`Example page: ${service.url}/example/#token=${service.token}\n`);
+  if (opts.allowOrigins.length > 0) out(`Allowed origins: ${opts.allowOrigins.join(', ')}\n`);
+  out('Reading the CV and loading news now; press Ctrl+C to stop.\n');
+  void engine.refresh();
+  await new Promise<void>((resolve) => process.once('SIGINT', () => resolve()));
+  await service.close();
+  return 0;
 }
 
 if (require.main === module) {
