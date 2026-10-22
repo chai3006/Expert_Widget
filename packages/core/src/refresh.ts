@@ -13,7 +13,7 @@ import { checkContract, type NewsProvider, type ProviderQuery } from './news/pro
 import type { ParsedItem, RawItem } from './news/types.js';
 import { looksGerman } from './language.js';
 import { FetchError, type Translator } from './ports.js';
-import type { AppStores, ProviderHealthRecord, SourceCache } from './state/appState.js';
+import { effectiveProfile, type AppStores, type ProviderHealthRecord, type SourceCache } from './state/appState.js';
 
 export type CvResult = { ok: true; profile: CvProfile } | { ok: false; problem: string };
 
@@ -54,14 +54,16 @@ export async function runRefresh(deps: RefreshDeps): Promise<StatusMessage[]> {
 
   // 1. CV → domain mix. On failure keep the previous mix and say why.
   const cv = await deps.cv.readProfile(config, deps.cvFolder);
+  const manual = stores.profile.value.manual ?? null;
   if (cv.ok) {
-    stores.profile.set({ version: 1, profile: cv.profile, lastProblem: null });
+    stores.profile.set({ version: 1, profile: cv.profile, lastProblem: null, manual });
   } else {
     const previous = stores.profile.value.profile;
     const problem = previous ? `${cv.problem} Keeping the domain mix from ${previous.fileName}.` : cv.problem;
-    stores.profile.set({ version: 1, profile: previous, lastProblem: problem });
+    stores.profile.set({ version: 1, profile: previous, lastProblem: problem, manual });
   }
-  const weights = stores.profile.value.profile?.weights ?? [];
+  // Domains chosen by hand win over the CV until the user goes back to the automatic result.
+  const weights = effectiveProfile(stores.profile.value)?.weights ?? [];
 
   // 2. Which providers run. Search needs a domain mix or a watchlist to know what to search for.
   const query = buildProviderQuery(config, weights.map((w) => w.domain), deps.watchlist ?? []);

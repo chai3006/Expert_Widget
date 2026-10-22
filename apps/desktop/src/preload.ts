@@ -2,7 +2,7 @@
 // Must stay self-contained: a sandboxed preload can only require 'electron'.
 
 import { contextBridge, ipcRenderer, type IpcRendererEvent } from 'electron';
-import type { ExpertApi, Theme, ViewModel, WindowMode } from '../../../packages/core/src/shared/types.js';
+import type { DomainWeight, ExpertApi, Theme, ViewModel, WindowMode } from '../../../packages/core/src/shared/types.js';
 
 const api: ExpertApi = {
   getView: () => ipcRenderer.invoke('view:get'),
@@ -14,6 +14,8 @@ const api: ExpertApi = {
   undoRemove: (newsId: string) => ipcRenderer.invoke('feedback:undo-remove', newsId),
   toggleUseful: (newsId: string) => ipcRenderer.invoke('feedback:useful', newsId),
   setTheme: (theme: Theme) => ipcRenderer.invoke('ui:theme', theme),
+  setManualDomains: (weights: DomainWeight[]) => ipcRenderer.invoke('profile:manual', weights),
+  clearManualDomains: () => ipcRenderer.invoke('profile:automatic'),
   setMode: (mode: WindowMode) => ipcRenderer.invoke('window:mode', mode),
   hideWindow: () => ipcRenderer.invoke('window:hide'),
   // Fire-and-forget messages: pointer moves are frequent and need no answer.

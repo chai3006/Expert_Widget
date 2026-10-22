@@ -7,6 +7,7 @@ import {
   TAG_LABELS,
   tagMatchesFilter,
   type CompanyChip,
+  type DomainEvidenceView,
   type ExpertApi,
   type NewsCard,
   type NewsFilter,
@@ -33,6 +34,8 @@ const collapsed = new Set<string>();
 let healthOpen = false;
 /** The Domain mix card starts compact on every start. */
 let mixOpen = false;
+/** The domain editor is open inside the expanded Domain mix card. */
+let editingMix = false;
 /** Show the English translations (on) or the original texts (off). Remembered per PC. */
 let english = readStored('newsLanguage', ['en', 'de'], 'en') === 'en';
 /** The card just removed with thumbs down, while its Undo bar is showing. */
@@ -345,21 +348,170 @@ function renderDomainMix(v: ViewModel): HTMLElement {
     toggle.append(bar, line);
   }
 
+  const profile = v.data.profile;
   const card = h('section', { class: 'card mix-card', 'aria-labelledby': 'mix-title' }, toggle);
+  // A fallback or a hand-made mix says so even while the card is compact.
+  if (profile?.source === 'fallback' && profile.notice && !mixOpen) card.append(h('p', { class: 'mix-notice' }, profile.notice));
   if (mixOpen) {
     const details = h('div', { class: 'mix-details', id: detailsId });
-    if (weights.length > 0 && v.data.profile) {
+    if (editingMix) {
+      details.append(renderMixEditor(v));
+    } else if (weights.length > 0 && profile) {
+      if (profile.source === 'fallback' && profile.notice) details.append(h('p', { class: 'mix-notice' }, profile.notice));
       const legend = h('ul', { class: 'legend' });
       weights.forEach((w, i) => {
-        legend.append(h('li', {}, h('span', { class: `swatch mix-${i + 1}` }), h('span', {}, domainLabel(v, w.domain)), h('span', { class: 'weight' }, `${w.weight}%`)));
+        const reasons = (profile.evidence ?? []).filter((e) => e.domain === w.domain);
+        legend.append(
+          h(
+            'li',
+            {},
+            h('span', { class: 'legend-row' }, h('span', { class: `swatch mix-${i + 1}` }), h('span', {}, domainLabel(v, w.domain)), h('span', { class: 'weight' }, `${w.weight}%`)),
+            reasons.length > 0 ? h('ul', { class: 'evidence' }, ...reasons.map((e) => h('li', {}, evidenceLabel(e)))) : null,
+          ),
+        );
       });
-      details.append(legend, h('p', { class: 'muted small' }, `Based on your CV · ${v.data.profile.fileName}`));
+      const source =
+        profile.source === 'manual'
+          ? 'Set manually'
+          : profile.fileName
+            ? `Based on your CV · ${profile.fileName} · read ${lastUpdatedLabel(profile.computedAt, Date.now())}`
+            : 'Based on your CV';
+      details.append(legend, h('p', { class: 'muted small' }, source));
+      details.append(
+        h(
+          'div',
+          { class: 'mix-actions' },
+          h('button', { class: 'link-button', type: 'button', 'data-focus-key': 'mix-edit', onclick: () => openMixEditor(v) }, profile.source === 'fallback' ? 'Choose domains' : 'Adjust domains'),
+          profile.source === 'manual'
+            ? h(
+                'button',
+                {
+                  class: 'link-button',
+                  type: 'button',
+                  'data-focus-key': 'mix-auto',
+                  onclick: () => void api.clearManualDomains().then(setView),
+                },
+                'Back to automatic result',
+              )
+            : null,
+        ),
+      );
     } else {
       details.append(h('p', { class: 'path' }, v.ui.cvFolder));
+      details.append(h('div', { class: 'mix-actions' }, h('button', { class: 'link-button', type: 'button', 'data-focus-key': 'mix-edit', onclick: () => openMixEditor(v) }, 'Choose domains')));
     }
     card.append(details);
   }
   return card;
+}
+
+const EVIDENCE_KINDS: Record<DomainEvidenceView['kind'], string> = {
+  title: 'job title',
+  education: 'education',
+  certification: 'certificate',
+  skill: 'skill',
+  keyword: 'keyword',
+};
+
+/** "Pflegefachkraft · current role · 2020 to now". */
+function evidenceLabel(e: DomainEvidenceView): string {
+  return [e.label, e.current ? 'current role' : EVIDENCE_KINDS[e.kind], e.period].filter(Boolean).join(' · ');
+}
+
+// ---- Choosing domains by hand ----------------------------------------------------------------
+
+/** The editor's draft: domain id → share (any positive number; normalised to 100 % when saved). */
+let mixDraft = new Map<string, number>();
+const MAX_DOMAINS = 4;
+
+function openMixEditor(v: ViewModel): void {
+  mixDraft = new Map((v.data.profile?.source === 'fallback' ? [] : (v.data.profile?.weights ?? [])).map((w) => [w.domain, w.weight]));
+  editingMix = true;
+  mixOpen = true;
+  render();
+}
+
+function renderMixEditor(v: ViewModel): HTMLElement {
+  const full = mixDraft.size >= MAX_DOMAINS;
+  const total = [...mixDraft.values()].reduce((a, b) => a + b, 0);
+  const list = h('ul', { class: 'mix-editor-list' });
+  for (const d of v.data.domains.filter((x) => x.id !== 'general')) {
+    const checked = mixDraft.has(d.id);
+    const id = `mix-pick-${d.id}`;
+    const share = h('input', {
+      class: 'mix-share',
+      type: 'number',
+      min: 1,
+      max: 100,
+      step: 1,
+      value: checked ? String(mixDraft.get(d.id)) : '',
+      disabled: !checked,
+      'aria-label': `Share for ${d.label} in percent`,
+      'data-focus-key': `mix-share:${d.id}`,
+      onchange: (e: Event) => {
+        const n = Number((e.target as HTMLInputElement).value);
+        if (Number.isFinite(n) && n > 0) mixDraft.set(d.id, Math.min(100, Math.round(n)));
+        render();
+      },
+    });
+    list.append(
+      h(
+        'li',
+        {},
+        h('input', {
+          type: 'checkbox',
+          id,
+          checked,
+          disabled: !checked && full,
+          'data-focus-key': `mix-pick:${d.id}`,
+          onchange: () => {
+            if (mixDraft.has(d.id)) mixDraft.delete(d.id);
+            else if (mixDraft.size < MAX_DOMAINS) mixDraft.set(d.id, Math.max(1, Math.round((100 - Math.min(100, total)) / 2) || 25));
+            render();
+          },
+        }),
+        h('label', { for: id }, d.label),
+        share,
+      ),
+    );
+  }
+  return h(
+    'div',
+    { class: 'mix-editor' },
+    h('p', { class: 'small' }, `Choose up to ${MAX_DOMAINS} domains and their shares. They are turned into percentages that add up to 100 and replace the result from your CV until you go back to it. Stored on this computer only.`),
+    list,
+    h(
+      'div',
+      { class: 'mix-actions' },
+      h(
+        'button',
+        {
+          class: 'refresh-button',
+          type: 'button',
+          disabled: mixDraft.size === 0,
+          'data-focus-key': 'mix-save',
+          onclick: () => {
+            editingMix = false;
+            void api.setManualDomains([...mixDraft].map(([domain, weight]) => ({ domain, weight }))).then(setView);
+          },
+        },
+        'Save',
+      ),
+      h(
+        'button',
+        {
+          class: 'link-button',
+          type: 'button',
+          'data-focus-key': 'mix-cancel',
+          onclick: () => {
+            editingMix = false;
+            render();
+          },
+        },
+        'Cancel',
+      ),
+    ),
+  );
 }
 
 function renderEmployers(v: ViewModel): HTMLElement {

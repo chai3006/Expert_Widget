@@ -538,10 +538,9 @@ a {
   font-size: 13px;
 }
 
-.legend li {
+.legend > li {
   display: flex;
-  align-items: center;
-  gap: 8px;
+  flex-direction: column;
   min-width: 0;
 }
 
@@ -1117,4 +1116,96 @@ a {
 
 .status:empty {
   display: none;
+}
+
+/* Domain mix: evidence, notices and the domain editor. */
+.legend-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.legend .evidence {
+  list-style: none;
+  margin: 2px 0 6px 20px;
+  padding: 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.legend .evidence li {
+  display: block;
+}
+
+.mix-notice {
+  margin: 8px 0 0;
+  padding: 8px 10px;
+  border-radius: var(--radius-small);
+  background: var(--warn-bg);
+  color: var(--warn-text);
+  font-size: 13px;
+}
+
+.mix-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.mix-editor-list {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.mix-editor-list li {
+  display: grid;
+  grid-template-columns: 24px 1fr 72px;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+}
+
+.mix-editor-list label {
+  cursor: pointer;
+}
+
+.mix-share {
+  width: 72px;
+  padding: 4px 6px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--card);
+  color: var(--text);
+  font: inherit;
+}
+
+.mix-share:disabled {
+  opacity: 0.4;
+}
+
+/* A quiet text button on a card (the undo button's look is for the dark toast). */
+.link-button {
+  min-height: var(--target);
+  padding: 0 10px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--chip-bg);
+  color: var(--accent);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.link-button:hover {
+  background: var(--hover);
+}
+
+.link-button:disabled {
+  opacity: 0.5;
+  cursor: default;
 }

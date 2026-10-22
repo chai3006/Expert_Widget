@@ -209,6 +209,10 @@ export interface ExpertApi {
   /** Thumbs up, or undo it when already set. */
   toggleUseful(newsId: string): Promise<ViewModel>;
   setTheme(theme: Theme): Promise<void>;
+  /** Choose the domains by hand (1 to 4, shares in any unit); replaces the automatic mix. */
+  setManualDomains(weights: DomainWeight[]): Promise<ViewModel>;
+  /** Back to the domain mix computed from the CV. */
+  clearManualDomains(): Promise<ViewModel>;
   setMode(mode: WindowMode): Promise<void>;
   /** The X button: hides the widget to the tray; it keeps running. */
   hideWindow(): Promise<void>;

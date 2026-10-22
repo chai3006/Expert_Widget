@@ -490,6 +490,18 @@ function registerIpc(): void {
     if (isShortString(id)) engine.feedback({ action: 'useful', target: id });
     return currentView();
   });
+  handle('profile:manual', (weights) => {
+    if (Array.isArray(weights) && weights.length <= 40) {
+      const choice = weights.filter((w): w is { domain: string; weight: number } => typeof w?.domain === 'string' && typeof w?.weight === 'number');
+      const problem = engine.setManualDomains(choice);
+      if (problem) console.warn(`[profile] manual domains not set: ${problem}`);
+    }
+    return currentView();
+  });
+  handle('profile:automatic', () => {
+    engine.clearManualDomains();
+    return currentView();
+  });
   handle('shell:open', (url) => openExternalSafe(url));
   handle('ui:theme', (theme) => {
     if (theme !== 'day' && theme !== 'dark') return;

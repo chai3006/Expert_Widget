@@ -25,6 +25,15 @@ export class MockCvProvider implements CvProvider {
           { domain: 'energy-storage', weight: 14 },
           { domain: 'software-ai', weight: 8 },
         ],
+        source: 'auto',
+        evidence: [
+          { domain: 'automotive-emobility', label: 'AUTOSAR', kind: 'keyword', period: '2021 to now', current: true },
+          { domain: 'automotive-emobility', label: 'Fahrzeugtechnik', kind: 'education', period: '2012 to 2017', current: false },
+          { domain: 'embedded-iot', label: 'Embedded Software Engineer', kind: 'title', period: '2021 to now', current: true },
+          { domain: 'energy-storage', label: 'Batteriemanagement', kind: 'keyword', period: '2017 to 2021', current: false },
+          { domain: 'software-ai', label: 'Python', kind: 'skill', period: null, current: false },
+        ],
+        notice: null,
       },
     };
   }

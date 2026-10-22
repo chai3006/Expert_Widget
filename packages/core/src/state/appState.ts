@@ -3,7 +3,7 @@
 // to the caller: JSON files (packages/node), memory (tests, CLI) or a database.
 
 import { MemoryStore, type StateStore } from '../ports.js';
-import { NEWS_TAGS, isDomainId, type CvProfile, type NewsCard, type Theme, type WindowMode } from '../shared/types.js';
+import { NEWS_TAGS, isDomainId, type CvProfile, type DomainEvidenceView, type DomainWeight, type NewsCard, type Theme, type WindowMode } from '../shared/types.js';
 import type { RawItem } from '../news/types.js';
 
 export interface SourceCache {
@@ -21,11 +21,40 @@ export interface FeedCache {
   sources: Record<string, SourceCache>;
 }
 
+/** Domains the user chose by hand; they replace the automatic mix until the user goes back. */
+export interface ManualDomains {
+  weights: DomainWeight[];
+  setAt: number;
+}
+
 export interface ProfileState {
   version: 1;
+  /** The profile computed from the CV (automatic or fallback). */
   profile: CvProfile | null;
   /** Last CV problem (no file, several files, unreadable), shown again after a restart. */
   lastProblem: string | null;
+  /** Set when the user chose the domains by hand. Missing in files written before that existed. */
+  manual?: ManualDomains | null;
+}
+
+/**
+ * The profile the rest of the app uses: the manual choice when there is one (keeping the CV's
+ * evidence for the domains still in it), else the profile computed from the CV.
+ */
+export function effectiveProfile(state: ProfileState): CvProfile | null {
+  const manual = state.manual;
+  if (!manual) return state.profile;
+  const base = state.profile;
+  return {
+    fileName: base?.fileName ?? '',
+    modifiedMs: base?.modifiedMs ?? 0,
+    ...(base?.sizeBytes !== undefined ? { sizeBytes: base.sizeBytes } : {}),
+    computedAt: manual.setAt,
+    weights: manual.weights,
+    source: 'manual',
+    evidence: (base?.evidence ?? []).filter((e) => manual.weights.some((w) => w.domain === e.domain)),
+    notice: null,
+  };
 }
 
 export interface Interactions {
@@ -129,16 +158,43 @@ export function sanitizeFeedCache(v: unknown): FeedCache | null {
   return { version: 1, lastUpdated: v.lastUpdated as number | null, sources };
 }
 
+function sanitizeWeights(v: unknown): DomainWeight[] {
+  return Array.isArray(v) ? v.filter((w): w is DomainWeight => isObj(w) && isDomainId(w.domain) && typeof w.weight === 'number').map((w) => ({ domain: w.domain, weight: w.weight })) : [];
+}
+
+const EVIDENCE_KINDS = ['title', 'education', 'certification', 'skill', 'keyword'];
+
+function sanitizeEvidence(v: unknown): DomainEvidenceView[] {
+  if (!Array.isArray(v)) return [];
+  return v
+    .filter(
+      (e): e is DomainEvidenceView =>
+        isObj(e) && isDomainId(e.domain) && typeof e.label === 'string' && EVIDENCE_KINDS.includes(e.kind as string) && (e.period === null || typeof e.period === 'string') && typeof e.current === 'boolean',
+    )
+    .map((e) => ({ domain: e.domain, label: e.label.slice(0, 80), kind: e.kind, period: e.period?.slice(0, 40) ?? null, current: e.current }));
+}
+
 export function sanitizeProfileState(v: unknown): ProfileState | null {
   if (!isObj(v) || v.version !== 1) return null;
   const p = v.profile;
   let profile: CvProfile | null = null;
   if (p !== null) {
     if (!isObj(p) || typeof p.fileName !== 'string' || typeof p.modifiedMs !== 'number' || !Array.isArray(p.weights)) return null;
-    const weights = p.weights.filter((w): w is { domain: never; weight: number } => isObj(w) && isDomainId(w.domain) && typeof w.weight === 'number');
-    profile = { fileName: p.fileName, modifiedMs: p.modifiedMs, weights, computedAt: typeof p.computedAt === 'number' ? p.computedAt : 0 };
+    profile = {
+      fileName: p.fileName,
+      modifiedMs: p.modifiedMs,
+      ...(typeof p.sizeBytes === 'number' ? { sizeBytes: p.sizeBytes } : {}),
+      weights: sanitizeWeights(p.weights),
+      computedAt: typeof p.computedAt === 'number' ? p.computedAt : 0,
+      // Profiles written before the domain registry have none of these; they count as automatic.
+      source: p.source === 'fallback' ? 'fallback' : 'auto',
+      evidence: sanitizeEvidence(p.evidence),
+      notice: typeof p.notice === 'string' ? p.notice : null,
+    };
   }
-  return { version: 1, profile, lastProblem: typeof v.lastProblem === 'string' ? v.lastProblem : null };
+  const m = v.manual;
+  const manual = isObj(m) && typeof m.setAt === 'number' && sanitizeWeights(m.weights).length > 0 ? { weights: sanitizeWeights(m.weights), setAt: m.setAt } : null;
+  return { version: 1, profile, lastProblem: typeof v.lastProblem === 'string' ? v.lastProblem : null, manual };
 }
 
 const isStrOrNull = (v: unknown) => v === null || typeof v === 'string';

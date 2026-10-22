@@ -16,7 +16,7 @@ import {
 import { enabledProviders, type AppConfig, type EmployerSegment, type ProviderInfo, type WatchlistEntry } from './config.js';
 import { RuleBasedClassifier } from './news/classifier.js';
 import { buildNewsCards } from './news/pipeline.js';
-import type { AppStores, HealthState } from './state/appState.js';
+import { effectiveProfile, type AppStores, type HealthState } from './state/appState.js';
 import { NEEDS_ATTENTION_AFTER } from './refresh.js';
 
 export { companyKey };
@@ -105,7 +105,8 @@ export function buildView(input: ViewInput): ViewModel {
   };
   if (input.configError || !config) return { ui, data };
 
-  const { profile, lastProblem } = stores.profile.value;
+  const { lastProblem } = stores.profile.value;
+  const profile = effectiveProfile(stores.profile.value);
   const weights = profile?.weights ?? [];
   const { visited, seen, removed, useful } = stores.interactions.value;
   const providers = enabledProviders(config);

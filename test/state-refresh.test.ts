@@ -174,6 +174,27 @@ describe('mock data', () => {
   });
 });
 
+describe('profile state', () => {
+  it('keeps evidence, the source and a manual choice across a restart', () => {
+    const stores = new AppStores(dir);
+    stores.profile.set({
+      version: 1,
+      profile: { fileName: 'cv.pdf', modifiedMs: 1, sizeBytes: 2048, computedAt: 5, weights: [{ domain: 'healthcare-nursing', weight: 100 }], source: 'auto', evidence: [{ domain: 'healthcare-nursing', label: 'Pflegefachkraft', kind: 'title', period: '2020 to now', current: true }], notice: null },
+      lastProblem: null,
+      manual: { weights: [{ domain: 'social-work', weight: 100 }], setAt: 9 },
+    });
+    const again = new AppStores(dir).profile.value;
+    expect(again.profile?.evidence?.[0].label).toBe('Pflegefachkraft');
+    expect(again.profile?.sizeBytes).toBe(2048);
+    expect(again.manual).toEqual({ weights: [{ domain: 'social-work', weight: 100 }], setAt: 9 });
+  });
+
+  it('reads profiles written before evidence existed as automatic', () => {
+    writeJsonAtomic(join(dir, 'profile.json'), { version: 1, profile: { fileName: 'cv.pdf', modifiedMs: 1, computedAt: 2, weights: [{ domain: 'telecom', weight: 100 }] }, lastProblem: null });
+    expect(new AppStores(dir).profile.value).toMatchObject({ profile: { source: 'auto', evidence: [], notice: null }, manual: null });
+  });
+});
+
 describe('view', () => {
   it('shows the empty state before the first refresh and a config error screen', () => {
     const stores = new AppStores(dir);

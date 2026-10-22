@@ -4,6 +4,7 @@
 // (files, network, Electron) comes in through EngineDeps.
 
 import type { AppConfig, EmployerSegment, WatchlistEntry } from './config.js';
+import type { DomainRegistry } from './domains.js';
 import {
   toCompanySignals,
   toDomainProfile,
@@ -20,8 +21,8 @@ import type { NewsProvider } from './news/provider.js';
 import type { Clock, Translator } from './ports.js';
 import { runRefresh, type CvProvider } from './refresh.js';
 import { companyKey } from './shared/ordering.js';
-import type { StatusMessage, ViewModel } from './shared/types.js';
-import type { AppStores } from './state/appState.js';
+import type { DomainWeight, StatusMessage, ViewModel } from './shared/types.js';
+import { effectiveProfile, type AppStores } from './state/appState.js';
 import { buildView } from './view.js';
 
 export interface EngineInputs {
@@ -174,6 +175,26 @@ export class ExpertEngine {
     }
   }
 
+  // ---- Domains chosen by hand ----------------------------------------------------------------
+
+  /**
+   * Replaces the automatic domain mix with the user's choice: 1 to 4 known domains with positive
+   * shares, normalised to whole numbers summing to 100. Returns an error text or null.
+   */
+  setManualDomains(choice: ReadonlyArray<{ domain: string; weight: number }>): string | null {
+    const inputs = this.inputs;
+    if (!inputs.ok) return 'The configuration has problems; fix it first.';
+    const weights = normaliseManualWeights(choice, inputs.config.domains);
+    if (typeof weights === 'string') return weights;
+    this.deps.stores.profile.update((p) => ({ ...p, manual: { weights, setAt: this.deps.now() } }));
+    return null;
+  }
+
+  /** Back to the mix computed from the CV. */
+  clearManualDomains(): void {
+    this.deps.stores.profile.update((p) => ({ ...p, manual: null }));
+  }
+
   // ---- Contracts ---------------------------------------------------------------------------
 
   private label(domain: string): string {
@@ -182,7 +203,7 @@ export class ExpertEngine {
   }
 
   domainProfile(): DomainProfile | null {
-    const profile = this.deps.stores.profile.value.profile;
+    const profile = effectiveProfile(this.deps.stores.profile.value);
     return profile ? toDomainProfile(profile, (d) => this.label(d)) : null;
   }
 
@@ -197,4 +218,33 @@ export class ExpertEngine {
   sourceHealth(): SourceHealth {
     return toSourceHealth(this.view().data.sourceHealth);
   }
+}
+
+export const MAX_MANUAL_DOMAINS = 4;
+
+/** Checks and normalises a hand-made domain choice (largest remainder, ties in the given order). */
+export function normaliseManualWeights(choice: ReadonlyArray<{ domain: string; weight: number }>, registry: DomainRegistry): DomainWeight[] | string {
+  const picked = choice.filter((c) => c.weight > 0);
+  if (picked.length === 0) return 'Choose at least one domain.';
+  if (picked.length > MAX_MANUAL_DOMAINS) return `Choose at most ${MAX_MANUAL_DOMAINS} domains.`;
+  const seen = new Set<string>();
+  for (const c of picked) {
+    if (!registry.has(c.domain)) return `Unknown domain "${c.domain}".`;
+    if (seen.has(c.domain)) return `"${c.domain}" is listed twice.`;
+    if (!Number.isFinite(c.weight)) return 'Shares must be numbers.';
+    seen.add(c.domain);
+  }
+  const total = picked.reduce((a, c) => a + c.weight, 0);
+  const exact = picked.map((c, i) => ({ domain: c.domain, i, exact: (c.weight / total) * 100 }));
+  const out = exact.map((e) => ({ ...e, weight: Math.floor(e.exact) }));
+  let left = 100 - out.reduce((a, o) => a + o.weight, 0);
+  for (const o of [...out].sort((a, b) => b.exact - b.weight - (a.exact - a.weight) || a.i - b.i)) {
+    if (left <= 0) break;
+    o.weight += 1;
+    left -= 1;
+  }
+  return out
+    .filter((o) => o.weight > 0)
+    .sort((a, b) => b.weight - a.weight || a.i - b.i)
+    .map(({ domain, weight }) => ({ domain, weight }));
 }

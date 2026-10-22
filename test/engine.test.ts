@@ -77,3 +77,27 @@ describe('ExpertEngine', () => {
     expect(e.view().ui.configError).toBe('config.json has problems');
   });
 });
+
+describe('domains chosen by hand', () => {
+  it('replaces the automatic mix, survives a Refresh and goes back on request', async () => {
+    const { e } = engine();
+    await e.refresh();
+    const automatic = e.view().data.profile!.weights;
+    expect(e.setManualDomains([{ domain: 'healthcare-nursing', weight: 2 }, { domain: 'social-work', weight: 1 }])).toBeNull();
+    expect(e.view().data.profile).toMatchObject({ source: 'manual', weights: [{ domain: 'healthcare-nursing', weight: 67 }, { domain: 'social-work', weight: 33 }] });
+    expect(e.domainProfile()?.source).toBe('manual');
+    await e.refresh();
+    expect(e.view().data.profile?.source).toBe('manual');
+    e.clearManualDomains();
+    expect(e.view().data.profile?.weights).toEqual(automatic);
+  });
+
+  it('refuses unknown, too many or no domains', async () => {
+    const { e } = engine();
+    expect(e.setManualDomains([])).toBe('Choose at least one domain.');
+    expect(e.setManualDomains([{ domain: 'cooking', weight: 1 }])).toBe('Unknown domain "cooking".');
+    const five = ['medtech', 'telecom', 'consulting', 'public-sector', 'skilled-trades'].map((domain) => ({ domain, weight: 1 }));
+    expect(e.setManualDomains(five)).toBe('Choose at most 4 domains.');
+    expect(e.view().data.profile).toBeNull();
+  });
+});
