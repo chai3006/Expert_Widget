@@ -51,7 +51,9 @@ export class HttpExpertApi implements ExpertApi {
   }
 
   async openExternal(url: string): Promise<void> {
-    if (/^https?:\/\//i.test(url)) window.open(url, '_blank', 'noopener,noreferrer');
+    // globalThis rather than window: the tests type-check this file without DOM types.
+    const open = (globalThis as { open?: (u: string, target: string, features: string) => unknown }).open;
+    if (/^https?:\/\//i.test(url)) open?.(url, '_blank', 'noopener,noreferrer');
   }
 
   removeNews(newsId: string): Promise<void> {
