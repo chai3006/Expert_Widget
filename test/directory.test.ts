@@ -99,6 +99,8 @@ describe('verification rules', () => {
     expect(belongsToCompany('https://ambulant-ost.jobs.personio.de', 'https://www.ambulant-ost.de', 'Ambulant Ost')).toBe(true);
     expect(belongsToCompany('https://anderer-pflegedienst.jobs.personio.de', 'https://www.ambulant-ost.de', 'Ambulant Ost')).toBe(false);
     expect(belongsToCompany('https://www.bmwgroup.jobs/de', 'https://www.bmwgroup.com', 'BMW Group')).toBe(true);
+    expect(belongsToCompany('https://www.webasto.com/de/karriere', 'https://www.webasto-group.com', 'Webasto')).toBe(true);
+    expect(belongsToCompany('https://www.ab.com/jobs', 'https://www.ab-group.com', 'AB')).toBe(false);
     const v = await verifyCompany(company('Ambulant Ost', 'https://www.ambulant-ost.de', 'https://ambulant-ost.jobs.personio.de'), [], web(PAGES));
     expect(v.status).toBe('verified');
   });

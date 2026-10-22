@@ -72,6 +72,9 @@ export function belongsToCompany(finalUrl: string, website: string, name: string
   const siteHost = new URL(website).hostname;
   if (registrableDomain(finalHost) === registrableDomain(siteHost)) return true;
   if (brandOf(finalHost) === brandOf(siteHost) && brandOf(siteHost).length >= 3) return true;
+  // "webasto-group.com" → "webasto.com": one brand is the other plus a dash and a suffix.
+  const [short, long] = [brandOf(finalHost), brandOf(siteHost)].sort((x, y) => x.length - y.length);
+  if (short.length >= 4 && long.startsWith(`${short}-`)) return true;
   if (JOB_BOARD_DOMAINS.has(registrableDomain(finalHost))) {
     const brand = brandOf(siteHost);
     const nameKey = normaliseName(name).replace(/\s+/g, '');
