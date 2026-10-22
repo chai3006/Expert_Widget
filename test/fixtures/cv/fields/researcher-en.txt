@@ -1,0 +1,16 @@
+Dr. Lena Science
+Curriculum Vitae
+
+Research Experience
+2022 – present   Postdoctoral Researcher, Institute for Climate Physics, university research group
+  - Research project on atmospheric modelling funded by the DFG (third-party funding)
+  - Publications in peer-reviewed journals, conference contributions, supervision of doctoral students
+2018 – 2022   Doctoral Researcher (PhD candidate), Max-Planck research school
+  - Dissertation on cloud microphysics, teaching assistant for lectures and seminars
+
+Education
+2018 – 2022   PhD (Dr. rer. nat.) in Physics
+2012 – 2018   B.Sc. and M.Sc. Physics
+
+Skills
+Python, Fortran, scientific computing, statistics

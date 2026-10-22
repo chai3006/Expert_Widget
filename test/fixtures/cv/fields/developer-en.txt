@@ -1,0 +1,18 @@
+Erik Example
+Curriculum Vitae
+
+Summary
+Backend developer who builds web services and data pipelines in the cloud.
+
+Work Experience
+Jan 2021 – Present   Senior Software Engineer, online marketplace startup, Berlin
+  - Microservices in TypeScript and Python on Kubernetes, AWS, PostgreSQL and SQL tuning
+  - Introduced CI/CD with Docker and GitHub Actions, on-call DevOps rotation
+Mar 2017 – Dec 2020   Software Developer, IT service company
+  - Java and Spring backend development, REST APIs, Linux servers
+
+Education
+2013 – 2017   B.Sc. Computer Science, Technical University
+
+Skills
+TypeScript, Python, Java, Kubernetes, Docker, AWS, SQL, Git, Machine Learning basics

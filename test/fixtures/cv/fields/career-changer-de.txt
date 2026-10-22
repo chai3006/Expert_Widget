@@ -1,0 +1,16 @@
+Olga Umsteiger
+Lebenslauf
+
+Berufserfahrung
+seit 09/2021   Softwareentwicklerin (Junior), IT-Dienstleister
+  - Webentwicklung mit TypeScript und React, Backend mit Java und SQL-Datenbanken
+  - Arbeit im Scrum-Team, Code-Reviews mit Git, Tests und Deployment mit Docker
+2010 – 2019   Bankkauffrau und Privatkundenberaterin, Volksbank Musterstadt
+  - Anlageberatung, Baufinanzierung, Kreditbearbeitung, Zahlungsverkehr
+
+Ausbildung
+2019 – 2021   Umschulung zur Fachinformatikerin für Anwendungsentwicklung (IHK)
+2007 – 2010   Ausbildung zur Bankkauffrau
+
+Kenntnisse
+TypeScript, React, Java, SQL, Git, Linux
