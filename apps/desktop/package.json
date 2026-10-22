@@ -1,0 +1,7 @@
+{
+  "name": "@expert/desktop",
+  "version": "0.1.0",
+  "private": true,
+  "description": "The Electron shell: main process, preload, tray, window and start at login.",
+  "comment": "Not an npm workspace (yet): the root package.json builds everything with tsc, so electron-builder packaging stays unchanged. This file documents the package boundary."
+}

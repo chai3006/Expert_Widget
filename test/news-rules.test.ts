@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { RuleBasedClassifier } from '../src/main/news/classifier.js';
-import { canonicalUrl, dedupe, isNearDuplicateHeadline } from '../src/main/news/dedupe.js';
-import { allocateSlots, selectForProfile, type Selectable } from '../src/main/news/distribute.js';
-import { isExpired } from '../src/main/news/expiry.js';
-import type { RawItem } from '../src/main/news/types.js';
+import { RuleBasedClassifier } from '../packages/core/src/news/classifier.js';
+import { canonicalUrl, dedupe, isNearDuplicateHeadline } from '../packages/core/src/news/dedupe.js';
+import { allocateSlots, selectForProfile, type Selectable } from '../packages/core/src/news/distribute.js';
+import { isExpired } from '../packages/core/src/news/expiry.js';
+import type { RawItem } from '../packages/core/src/news/types.js';
 import { defaultConfig } from './helpers/config.js';
 
 const DAY = 24 * 3600 * 1000;

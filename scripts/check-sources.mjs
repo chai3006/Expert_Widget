@@ -17,13 +17,14 @@ import { fileURLToPath } from 'node:url';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const require = createRequire(import.meta.url);
-const main = (p) => require(join(root, 'dist', 'main', p));
+const core = (p) => require(join(root, 'dist', 'packages', 'core', 'src', p));
+const nodePkg = (p) => require(join(root, 'dist', 'packages', 'node', 'src', p));
 
-const { validateConfig, parseJson } = main('config.js');
-const { FeedProvider, GdeltProvider, GoogleNewsProvider, HOST_INTERVALS_MS } = main('providers.js');
-const { PoliteFetcher } = main('news/fetcher.js');
-const { buildProviderQuery } = main('news/adapters/search.js');
-const { checkContract } = main('news/provider.js');
+const { validateConfig, parseJson } = core('config.js');
+const { FeedProvider, GdeltProvider, GoogleNewsProvider, HOST_INTERVALS_MS } = core('news/providers.js');
+const { PoliteFetcher } = nodePkg('fetcher.js');
+const { buildProviderQuery } = core('news/adapters/search.js');
+const { checkContract } = core('news/provider.js');
 
 const args = process.argv.slice(2);
 const arg = (name) => {

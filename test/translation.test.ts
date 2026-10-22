@@ -2,12 +2,12 @@ import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import type { NewsProvider } from '../src/main/news/provider.js';
-import type { ParsedItem, RawItem } from '../src/main/news/types.js';
-import { runRefresh, translateNew, type CvProvider } from '../src/main/refresh.js';
-import { AppStores, type SourceCache } from '../src/main/state/appState.js';
-import { looksGerman, unpacked, type Translator } from '../src/main/translate/translator.js';
-import { buildView } from '../src/main/view.js';
+import type { NewsProvider } from '../packages/core/src/news/provider.js';
+import type { ParsedItem, RawItem } from '../packages/core/src/news/types.js';
+import { runRefresh, translateNew, type CvProvider } from '../packages/core/src/refresh.js';
+import { AppStores, type SourceCache } from '../packages/core/src/state/appState.js';
+import { looksGerman, unpacked, type Translator } from '../packages/node/src/translate/translator.js';
+import { buildView } from '../packages/core/src/view.js';
 import { defaultConfig } from './helpers/config.js';
 
 const config = defaultConfig();

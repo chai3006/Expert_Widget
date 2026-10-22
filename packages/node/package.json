@@ -1,0 +1,7 @@
+{
+  "name": "@expert/node",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Node adapters for @expert/core: CV text extraction, JSON file state, disk HTTP cache, polite fetcher, offline translator.",
+  "comment": "Not an npm workspace (yet): the root package.json builds everything with tsc, so electron-builder packaging stays unchanged. This file documents the package boundary."
+}

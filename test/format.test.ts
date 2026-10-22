@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { eventDateLabel, lastUpdatedLabel, shortDateLabel } from '../src/shared/format.js';
+import { eventDateLabel, lastUpdatedLabel, shortDateLabel } from '../packages/core/src/shared/format.js';
 
 // All dates are local time, built with the Date(y, m, d, h, min) constructor.
 const now = new Date(2026, 9, 10, 16, 30).getTime(); // Sat 10 Oct 2026, 16:30

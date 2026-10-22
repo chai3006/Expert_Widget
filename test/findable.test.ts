@@ -2,9 +2,9 @@ import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { isLinuxAutostartOn, linuxAutostartPath, quoteExecArg, setLinuxAutostart } from '../src/main/autostart.js';
-import { validateConfig } from '../src/main/config.js';
-import { AppStores } from '../src/main/state/appState.js';
+import { isLinuxAutostartOn, linuxAutostartPath, quoteExecArg, setLinuxAutostart } from '../apps/desktop/src/autostart.js';
+import { validateConfig } from '../packages/core/src/config.js';
+import { AppStores } from '../packages/core/src/state/appState.js';
 import {
   AUTOSTART_FLAG,
   autostartLabel,
@@ -16,7 +16,7 @@ import {
   shouldApplyAutostartDefault,
   startupMode,
   toggleAction,
-} from '../src/main/windowBehaviour.js';
+} from '../apps/desktop/src/windowBehaviour.js';
 import { defaultConfigJson } from './helpers/config.js';
 
 let dir: string;

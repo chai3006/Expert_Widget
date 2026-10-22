@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { domainOrder, expandEnvVars, expandPath, parseJson, validateConfig, validateEmployers } from '../src/main/config.js';
+import { domainOrder, expandEnvVars, expandPath, parseJson, validateConfig, validateEmployers } from '../packages/core/src/config.js';
 import { defaultConfigJson, defaultEmployers } from './helpers/config.js';
 
 describe('config validation', () => {

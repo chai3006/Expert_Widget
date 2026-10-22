@@ -2,15 +2,15 @@ import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSy
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { enabledProviders, type ProviderInfo } from '../src/main/config.js';
-import { MockCvProvider, mockProviders } from '../src/main/mock/mockData.js';
-import { FetchError } from '../src/main/news/fetcher.js';
-import type { NewsProvider } from '../src/main/news/provider.js';
-import type { ParsedItem } from '../src/main/news/types.js';
-import { runRefresh, type CvProvider } from '../src/main/refresh.js';
-import { AppStores } from '../src/main/state/appState.js';
-import { writeJsonAtomic } from '../src/main/state/jsonStore.js';
-import { buildView } from '../src/main/view.js';
+import { enabledProviders, type ProviderInfo } from '../packages/core/src/config.js';
+import { MockCvProvider, mockProviders } from '../packages/core/src/mock/mockData.js';
+import { FetchError } from '../packages/node/src/fetcher.js';
+import type { NewsProvider } from '../packages/core/src/news/provider.js';
+import type { ParsedItem } from '../packages/core/src/news/types.js';
+import { runRefresh, type CvProvider } from '../packages/core/src/refresh.js';
+import { AppStores } from '../packages/core/src/state/appState.js';
+import { writeJsonAtomic } from '../packages/node/src/state/jsonStore.js';
+import { buildView } from '../packages/core/src/view.js';
 import { defaultConfig, defaultEmployers, defaultWatchlist } from './helpers/config.js';
 
 let dir: string;

@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "description": "Desktop widget for Windows, macOS and Linux: CV-driven employer list and engineering hiring news for Germany",
   "private": true,
-  "main": "dist/main/main.js",
+  "main": "dist/apps/desktop/src/main.js",
   "author": "Venkata Chirravuri",
   "license": "UNLICENSED",
   "scripts": {
@@ -37,7 +37,7 @@
       "!dist/**/*.map"
     ],
     "asarUnpack": [
-      "dist/main/translate/**",
+      "dist/packages/node/src/translate/**",
       "node_modules/@browsermt/bergamot-translator/worker/**",
       "assets/translation/**"
     ],

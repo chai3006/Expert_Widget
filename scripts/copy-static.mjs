@@ -4,8 +4,8 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
-const src = join(root, 'src', 'renderer');
-const out = join(root, 'dist', 'ui', 'renderer');
+const src = join(root, 'packages', 'ui', 'src');
+const out = join(root, 'dist', 'ui', 'packages', 'ui', 'src');
 mkdirSync(out, { recursive: true });
 
 for (const entry of readdirSync(src, { withFileTypes: true })) {

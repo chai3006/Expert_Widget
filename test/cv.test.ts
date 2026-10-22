@@ -2,12 +2,12 @@ import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { domainOrder } from '../src/main/config.js';
-import { findCv } from '../src/main/cv/cvFiles.js';
-import { computeDomainMix, RuleBasedCvProfiler } from '../src/main/cv/cvProfiler.js';
-import { CvReadError, decodeText, extractCvText } from '../src/main/cv/extract.js';
-import { LocalCvProvider } from '../src/main/providers.js';
-import type { DomainId } from '../src/shared/types.js';
+import { domainOrder } from '../packages/core/src/config.js';
+import { findCv } from '../packages/node/src/cv/cvFiles.js';
+import { computeDomainMix, RuleBasedCvProfiler } from '../packages/core/src/cv/cvProfiler.js';
+import { CvReadError, decodeText, extractCvText } from '../packages/node/src/cv/extract.js';
+import { LocalCvProvider } from '../packages/core/src/news/providers.js';
+import type { DomainId } from '../packages/core/src/shared/types.js';
 import { defaultConfig, fixture } from './helpers/config.js';
 import { makeDocx, makePdf } from './helpers/docs.js';
 

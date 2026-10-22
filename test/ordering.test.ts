@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { orderCompanies, orderNews } from '../src/shared/ordering.js';
-import { buildEmployerView } from '../src/main/view.js';
+import { orderCompanies, orderNews } from '../packages/core/src/shared/ordering.js';
+import { buildEmployerView } from '../packages/core/src/view.js';
 import { defaultEmployers } from './helpers/config.js';
 
 const chip = (name: string, visitedAt: number | null) => ({ key: name.toLowerCase(), name, careerUrl: `https://${name}.example`, visitedAt });

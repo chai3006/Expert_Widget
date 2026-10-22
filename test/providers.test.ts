@@ -2,8 +2,8 @@ import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { enabledProviders, type AdapterId, type SourceTopic } from '../src/main/config.js';
-import { ADAPTERS } from '../src/main/news/adapters/index.js';
+import { enabledProviders, type AdapterId, type SourceTopic } from '../packages/core/src/config.js';
+import { ADAPTERS } from '../packages/core/src/news/adapters/index.js';
 import {
   buildProviderQuery,
   decodeGoogleNewsLink,
@@ -13,14 +13,14 @@ import {
   isSearchableKeyword,
   parseGdelt,
   parseGoogleNews,
-} from '../src/main/news/adapters/search.js';
-import { checkContract, ContractError, type NewsProvider, type ProviderQuery } from '../src/main/news/provider.js';
-import type { ParsedItem } from '../src/main/news/types.js';
-import { GdeltProvider, GoogleNewsProvider } from '../src/main/providers.js';
-import { SEARCH_MIN_GAP_MS, runRefresh, uncoveredDomains, type CvProvider } from '../src/main/refresh.js';
-import { AppStores } from '../src/main/state/appState.js';
-import { buildView } from '../src/main/view.js';
-import type { PoliteFetcher } from '../src/main/news/fetcher.js';
+} from '../packages/core/src/news/adapters/search.js';
+import { checkContract, ContractError, type NewsProvider, type ProviderQuery } from '../packages/core/src/news/provider.js';
+import type { ParsedItem } from '../packages/core/src/news/types.js';
+import { GdeltProvider, GoogleNewsProvider } from '../packages/core/src/news/providers.js';
+import { SEARCH_MIN_GAP_MS, runRefresh, uncoveredDomains, type CvProvider } from '../packages/core/src/refresh.js';
+import { AppStores } from '../packages/core/src/state/appState.js';
+import { buildView } from '../packages/core/src/view.js';
+import type { PoliteFetcher } from '../packages/node/src/fetcher.js';
 import { defaultConfig, defaultEmployers, fixture } from './helpers/config.js';
 
 const config = defaultConfig();

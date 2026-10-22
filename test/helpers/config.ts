@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { validateConfig, validateEmployers, validateWatchlist, type AppConfig, type EmployerSegment, type WatchlistEntry } from '../../src/main/config.js';
+import { validateConfig, validateEmployers, validateWatchlist, type AppConfig, type EmployerSegment, type WatchlistEntry } from '../../packages/core/src/config.js';
 
 export const ROOT = join(__dirname, '..', '..');
 export const FIXTURES = join(ROOT, 'test', 'fixtures');

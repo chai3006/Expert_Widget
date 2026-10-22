@@ -8,5 +8,5 @@
     "types": [],
     "outDir": "dist/ui"
   },
-  "include": ["src/renderer/**/*.ts", "src/shared/**/*.ts"]
+  "include": ["packages/ui/src/**/*.ts", "packages/core/src/shared/**/*.ts"]
 }

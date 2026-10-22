@@ -1,8 +1,8 @@
 // Source adapters against saved copies of the real pages (fetched October 2026), no network.
 
 import { describe, expect, it } from 'vitest';
-import { parseEurofound, parseIngenieurRecruitingTag, parseMessenDe, parseProduktionDe } from '../src/main/news/adapters/html.js';
-import { parseFeed } from '../src/main/news/adapters/rss.js';
+import { parseEurofound, parseIngenieurRecruitingTag, parseMessenDe, parseProduktionDe } from '../packages/core/src/news/adapters/html.js';
+import { parseFeed } from '../packages/core/src/news/adapters/rss.js';
 import { fixture } from './helpers/config.js';
 
 describe('RSS adapter', () => {
